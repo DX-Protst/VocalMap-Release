@@ -1,3 +1,5 @@
+<img width="1516" height="1523" alt="icon" src="https://github.com/user-attachments/assets/f3b678ec-0c1d-4edc-9644-9b5537762d9a" />
+
 # VocalMap 官方正式版 🚀
 
 欢迎来到 VocalMap 的正式商业版本！这是一款专为声乐教学、歌手训练和专业音频制作打造的桌面级声乐诊断与音轨分离工作站。
@@ -40,3 +42,4 @@
 
 > [!NOTE]
 > 如果您的电脑拥有 NVIDIA 显卡，程序将在下载环境后自动启用 CUDA 并行加速，复杂音轨分离以及音频推演的速度将获得数十倍的降维打击级提升！
+
