@@ -1,0 +1,75 @@
+<div class="modal-overlay" id="settingsModal">
+        <div class="modal-content glass-panel" style="max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; width: 500px; max-width: 95%;">
+            <h2 style="margin-top: 0; margin-bottom: 20px; font-weight: 800; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px; flex-shrink: 0; color: var(--text-main);"><i data-lucide="sliders" class="lucide-icon"></i> 声学引擎高级参数设置</h2>
+            
+            <div class="settings-scroll-area custom-scrollbar" style="flex: 1; overflow-y: auto; padding-right: 8px;">
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">麦克风输入设备 (Microphone)</span>
+                    </div>
+                    <div class="setting-desc">选择您用于录音 and 演唱的麦克风硬件设备。更改后建议重新启动声学引擎以完成连接桥接。</div>
+                    <select id="selectMicrophone" class="custom-select">
+                        <option value="default">默认音频输入设备</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">响度激活门限 (Loudness Gate)</span>
+                        <span class="setting-value" id="valLoudnessGate" style="color: var(--primary-cyan); font-weight: 800;">12</span>
+                    </div>
+                    <div class="setting-desc">触发系统开始捕捉音高的最低音量门限。若外界噪音较大，可将该值调高（如 15-20）以杜绝环境音导致的偶发跳动。<br><b>推荐基准值: 12</b></div>
+                    <input type="range" id="sliderLoudnessGate" min="5" max="30" step="1" value="12">
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">发声纯净度门限 (Clarity Threshold)</span>
+                        <span class="setting-value" id="valClarityThreshold" style="color: var(--primary-cyan); font-weight: 800;">0.65</span>
+                    </div>
+                    <div class="setting-desc">控制系统对“气流漏气/气泡音/弱发声”的捕获灵敏度。若做弱边缘振动或哼鸣练习，可将此值调低（如 0.4-0.5）。<br><b>推荐基准值: 0.65</b></div>
+                    <input type="range" id="sliderClarityThreshold" min="0.30" max="1.00" step="0.05" value="0.65">
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">底噪降噪追踪门限 (Noise Tracking)</span>
+                        <span class="setting-value" id="valNoiseTracking" style="color: var(--primary-cyan); font-weight: 800;">20</span>
+                    </div>
+                    <div class="setting-desc">降噪门限追踪深度。当输入音频低于该阈值时判定为无声状态并强制归零，防止音高曲线上出现“尾音拖尾”杂点。<br><b>推荐基准值: 20</b></div>
+                    <input type="range" id="sliderNoiseTracking" min="10" max="40" step="1" value="20">
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">钢琴示范音量 (Piano Volume)</span>
+                        <span class="setting-value" id="valPianoVolume" style="color: var(--primary-cyan); font-weight: 800;">1.0</span>
+                    </div>
+                    <div class="setting-desc">调节训练营中钢琴提示音的播放音量。<br><b>推荐基准值: 1.0</b></div>
+                    <input type="range" id="sliderPianoVolume" min="0.0" max="2.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">录音回放音量 (Playback Volume)</span>
+                        <span class="setting-value" id="valPlaybackVolume" style="color: var(--primary-cyan); font-weight: 800;">1.0</span>
+                    </div>
+                    <div class="setting-desc">调节录音回放界面的原声播放音量。<br><b>推荐基准值: 1.0</b></div>
+                    <input type="range" id="sliderPlaybackVolume" min="0.0" max="2.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="setting-group" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--glass-border);">
+                    <div class="setting-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="setting-label" style="color: var(--primary-cyan); font-weight: 600;"><i data-lucide="zap" class="lucide-icon" style="width: 16px; height: 16px; margin-right: 6px;"></i>前端高性能渲染模式 (Performance Mode)</span>
+                        <input type="checkbox" id="togglePerformanceMode" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary-cyan);">
+                    </div>
+                    <div class="setting-desc">开启后，系统将启用渲染解耦、钢琴卷帘背景 Canvas 离屏缓存、滑动窗口平均算法提速以及双通绘制模拟发声光晕。可极大降低 CPU 负荷与发热。</div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 16px; flex-shrink: 0;">
+                <button class="btn-ghost" onclick="resetSettings()">恢复默认设置</button>
+                <button class="btn-primary" onclick="closeSettings()">确定并应用</button>
+            </div>
+        </div>
+    </div>

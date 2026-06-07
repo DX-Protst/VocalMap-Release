@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 核心收费源码隐藏 (重点！仅提交编译后的 .pyd 黑盒)
+backend/acoustic_engine/analyzer.py
+backend/separation.py
+
+# 许可证与本地数据库
+backend/license.key
+backend/cdk_data.json
+*.pem
+*.key
+
+# 发布脚本与包含服务器信息的敏感配置
+scripts/release_auto.ps1
+*.bat
+
+# Node / Web
+node_modules/
+.npm
+package-lock.json
+
+# Tauri / Rust
+src-tauri/target/
+# 不要忽略 src-tauri/Cargo.lock，它是构建重现必需的
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 模型与大文件
+model/
+*.ckpt
+*.pt
+*.pth
+*.onnx
+
+# 运行时日志与缓存
+*.log
+scratch/
+python_runtime/

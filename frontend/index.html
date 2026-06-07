@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VocalMap - 专业级声学多维诊断平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="js/lucide.min.js"></script>
+</head>
+<body>
+
+        <div class="top-nav glass-panel">
+        <button onclick="switchTab('free')" id="tabBtnFree" class="btn-tab active"><i data-lucide="activity" class="lucide-icon"></i> 实时监视</button>
+        <button onclick="switchTab('pro')" id="tabBtnPro" class="btn-tab"><i data-lucide="crown" class="lucide-icon"></i> Pro 核心功能</button>
+        
+        <span id="wsStatus" class="ml-auto font-semibold text-14 text-red">连接状态: 已断开</span>
+
+        <!-- ===== 检查更新区域 ===== -->
+        <div id="updateZone" class="flex items-center gap-8 ml-12 pl-12" style="border-left: 1px solid var(--glass-border);">
+            <span id="updateVersionLabel" class="text-muted text-13 font-mono">v--</span>
+            <button id="btnCheckUpdate" class="btn-ghost">检查更新</button>
+            <div id="updateProgressWrapper" class="hidden overflow-hidden rounded-6" style="width: 120px; height: 6px; background: rgba(255,255,255,0.05);">
+                <div id="updateProgressBar" class="h-full rounded-6 transition-all" style="width: 0%; background: var(--primary-cyan); box-shadow: 0 0 10px var(--primary-cyan);"></div>
+            </div>
+            <span id="updateStatusText" class="text-muted text-12 whitespace-nowrap"></span>
+            <button id="btnInstallUpdate" class="btn-primary hidden px-14 py-6 text-13">重启安装</button>
+        </div>
+
+        <button id="btnSettings" class="btn-ghost ml-auto" onclick="openSettings()"><i data-lucide="sliders" class="lucide-icon"></i> 引擎参数</button>
+        <button id="btnThemeToggle" class="btn-ghost ml-6 p-10 flex items-center justify-center rounded-full relative" style="width: 42px; height: 42px;" onclick="toggleTheme()" aria-label="Toggle Theme">
+            <svg id="iconSun" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            <svg id="iconMoon" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+        <button id="btnHelp" class="btn-ghost ml-6 p-10 flex items-center justify-center rounded-full" style="width: 42px; height: 42px;" onclick="openHelp()" title="使用帮助" aria-label="Help">
+            <i data-lucide="help-circle" class="lucide-icon m-0" style="width: 20px; height: 20px;"></i>
+        </button>
+        <button id="startBtn" class="btn-cyan ml-6"><i data-lucide="zap" class="lucide-icon"></i> 启动引擎</button>
+    </div>
+
+
+    <!-- ==================== 滩晶綉嗅蝱 ==================== -->
+    <div id="freeWorkspace" class="w-full max-w-1320 flex gap-24 flex-1 overflow-hidden box-border">
+        
+        <div class="glass-panel flex-1 h-full flex flex-col" style="min-width: 0;">
+            <div class="canvas-container flex-1 relative" style="border-radius: 12px 12px 0 0;">
+                <canvas id="pitchCanvas" width="850" height="520"></canvas>
+                <div id="pitchTooltip" class="absolute hidden pointer-events-none text-cyan text-12 font-bold z-10 whitespace-nowrap font-mono py-6 px-8 rounded-6" style="background:rgba(0,0,0,0.8); border: 1px solid var(--primary-cyan);"></div>
+            </div>
+            
+            <div id="recordControlBar" class="flex items-center px-16 gap-12" style="height: 60px; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.1); border-radius: 0 0 12px 12px;">
+                <button id="btnToggleRecord" class="btn-ghost text-red" style="border-color: rgba(255,82,82,0.3);"><i data-lucide="circle-dot" class="lucide-icon"></i> 开始监视录制</button>
+                <div style="width: 1px; height: 30px; background: var(--glass-border); margin: 0 4px;"></div>
+                
+                <div id="playbackControls" class="hidden flex-1 items-center gap-12">
+                    <button id="btnPlayPause" class="btn-ghost px-12 py-6" style="width: 80px;"><i data-lucide="play" class="lucide-icon"></i> 播放</button>
+                    <input type="range" id="playbackSlider" min="0" max="100" value="0" class="flex-1 m-0">
+                    <span id="playbackTime" class="font-mono text-13 text-muted text-right" style="width: 100px;">0.0s / 0.0s</span>
+                    <button id="btnClosePlayback" class="btn-ghost text-red px-10 py-6" title="关闭回放"><i data-lucide="x" class="lucide-icon"></i> 关闭</button>
+                </div>
+                <div id="recordStatusText" class="hidden text-red text-13 font-bold flex-1" style="animation: pulse 1.5s infinite;">录制中... 0.0s</div>
+
+                <div class="ml-auto flex gap-8">
+                    <button id="btnExportRecord" class="btn-ghost px-10 py-6" title="导出"><i data-lucide="download" class="lucide-icon"></i> 导出</button>
+                    <button id="btnImportRecord" class="btn-ghost px-10 py-6" title="导入"><i data-lucide="folder-open" class="lucide-icon"></i> 导入</button>
+                    <input type="file" id="importRecordFile" accept=".json,.vmap" class="hidden">
+                </div>
+            </div>
+        </div>
+        <div class="dashboard glass-panel box-border h-full overflow-y-auto" style="flex: 0 1 460px; min-width: 380px;">
+            <h3 class="dashboard-title">声学监视特征数据</h3>
+
+            <div class="gauge-card glass-panel card-large">
+                <div class="gauge-title">音高 (Pitch)</div>
+                <div id="valPitch" class="pitch-val-empty">--</div>
+                <div class="gauge-desc" id="descPitch">等待发声...</div>
+            </div>
+
+            <div class="gauge-card glass-panel card-medium">
+                <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="gauge-title" style="text-align: left;">音准 (Cents)</div>
+                    <div id="valDev" style="font-size: 28px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; color: var(--text-main);">0</div>
+                    <div class="gauge-desc" id="descDev" style="text-align: left; justify-content: flex-start; height: auto;">等待发声...</div>
+                </div>
+                
+                <div class="v-bar-container">
+                    <div class="v-bar-axis">
+                        <span>+50</span><span>+40</span><span>+30</span><span>+20</span><span>+10</span>
+                        <span style="font-weight: bold; color: var(--text-main);">0</span>
+                        <span>-10</span><span>-20</span><span>-30</span><span>-40</span><span>-50</span>
+                    </div>
+                    <div class="v-bar-ticks"></div>
+                    <div class="v-bar-center-line"></div>
+                    <div id="barFillDev" class="v-bar-fill"></div>
+                </div>
+            </div>
+
+            <div class="gauge-card glass-panel card-small">
+                <div class="gauge-title">响度 (Loud)</div>
+                <div class="gauge-wrapper"><div class="gauge-ring" id="ringLoud"></div><div class="gauge-inner" id="valLoud">0</div></div>
+                <div class="gauge-desc" id="descLoud">正常</div>
+            </div>
+
+            <div class="gauge-card glass-panel card-small">
+                <div class="gauge-title">机能 (H1/H2)</div>
+                <div class="gauge-wrapper"><div class="gauge-ring" id="ringBright"></div><div class="gauge-inner" id="valBright">0</div></div>
+                <div class="gauge-desc" id="descBright">等待发声...</div>
+            </div>
+
+            <div class="gauge-card glass-panel card-small">
+                <div class="gauge-title">纯净 (HNR)</div>
+                <div class="gauge-wrapper"><div class="gauge-ring" id="ringPure"></div><div class="gauge-inner" id="valPure">0</div></div>
+                <div class="gauge-desc" id="descPure">等待发声...</div>
+            </div>
+
+            <div class="gauge-card glass-panel card-small">
+                <div class="gauge-title">稳定 (Jitter)</div>
+                <div class="gauge-wrapper"><div class="gauge-ring" id="ringStab"></div><div class="gauge-inner" id="valStab">0</div></div>
+                <div class="gauge-desc" id="descStab">等待发声...</div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="proWorkspace" style="display: none; position: relative; width: 100%; max-width: 1320px; flex: 1; min-height: 0; box-sizing: border-box; overflow: hidden;">
+        
+        <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+            <button id="btnSubTabSing" onclick="switchProTab('sing')" class="btn-ghost active-mini" style="font-size: 14px; padding: 8px 16px;"><i data-lucide="mic" class="lucide-icon"></i> 歌声检测</button>
+            <button id="btnSubTabTrain" onclick="switchProTab('train')" class="btn-ghost" style="font-size: 14px; padding: 8px 16px;"><i data-lucide="target" class="lucide-icon"></i> 关卡训练营</button>
+            <button id="btnSubTabSep" onclick="switchProTab('sep')" class="btn-ghost" style="font-size: 14px; padding: 8px 16px;"><i data-lucide="split" class="lucide-icon"></i> 音轨分离</button>
+        </div>
+        
+        <!-- �嗆��1: 蝛粹𤦭�嗆�� -->
+        <div id="proStateIdle" class="glass-panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: calc(100% - 60px); text-align: center;">
+            <i data-lucide="mic" style="width: 64px; height: 64px; margin-bottom: 24px; stroke-width: 1.5px; color: var(--primary-purple); filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.45)); display: block;"></i>
+            <h2 style="color: var(--text-main); margin-top: 0; font-weight: 800; font-size: 28px;">歌声全息诊断系统</h2>
+            <p style="color: var(--text-muted); max-width: 500px; line-height: 1.6; font-size: 15px;">点击下方按钮开始录制人声进行诊断，或直接导入本地音频文件进行毫秒级提取，获取五维声学诊断报告。</p>
+            <div style="display: flex; gap: 16px; margin-top: 32px;">
+                <button id="btnStartRecord" class="btn-primary" style="padding: 16px 48px; font-size: 18px; border-radius: 40px; box-shadow: 0 8px 25px rgba(192, 132, 252, 0.4);">
+                    <i data-lucide="mic" class="lucide-icon"></i> 麦克风实时检测
+                </button>
+                <button id="btnImportAudioDetect" class="btn-ghost" style="padding: 16px 32px; font-size: 18px; border-radius: 40px; border: 2px solid var(--primary-cyan); color: var(--primary-cyan); font-weight: bold;">
+                    <i data-lucide="upload" class="lucide-icon"></i> 导入音频检测
+                </button>
+                <input type="file" id="importAudioDetectFile" accept="audio/*" style="display: none;">
+            </div>
+        </div>
+
+        <!-- State 2 -->
+        <div id="proStateRecording" class="glass-panel" style="display: none; flex-direction: column; align-items: center; justify-content: center; height: calc(100% - 60px); text-align: center;">
+            <div style="width: 24px; height: 24px; background-color: #FF5252; border-radius: 50%; animation: pulse 1.5s ease-in-out infinite; margin-bottom: 24px;"></div>
+            <h2 style="color: #FF5252; margin-top: 0; text-shadow: 0 0 15px rgba(255,82,82,0.4);">正在检测歌声... <span id="recordTimer" style="font-family: 'JetBrains Mono', monospace; color: white;">0.0s</span></h2>
+            <p style="color: var(--text-muted);">请对着麦克风歌唱，建议保持稳定的长音或唱一段完整的旋律。</p>
+            <button id="btnStopRecord" style="margin-top: 32px; background: rgba(255,82,82,0.1); border: 2px solid #FF5252; color: #FF5252; padding: 12px 36px; font-size: 16px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: all 0.2s;"><i data-lucide="square" class="lucide-icon"></i> 停止检测并分析</button>
+        </div>
+
+        <!-- �嗆��3: �亙�撅閧內 -->
+        <div id="proStateReport" style="display: none; flex-direction: column; height: calc(100% - 60px);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="color: var(--text-main); margin: 0; font-weight: 800;"><i data-lucide="bar-chart-2" class="lucide-icon"></i> 歌声诊断报告</h2>
+                <div style="display: flex; gap: 12px;">
+                    <button id="btnExportImage" class="btn-primary" style="padding: 8px 16px; border-radius: 8px;"><i data-lucide="camera" class="lucide-icon"></i> 导出报告长图</button>
+                    <button id="btnExportVmap" class="btn-cyan" style="padding: 8px 16px; border-radius: 8px;"><i data-lucide="save" class="lucide-icon"></i> 存为回放项目</button>
+                    <button id="btnResetRecord" class="btn-ghost" style="padding: 8px 16px; border-radius: 8px;"><i data-lucide="refresh-cw" class="lucide-icon"></i> 重新开始检测</button>
+                </div>
+            </div>
+            <div id="reportContent" class="glass-panel" style="flex: 1; padding: 24px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; overflow-y: auto;">
+                <canvas id="radarCanvas" width="340" height="340" style="display: none;"></canvas>
+            </div>
+        </div>
+
+        <!-- �唾膘��氖�Ｘ踎 -->
+        <!-- 音轨分离控制台 -->
+        <div id="proStateSeparation" style="display: none; flex-direction: column; height: calc(100% - 60px);">
+            <!-- 运行设备 -->
+            <div id="sepDeviceBar" class="glass-panel" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; margin-bottom: 20px; font-size: 13px;">
+                <span style="color: var(--text-muted);"><i data-lucide="cpu" class="lucide-icon" style="margin-right: 4px;"></i> 运行设备:</span>
+                <button id="btnGPU" onclick="setDevice('gpu')" class="btn-cyan" style="padding: 6px 16px; font-size: 13px;"><i data-lucide="zap" class="lucide-icon"></i> GPU 加速</button>
+                <button id="btnCPU" onclick="setDevice('cpu')" class="btn-ghost" style="padding: 6px 16px;"><i data-lucide="cpu" class="lucide-icon"></i> CPU 兼容</button>
+                <span style="color: rgba(144, 75, 255, 0.3); font-size: 12px; margin-left: auto;">(首选 GPU，显存需 >6GB)</span>
+            </div>
+
+            <!-- 音轨分离组件 -->
+            <div id="sepPanelsContainer" style="flex: 1; display: flex; gap: 24px; overflow: hidden;">
+                <!-- 左半部分: 6-Stem 乐器分离 -->
+                <div class="glass-panel custom-scrollbar" style="flex: 1; display: flex; flex-direction: column; padding: 24px; overflow-y: auto;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <i data-lucide="drum" class="lucide-icon" style="color: var(--primary-cyan); width: 22px; height: 22px; stroke-width: 2.2px;"></i>
+                        <span style="color: var(--text-main); font-weight: 800; font-size: 16px; letter-spacing: 0.5px;">6-Stem 乐器分离</span>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 12px; margin: 0 0 20px 0;">Logic-RoFormer 专业级乐器与声部离线分离</p>
+                    
+                    <!-- 上传区 -->
+                    <div id="sepInstUploadZone" class="sep-upload-zone">
+                        <i data-lucide="folder-open" style="width: 36px; height: 36px; stroke-width: 1.5px; margin: 0 auto 10px; color: var(--primary-cyan); display: block;"></i>
+                        <p style="color: var(--text-main); margin: 4px 0; font-size: 14px; font-weight: 600;">选择本地音频文件</p>
+                        <p style="color: rgba(255,255,255,0.3); font-size: 12px;">WAV / MP3 / FLAC</p>
+                        <input type="file" id="sepInstFileInput" accept=".wav,.mp3,.flac,audio/wav,audio/mpeg,audio/flac" style="display: none;">
+                    </div>
+                    
+                    <div style="color: rgba(255,255,255,0.4); font-size: 12px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">Model: <span id="sepInstModelName" style="color: var(--primary-cyan);">Logic-RoFormer INT8</span></div>
+                    <button id="btnStartSepInst" class="btn-cyan" style="display: none; width: 100%; padding: 14px;">
+                        <i data-lucide="zap" class="lucide-icon"></i> 启动乐器分离
+                    </button>
+                    
+                    <div id="sepInstProcessing" style="display: none; text-align: center; padding: 30px;">
+                        <div style="width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary-cyan); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; box-shadow: 0 0 15px rgba(0,229,255,0.3);"></div>
+                        <p style="color: var(--primary-cyan); font-size: 14px; font-weight: 600; margin: 8px 0;">乐器声部离线分离中...</p>
+                        <p style="color: var(--text-muted); font-size: 12px;" id="sepInstProgress">算法正在进行高速傅里叶变换，请耐心等待...</p>
+                    </div>
+                    <div id="sepInstResults" style="display: none; flex: 1;">
+                        <h3 style="color: #00E676; text-align: center; font-size: 15px; margin: 15px 0;"><i data-lucide="check" class="lucide-icon"></i> 乐器分离完成</h3>
+                        <div id="sepInstStemsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    </div>
+                    <button id="btnResetSepInst" class="btn-ghost" style="display: none; margin-top: 16px; width: 100%;">重置分离控制台</button>
+                </div>
+
+                <!-- 右半部分: 主唱与和声分离 -->
+                <div class="glass-panel custom-scrollbar" style="flex: 1; display: flex; flex-direction: column; padding: 24px; overflow-y: auto;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <i data-lucide="mic" class="lucide-icon" style="color: var(--primary-purple); width: 22px; height: 22px; stroke-width: 2.2px;"></i>
+                        <span style="color: var(--text-main); font-weight: 800; font-size: 16px; letter-spacing: 0.5px;">主唱与和声分离</span>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 12px; margin: 0 0 20px 0;">BS-RoFormer 高维卷积神经网络人声提取</p>
+                    
+                    <!-- 上传区 -->
+                    <div id="sepVocUploadZone" class="sep-upload-zone">
+                        <i data-lucide="music" style="width: 36px; height: 36px; stroke-width: 1.5px; margin: 0 auto 10px; color: var(--primary-purple); display: block;"></i>
+                        <p style="color: var(--text-main); margin: 4px 0; font-size: 14px; font-weight: 600;">选择本地音频文件</p>
+                        <p style="color: rgba(255,255,255,0.3); font-size: 12px;">WAV / MP3 / FLAC</p>
+                        <input type="file" id="sepVocFileInput" accept=".wav,.mp3,.flac,audio/wav,audio/mpeg,audio/flac" style="display: none;">
+                    </div>
+                    
+                    <div style="color: rgba(255,255,255,0.4); font-size: 12px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">Model: <span id="sepVocModelName" style="color: var(--primary-purple);">BS-RoFormer Karaoke</span></div>
+                    <button id="btnStartSepVoc" class="btn-primary" style="display: none; width: 100%; padding: 14px; background: linear-gradient(135deg, #a855f7, #c084fc); box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);">
+                        <i data-lucide="mic" class="lucide-icon"></i> 启动人声分离
+                    </button>
+                    
+                    <div id="sepVocProcessing" style="display: none; text-align: center; padding: 30px;">
+                        <div style="width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary-purple); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; box-shadow: 0 0 15px rgba(192,132,252,0.3);"></div>
+                        <p style="color: var(--primary-purple); font-size: 14px; font-weight: 600; margin: 8px 0;">主唱/背景和声离线分离中...</p>
+                        <p style="color: var(--text-muted); font-size: 12px;" id="sepVocProgress">深度学习推理进行中，请耐心等待...</p>
+                    </div>
+                    <div id="sepVocResults" style="display: none; flex: 1;">
+                        <h3 style="color: #00E676; text-align: center; font-size: 15px; margin: 15px 0;"><i data-lucide="check" class="lucide-icon"></i> 分离完成</h3>
+                        <div id="sepVocStemsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    </div>
+                    <button id="btnResetSepVoc" class="btn-ghost" style="display: none; margin-top: 16px; width: 100%;">重置分离控制台</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 声域自适应关卡训练营 -->
+        <div id="proStateTraining" style="display: none; flex-direction: column; height: calc(100% - 60px); width: 100%; box-sizing: border-box; overflow-y: auto; padding-right: 12px;" class="custom-scrollbar">
+            
+            <!-- Step 1: Vocal Range Selection -->
+            <div id="trainingRangeView" style="display: flex; flex-direction: column; flex: 1;">
+                <h2 style="color: var(--text-main); margin-top: 0; font-weight: 800; font-size: 24px; margin-bottom: 24px;"><i data-lucide="target" style="color: var(--primary-cyan); margin-right: 8px;"></i>声域自适应关卡训练营 (Pro)</h2>
+                <h3 style="color: var(--text-main); font-size: 16px; border-left: 3px solid var(--primary-cyan); padding-left: 10px; margin-bottom: 16px;">1. 请选择您的所属声部与声域 (Vocal Range)</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; gap: 32px; margin-bottom: 32px; flex: 1;" id="trainingRangeContainer">
+                    <div class="glass-panel range-card" data-range="soprano" onclick="selectTrainingRange('soprano')" style="display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; padding: 24px; text-align: center; border: 2px solid transparent; transition: all 0.2s;">
+                        <div style="color: var(--primary-purple); font-weight: 800; font-size: 24px;">女高音 (Soprano)</div><div style="color: var(--text-muted); font-size: 18px; font-family: monospace; margin-top: 12px;">C4(60) - C6(84)</div>
+                    </div>
+                    <div class="glass-panel range-card" data-range="mezzo" onclick="selectTrainingRange('mezzo')" style="display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; padding: 24px; text-align: center; border: 2px solid transparent; transition: all 0.2s;">
+                        <div style="color: var(--primary-purple); font-weight: 800; font-size: 24px;">女中音 (Mezzo)</div><div style="color: var(--text-muted); font-size: 18px; font-family: monospace; margin-top: 12px;">A3(57) - A5(81)</div>
+                    </div>
+                    <div class="glass-panel range-card" data-range="alto" onclick="selectTrainingRange('alto')" style="display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; padding: 24px; text-align: center; border: 2px solid transparent; transition: all 0.2s;">
+                        <div style="color: var(--primary-purple); font-weight: 800; font-size: 24px;">女低音 (Alto)</div><div style="color: var(--text-muted); font-size: 18px; font-family: monospace; margin-top: 12px;">F3(53) - F5(77)</div>
+                    </div>
+                    <div class="glass-panel range-card" data-range="tenor" onclick="selectTrainingRange('tenor')" style="display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; padding: 24px; text-align: center; border: 2px solid transparent; transition: all 0.2s;">
+                        <div style="color: var(--primary-cyan); font-weight: 800; font-size: 24px;">男高音 (Tenor)</div><div style="color: var(--text-muted); font-size: 18px; font-family: monospace; margin-top: 12px;">C3(48) - C5(72)</div>
+                    </div>
+                    <div class="glass-panel range-card" data-range="baritone" onclick="selectTrainingRange('baritone')" style="display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; padding: 24px; text-align: center; border: 2px solid transparent; transition: all 0.2s;">
+                        <div style="color: var(--primary-cyan); font-weight: 800; font-size: 24px;">男中音 (Baritone)</div><div style="color: var(--text-muted); font-size: 18px; font-family: monospace; margin-top: 12px;">G2(43) - G4(67)</div>
+                    </div>
+                    <div class="glass-panel range-card" data-range="bass" onclick="selectTrainingRange('bass')" style="display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; padding: 24px; text-align: center; border: 2px solid transparent; transition: all 0.2s;">
+                        <div style="color: var(--primary-cyan); font-weight: 800; font-size: 24px;">男低音 (Bass)</div><div style="color: var(--text-muted); font-size: 18px; font-family: monospace; margin-top: 12px;">E2(40) - E4(64)</div>
+                    </div>
+                    <div class="glass-panel range-card" data-range="custom" onclick="selectTrainingRange('custom')" style="display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; padding: 24px; text-align: center; border: 2px solid transparent; transition: all 0.2s;">
+                        <div style="color: var(--primary-cyan); font-weight: 800; font-size: 24px;">自定义音域 (Custom)</div>
+                        <div style="color: var(--text-muted); font-size: 16px; margin-top: 12px;" id="customRangeDisplayText">点击设置音区</div>
+                    </div>
+                    
+                    <div id="customRangeConfigPanel" class="glass-panel" style="grid-column: span 2; padding: 24px; display: flex; flex-direction: column; justify-content: center; opacity: 0.3; pointer-events: none; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.05);">
+                        <h4 style="margin-top: 0; color: var(--primary-cyan); font-size: 16px; margin-bottom: 16px;"><i data-lucide="sliders" style="display: inline-block; width: 16px; height: 16px; vertical-align: middle; margin-right: 6px; margin-top: -2px;"></i>设置您的极限音域</h4>
+                    <div style="display: flex; gap: 20px; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">最低音 (胸声底线)</label>
+                            <select id="customLowestNote" onchange="updateCustomRange()" class="pro-select" style="width: 100%; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--glass-border); font-size: 16px;">
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">最高音 (胸声极限)</label>
+                            <select id="customHighestNote" onchange="updateCustomRange()" class="pro-select" style="width: 100%; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--glass-border); font-size: 16px;">
+                            </select>
+                        </div>
+                        <div style="flex: 0 0 auto; margin-top: 26px;">
+                            <button onclick="proceedToLevelSelection()" class="primary-btn" style="padding: 13px 32px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 16px; transition: all 0.2s;">
+                                确认 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Step 2: Level Selection -->
+            <div id="trainingLevelView" style="display: none; flex-direction: column; flex: 1;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                    <h2 style="color: var(--text-main); margin: 0; font-weight: 800; font-size: 24px;"><i data-lucide="target" style="color: var(--primary-cyan); margin-right: 8px;"></i>选择关卡开始训练</h2>
+                    <button onclick="backToRangeSelection()" class="btn-ghost" style="padding: 8px 16px; border-radius: 8px; font-size: 14px;"><i data-lucide="chevron-left" class="lucide-icon"></i> 返回声部选择: <span id="displaySelectedRange" style="color: var(--primary-cyan); font-weight: bold;">--</span></button>
+                </div>
+                
+                <div id="trainingLevelContainer">
+                    <div class="glass-panel level-card level-card-lg" data-level="1" onclick="selectTrainingLevel(1)">
+                        <i data-lucide="play-circle" style="color: var(--primary-cyan);"></i>
+                        <div class="level-title">关卡 1: 热身激活</div>
+                        <div class="level-subtitle">自然大调音阶随机上下行慢速热身</div>
+                    </div>
+                    <div class="glass-panel level-card level-card-lg" data-level="2" onclick="selectTrainingLevel(2)">
+                        <i data-lucide="wind" style="color: var(--primary-cyan);"></i>
+                        <div class="level-title">关卡 2: 气息稳定</div>
+                        <div class="level-subtitle">超长音高保持，考核声带长程控制能力</div>
+                    </div>
+                    <div class="glass-panel level-card level-card-lg" data-level="3" onclick="selectTrainingLevel(3)">
+                        <i data-lucide="activity" style="color: var(--primary-cyan);"></i>
+                        <div class="level-title">关卡 3: 转音练习</div>
+                        <div class="level-subtitle">密集的五声音阶随机跑动，考验声带瞬态灵敏度</div>
+                    </div>
+                    <div class="glass-panel level-card level-card-lg" data-level="4" onclick="selectTrainingLevel(4)">
+                        <i data-lucide="crosshair" style="color: var(--primary-purple);"></i>
+                        <div class="level-title">关卡 4: 音准精修</div>
+                        <div class="level-subtitle">大跨度随机音程跳跃，击碎起音不准的痛点</div>
+                    </div>
+                    <div class="glass-panel level-card level-card-lg" data-level="5" onclick="selectTrainingLevel(5)">
+                        <i data-lucide="speaker" style="color: var(--primary-purple);"></i>
+                        <div class="level-title">关卡 5: 三类共鸣</div>
+                        <div class="level-subtitle">声部音域精准映射，定向考核胸声、混声与头声共鸣</div>
+                    </div>
+                    <div class="glass-panel level-card level-card-lg" data-level="6" onclick="selectTrainingLevel(6)">
+                        <i data-lucide="zap" style="color: #FF5252;"></i>
+                        <div class="level-title" style="color: #FF5252;">关卡 6: 综合挑战</div>
+                        <div class="level-subtitle">1分钟全维声学音高随机挑战</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Training Session -->
+            <div id="trainingSessionView" style="display: none; flex: 1; gap: 24px; min-height: 0; box-sizing: border-box; width: 100%; flex-direction: row; margin-top: -12px;">
+                
+                <div class="glass-panel" style="flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column;">
+                    <div style="min-height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--glass-border); background: var(--upload-zone-bg); border-radius: 12px 12px 0 0; gap: 12px; flex-shrink: 0;">
+                        <span style="font-weight: 800; font-size: 15px; color: var(--primary-cyan); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;" id="trainingActiveLevelName">当前正在训练: 关卡 1 热身激活</span>
+                        
+                        <div class="score-container" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                            <span style="color: var(--text-muted); font-size: 13px; font-weight: bold; white-space: nowrap;">当前得分:</span>
+                            <div class="score-progress-bar-wrapper" style="width: 150px; height: 10px; background: var(--vbar-bg); border-radius: 6px; overflow: hidden; border: 1px solid var(--glass-border); position: relative;">
+                                <div id="trainingScoreProgress" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary-cyan), var(--primary-purple)); transition: width 0.2s linear; box-shadow: 0 0 10px var(--primary-cyan);"></div>
+                            </div>
+                            <span id="trainingScoreText" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; color: var(--primary-cyan); width: 65px; text-align: right; white-space: nowrap;">0 / 100</span>
+                        </div>
+                        
+                        <button onclick="exitTraining()" class="btn-danger" style="padding: 6px 12px; font-size: 13px; border-radius: 8px; flex-shrink: 0; white-space: nowrap;"><i data-lucide="log-out" class="lucide-icon" style="width: 14px; height: 14px;"></i> 退出训练舱</button>
+                    </div>
+                    <div class="canvas-container" style="flex: 1; position: relative; border-radius: 0 0 12px 12px;">
+                        <canvas id="trainingPitchCanvas" width="850" height="520"></canvas>
+                        <div id="trainingInstructionOverlay" style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); text-align: center; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; z-index: 10;">
+                            <div id="trainingInstructionText" class="training-overlay-pill">准备开始</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard glass-panel" style="flex: 0 1 460px; min-width: 380px; box-sizing: border-box; height: 100%; overflow-y: auto;">
+                    <div class="gauge-card glass-panel card-large">
+                        <div class="gauge-title">音高 (Pitch)</div>
+                        <div id="trainValPitch" class="pitch-val-empty">--</div>
+                        <div class="gauge-desc" id="trainDescPitch">等待发声...</div>
+                    </div>
+
+                    <div class="gauge-card glass-panel card-medium">
+                        <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="gauge-title" style="text-align: left;">音准 (Cents)</div>
+                            <div id="trainValDev" style="font-size: 28px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; color: var(--text-main);">0</div>
+                            <div class="gauge-desc" id="trainDescDev" style="text-align: left; justify-content: flex-start; height: auto;">等待发声...</div>
+                        </div>
+                        
+                        <div class="v-bar-container">
+                            <div class="v-bar-axis">
+                                <span>+50</span><span>+40</span><span>+30</span><span>+20</span><span>+10</span>
+                                <span style="font-weight: bold; color: var(--text-main);">0</span>
+                                <span>-10</span><span>-20</span><span>-30</span><span>-40</span><span>-50</span>
+                            </div>
+                            <div class="v-bar-ticks"></div>
+                            <div class="v-bar-center-line"></div>
+                            <div id="trainBarFillDev" class="v-bar-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="gauge-card glass-panel card-small">
+                        <div class="gauge-title">响度 (Loud)</div>
+                        <div class="gauge-wrapper"><div class="gauge-ring" id="trainRingLoud"></div><div class="gauge-inner" id="trainValLoud">0</div></div>
+                        <div class="gauge-desc" id="trainDescLoud">正常</div>
+                    </div>
+
+                    <div class="gauge-card glass-panel card-small">
+                        <div class="gauge-title">机能 (H1/H2)</div>
+                        <div class="gauge-wrapper"><div class="gauge-ring" id="trainRingBright"></div><div class="gauge-inner" id="trainValBright">0</div></div>
+                        <div class="gauge-desc" id="trainDescBright">等待发声...</div>
+                    </div>
+
+                    <div class="gauge-card glass-panel card-small">
+                        <div class="gauge-title">纯净 (HNR)</div>
+                        <div class="gauge-wrapper"><div class="gauge-ring" id="trainRingPure"></div><div class="gauge-inner" id="trainValPure">0</div></div>
+                        <div class="gauge-desc" id="trainDescPure">等待发声...</div>
+                    </div>
+
+                    <div class="gauge-card glass-panel card-small">
+                        <div class="gauge-title">稳定 (Jitter)</div>
+                        <div class="gauge-wrapper"><div class="gauge-ring" id="trainRingStab"></div><div class="gauge-inner" id="trainValStab">0</div></div>
+                        <div class="gauge-desc" id="trainDescStab">等待发声...</div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- CDK Activation & Purchase overlay -->
+        <div id="premiumOverlay" class="glass-panel" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 0; border: none; background-color: rgba(13, 9, 20, 1); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease;">
+            <i data-lucide="lock" style="width: 72px; height: 72px; margin-bottom: 24px; stroke-width: 1.5px; color: var(--primary-purple); filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.45)); display: block;"></i>
+            <h1 style="color: var(--text-main); margin-bottom: 12px; font-weight: 800; font-size: 32px; letter-spacing: 1px;">VocalMap <span style="background: var(--gradient-accent); -webkit-background-clip: text; color: transparent;">Pro</span> 专业特权激活</h1>
+            <p style="color: var(--text-muted); font-size: 16px; margin-bottom: 32px;">激活后即可解锁全息声学诊断、雷达图报告导出及音轨分离等高级功能。</p>
+            
+            <div class="glass-panel" style="padding: 16px 32px; margin-bottom: 24px; display: flex; align-items: center;">
+                <span style="color: var(--text-muted); font-size: 14px;">本机硬件设备指纹: </span>
+                <code id="displayMachineId" style="color: var(--primary-cyan); font-weight: bold; margin-left: 12px; font-family: 'JetBrains Mono', monospace; font-size: 16px;">正在获取中...</code>
+            </div>
+
+            <!-- CDK 激活码 -->
+            <div class="glass-panel" style="padding: 16px 24px; margin-bottom: 24px; display: flex; gap: 12px; align-items: center;">
+                <span style="color: var(--text-main); font-size: 14px; font-weight: 600;">CDK 激活码:</span>
+                <input id="cdkInput" type="text" placeholder="VMAP-XXXX-XXXX-XXXX"
+                    class="cdk-input-field"
+                    style="padding: 10px 16px; border-radius: 6px; font-size: 15px; font-family: 'JetBrains Mono', monospace; width: 250px; outline: none; transition: 0.2s;">
+                <button id="btnActivateCDK" class="btn-cyan"><i data-lucide="key" class="lucide-icon"></i> 一键激活 Pro 特权</button>
+            </div>
+
+            <div style="display: flex; gap: 24px; margin-bottom: 24px;">
+                <button id="btnBuyMonthly" class="btn-cyan" style="padding: 16px 36px; font-size: 16px; border-width: 2px;">
+                    <i data-lucide="calendar" class="lucide-icon"></i> 购买月度通行证 <span style="font-size: 24px; font-weight: 800; margin-left: 8px;">￥ 19.9</span>
+                </button>
+                <button id="btnBuyLifetime" class="btn-primary" style="padding: 16px 36px; font-size: 16px;">
+                    <i data-lucide="infinity" class="lucide-icon"></i> 购买永久买断版 <span style="font-size: 24px; font-weight: 800; margin-left: 8px;">￥ 59.9</span>
+                </button>
+            </div>
+
+            <button id="btnRefreshStatus" class="btn-ghost" style="padding: 8px 24px;"><i data-lucide="refresh-cw" class="lucide-icon"></i> 重新验证激活状态</button>
+            <p id="payMessage" style="color: var(--primary-cyan); margin-top: 16px; font-size: 14px; font-weight: 600; min-height: 20px;"></p>
+        </div>
+
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content glass-panel" style="max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; width: 500px; max-width: 95%;">
+            <h2 style="margin-top: 0; margin-bottom: 20px; font-weight: 800; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px; flex-shrink: 0; color: var(--text-main);"><i data-lucide="sliders" class="lucide-icon"></i> 声学引擎高级参数设置</h2>
+            
+            <div class="settings-scroll-area custom-scrollbar" style="flex: 1; overflow-y: auto; padding-right: 8px;">
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">麦克风输入设备 (Microphone)</span>
+                    </div>
+                    <div class="setting-desc">选择您用于录音 and 演唱的麦克风硬件设备。更改后建议重新启动声学引擎以完成连接桥接。</div>
+                    <select id="selectMicrophone" class="custom-select">
+                        <option value="default">默认音频输入设备</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">响度激活门限 (Loudness Gate)</span>
+                        <span class="setting-value" id="valLoudnessGate" style="color: var(--primary-cyan); font-weight: 800;">12</span>
+                    </div>
+                    <div class="setting-desc">触发系统开始捕捉音高的最低音量门限。若外界噪音较大，可将该值调高（如 15-20）以杜绝环境音导致的偶发跳动。<br><b>推荐基准值: 12</b></div>
+                    <input type="range" id="sliderLoudnessGate" min="5" max="30" step="1" value="12">
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">发声纯净度门限 (Clarity Threshold)</span>
+                        <span class="setting-value" id="valClarityThreshold" style="color: var(--primary-cyan); font-weight: 800;">0.65</span>
+                    </div>
+                    <div class="setting-desc">控制系统对“气流漏气/气泡音/弱发声”的捕获灵敏度。若做弱边缘振动或哼鸣练习，可将此值调低（如 0.4-0.5）。<br><b>推荐基准值: 0.65</b></div>
+                    <input type="range" id="sliderClarityThreshold" min="0.30" max="1.00" step="0.05" value="0.65">
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">底噪降噪追踪门限 (Noise Tracking)</span>
+                        <span class="setting-value" id="valNoiseTracking" style="color: var(--primary-cyan); font-weight: 800;">20</span>
+                    </div>
+                    <div class="setting-desc">降噪门限追踪深度。当输入音频低于该阈值时判定为无声状态并强制归零，防止音高曲线上出现“尾音拖尾”杂点。<br><b>推荐基准值: 20</b></div>
+                    <input type="range" id="sliderNoiseTracking" min="10" max="40" step="1" value="20">
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">钢琴示范音量 (Piano Volume)</span>
+                        <span class="setting-value" id="valPianoVolume" style="color: var(--primary-cyan); font-weight: 800;">1.0</span>
+                    </div>
+                    <div class="setting-desc">调节训练营中钢琴提示音的播放音量。<br><b>推荐基准值: 1.0</b></div>
+                    <input type="range" id="sliderPianoVolume" min="0.0" max="2.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-header">
+                        <span class="setting-label" style="color: var(--text-main); font-weight: 600;">录音回放音量 (Playback Volume)</span>
+                        <span class="setting-value" id="valPlaybackVolume" style="color: var(--primary-cyan); font-weight: 800;">1.0</span>
+                    </div>
+                    <div class="setting-desc">调节录音回放界面的原声播放音量。<br><b>推荐基准值: 1.0</b></div>
+                    <input type="range" id="sliderPlaybackVolume" min="0.0" max="2.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="setting-group" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--glass-border);">
+                    <div class="setting-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="setting-label" style="color: var(--primary-cyan); font-weight: 600;"><i data-lucide="zap" class="lucide-icon" style="width: 16px; height: 16px; margin-right: 6px;"></i>前端高性能渲染模式 (Performance Mode)</span>
+                        <input type="checkbox" id="togglePerformanceMode" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary-cyan);">
+                    </div>
+                    <div class="setting-desc">开启后，系统将启用渲染解耦、钢琴卷帘背景 Canvas 离屏缓存、滑动窗口平均算法提速以及双通绘制模拟发声光晕。可极大降低 CPU 负荷与发热。</div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 16px; flex-shrink: 0;">
+                <button class="btn-ghost" onclick="resetSettings()">恢复默认设置</button>
+                <button class="btn-primary" onclick="closeSettings()">确定并应用</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Training Result Modal -->
+    <div class="modal-overlay" id="trainingResultModal">
+        <div class="modal-content glass-panel" style="width: 480px; max-width: 90%; padding: 32px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center;">
+            <i data-lucide="award" class="lucide-icon" style="color: var(--primary-cyan); width: 64px; height: 64px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(0,229,255,0.4));"></i>
+            <h2 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 800; color: var(--text-main);">训练挑战结束</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">本次声部自适应训练成绩反馈如下</p>
+            
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 64px; font-weight: 800; color: var(--primary-cyan); text-shadow: 0 0 20px rgba(0, 229, 255, 0.4); margin-bottom: 10px; display: flex; align-items: baseline; justify-content: center;">
+                <span id="trainingResultScoreVal">0</span><span style="font-size: 24px; color: rgba(0,229,255,0.6);">分</span>
+            </div>
+            
+            <div id="trainingResultFeedback" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; margin-bottom: 16px; width: 100%; text-align: left; font-size: 14px; color: var(--text-main); line-height: 1.5;">
+                <!-- AI feedback will go here -->
+            </div>
+            
+            <div id="trainingResultTutorial" style="background: rgba(192, 132, 252, 0.1); border: 1px solid rgba(192, 132, 252, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 24px; width: 100%; text-align: left; font-size: 13px; color: var(--text-muted); line-height: 1.6; display: flex; flex-direction: column; gap: 8px;">
+                <b style="color: var(--primary-purple); display: flex; align-items: center; gap: 6px; font-size: 14px;"><i data-lucide="book-open" class="lucide-icon" style="width:16px;height:16px;"></i> 声乐高阶得分教程</b>
+                <span id="trainingResultTutorialText">
+                    <!-- Tutorial content -->
+                </span>
+            </div>
+            
+            <button class="btn-cyan" style="width: 100%; padding: 14px; font-size: 16px; border-radius: 12px; font-weight: 600;" onclick="closeTrainingResultModal()">确定并退出训练舱</button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal-content glass-panel" style="width: 760px; max-width: 95%; height: 80vh; max-height: 650px; padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px;">
+            <!-- Header -->
+            <div class="help-modal-header" style="padding: 20px 24px; border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="help-circle" aria-hidden="true" class="lucide lucide-help-circle lucide-icon" style="color: var(--primary-cyan); width: 22px; height: 22px;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg>
+                    <h2 style="margin: 0; font-size: 18px; font-weight: 800; letter-spacing: 0.5px;">VocalMap 使用帮助与诊断手册</h2>
+                </div>
+                <button class="btn-ghost" style="padding: 6px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;" onclick="closeHelp()" aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x lucide-icon" style="margin: 0; width: 16px; height: 16px;"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Body Layout -->
+            <div class="help-modal-layout">
+                <!-- Sidebar Tabs -->
+                <div class="help-sidebar">
+                    <button class="help-tab-btn active" id="helpTabBtn_intro" onclick="switchHelpTab('intro')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="zap" aria-hidden="true" class="lucide lucide-zap lucide-icon"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg> 快速入门
+                    </button>
+                    <button class="help-tab-btn" id="helpTabBtn_pro" onclick="switchHelpTab('pro')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="crown" aria-hidden="true" class="lucide lucide-crown lucide-icon"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"></path><path d="M5 21h14"></path></svg> Pro 核心功能
+                    </button>
+                    <button class="help-tab-btn" id="helpTabBtn_advanced" onclick="switchHelpTab('advanced')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sliders" aria-hidden="true" class="lucide lucide-sliders lucide-icon"><path d="M10 8h4"></path><path d="M12 21v-9"></path><path d="M12 8V3"></path><path d="M17 16h4"></path><path d="M19 12V3"></path><path d="M19 21v-5"></path><path d="M3 14h4"></path><path d="M5 10V3"></path><path d="M5 21v-7"></path></svg> 算法参数微调
+                    </button>
+                    <button class="help-tab-btn" id="helpTabBtn_faq" onclick="switchHelpTab('faq')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="message-square" aria-hidden="true" class="lucide lucide-message-square lucide-icon"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"></path></svg> 高阶技巧与FAQ
+                    </button>
+                    <button class="help-tab-btn" id="helpTabBtn_about" onclick="switchHelpTab('about')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="info" aria-hidden="true" class="lucide lucide-info lucide-icon"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg> 版本与反馈
+                    </button>
+                </div>
+                
+                <!-- Right Scrollable Content Pane -->
+                <div class="help-content">
+                    <!-- Tab 1: Intro -->
+                    <div class="help-tab-content" id="helpTabContent_intro" style="display: block;">
+                        <h3 style="color: var(--text-main); font-size: 15px; margin-top: 0; margin-bottom: 16px; font-weight: 700; border-left: 3px solid var(--primary-cyan); padding-left: 8px; display: flex; align-items: center; gap: 6px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="mic" aria-hidden="true" class="lucide lucide-mic lucide-icon"><path d="M12 19v3"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><rect x="9" y="2" width="6" height="13" rx="3"></rect></svg> 实时声学监视与特征解析</h3>
+                        <p style="color: var(--text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 16px;">
+                            VocalMap 拥有毫秒级的实时声学诊断引擎。在“实时监视”模块，您可以实时观察嗓音的动态表现，生成声学指纹数据。
+                        </p>
+                        
+                        <div class="help-card">
+                            <div class="help-card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="play" aria-hidden="true" class="lucide lucide-play lucide-icon" style="color: var(--primary-cyan);"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"></path></svg> 1. 启动监视与录制
+                            </div>
+                            <p class="help-card-desc">
+                                首先点击导航栏右侧的<b>“启动引擎”</b>，然后对着麦克风发声或歌唱。系统将以极低延迟绘制出音高轨迹曲线。
+                            </p>
+                        </div>
+
+                        <div class="help-card">
+                            <div class="help-card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="refresh-cw" aria-hidden="true" class="lucide lucide-refresh-cw lucide-icon" style="color: var(--primary-cyan);"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg> 2. 零延迟项目回放
+                            </div>
+                            <p class="help-card-desc">
+                                点击左下角的<b>“开始监视录制”</b>，对着麦克风发声或歌唱，点击<b>“结束监视录制”</b>后，回放控制条将自动显现。您可点击“播放/暂停”复盘刚刚的演唱，拖拽进度条能随意跳跃。回放时视窗会自动聚焦，鼠标中心纵向白线锁定当前播放时间点的精确 MIDI 音高与分数值。
+                            </p>
+                        </div>
+
+                        <div class="help-card">
+                            <div class="help-card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="save" aria-hidden="true" class="lucide lucide-save lucide-icon" style="color: var(--primary-cyan);"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> 3. 导入与导出 (.vmap)
+                            </div>
+                            <p class="help-card-desc">
+                                录制结束后，点击右下角的<b>“导出”</b>按钮，可将完整的录音波形和声学曲线打包保存为专属的 `.vmap` 项目文件。日后点击<b>“导入”</b>即可完美复原历史监视会话进行二次复盘。
+                            </p>
+                        </div>
+                        
+                        <h3 style="color: var(--text-main); font-size: 15px; margin-top: 20px; margin-bottom: 12px; font-weight: 700; border-left: 3px solid var(--primary-cyan); padding-left: 8px; display: flex; align-items: center; gap: 6px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="activity" aria-hidden="true" class="lucide lucide-activity lucide-icon"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg> 实时声学指纹指标说明</h3>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                            <div class="help-card" style="margin-bottom: 0;">
+                                <div class="help-card-title" style="font-size: 13px;"><span class="help-badge">音高 (Pitch)</span></div>
+                                <p class="help-card-desc" style="font-size: 12px;">使用基于 YIN 音高追踪的变体算法，毫秒级捕捉基频并转化为十二平均律 MIDI 唱名。</p>
+                            </div>
+                            <div class="help-card" style="margin-bottom: 0;">
+                                <div class="help-card-title" style="font-size: 13px;"><span class="help-badge">机能 (H1/H2)</span></div>
+                                <p class="help-card-desc" style="font-size: 12px;">分析基音（H1）与第一泛音（H2）的相对能量比，评估声带闭合程度与共鸣度。</p>
+                            </div>
+                            <div class="help-card" style="margin-bottom: 0;">
+                                <div class="help-card-title" style="font-size: 13px;"><span class="help-badge">纯净 (HNR)</span></div>
+                                <p class="help-card-desc" style="font-size: 12px;">谐噪比评估。音质越纯净值越高（如 20dB 以上），沙哑或漏气声会导致数值下降。</p>
+                            </div>
+                            <div class="help-card" style="margin-bottom: 0;">
+                                <div class="help-card-title" style="font-size: 13px;"><span class="help-badge">稳定 (Jitter)</span></div>
+                                <p class="help-card-desc" style="font-size: 12px;">微观音高抖动率。评估声带振动的周期稳定性，普通演唱应控制在 1.5% 以下。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab 2: Pro -->
+                    <div class="help-tab-content" id="helpTabContent_pro">
+                        <h3 style="color: var(--text-main); font-size: 15px; margin-top: 0; margin-bottom: 16px; font-weight: 700; border-left: 3px solid var(--primary-purple); padding-left: 8px; display: flex; align-items: center; gap: 6px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="crown" aria-hidden="true" class="lucide lucide-crown lucide-icon"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"></path><path d="M5 21h14"></path></svg> Pro 核心功能操作指南</h3>
+                        <p style="color: var(--text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 16px;">
+                            专业版解锁了全息诊断雷达大脑与 SOTA 级别的 RoFormer 音轨分离引擎，是声乐教学和混音后期制作的终极利器。
+                        </p>
+
+                        <div class="help-card">
+                            <div class="help-card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="bar-chart-2" aria-hidden="true" class="lucide lucide-bar-chart-2 lucide-icon" style="color: var(--primary-purple);"><path d="M5 21v-6"></path><path d="M12 21V3"></path><path d="M19 21V9"></path></svg> 1. 专业歌声全息诊断与雷达图
+                            </div>
+                            <p class="help-card-desc">
+                                在“Pro 核心功能 -&gt; 歌声检测”子页面，您可以点击<b>“麦克风实时检测”</b>开始录制长乐句，或直接<b>“导入音频检测”</b>（算法会在后台执行极速毫秒级离线全量提取）。分析完成后，系统将呈现一个<b>五维声学雷达图</b>，包含音准命中率、机能共鸣、纯净度、稳定度和颤音评分的精确统计。
+                            </p>
+                        </div>
+
+                        <div class="help-card">
+                            <div class="help-card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="camera" aria-hidden="true" class="lucide lucide-camera lucide-icon" style="color: var(--primary-purple);"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path><circle cx="12" cy="13" r="3"></circle></svg> 2. 导出高清长图报告
+                            </div>
+                            <p class="help-card-desc">
+                                诊断报告出炉后，您可以点击<b>“导出报告长图”</b>。系统将自动生成无损、超清的长截图 PNG 报告，完美保存雷达图和各项量化分数，方便分享给社交平台或进行教学存档。
+                            </p>
+                        </div>
+
+                        <div class="help-card">
+                            <div class="help-card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="split" aria-hidden="true" class="lucide lucide-split lucide-icon" style="color: var(--primary-purple);"><path d="M16 3h5v5"></path><path d="M8 3H3v5"></path><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"></path><path d="m15 9 6-6"></path></svg> 3. 录音棚级高精度音轨分离
+                            </div>
+                            <p class="help-card-desc" style="margin-bottom: 10px;">
+                                针对音频提取和伴奏剥离，提供两种业界顶尖的深度学习神经网络模型：
+                            </p>
+                            <ul style="color: var(--text-muted); font-size: 12px; margin: 0; padding-left: 18px; line-height: 1.6;">
+                                <li><b>6-Stem 乐器分离 (Logic-RoFormer)</b>：将音频剥离为伴奏、人声、鼓、贝斯、钢琴、吉他等独立声部。</li>
+                                <li><b>干声与和声分离 (BS-RoFormer Karaoke)</b>：将音频剔除原唱，提取极致纯净的主唱干声与背景和声。</li>
+                            </ul>
+                            <p class="help-card-desc" style="margin-top: 8px;">
+                                在分离面板顶部可快捷切换“GPU 加速”（显存需 &gt;6GB，推理极速）或“CPU 兼容”模式。
+                            </p>
+                        </div>
+
+                        <div class="help-card">
+                            <div class="help-card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="target" aria-hidden="true" class="lucide lucide-target lucide-icon" style="color: var(--primary-purple);"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> 4. 靶向训练营动态运镜
+                            </div>
+                            <p class="help-card-desc">
+                                在“Pro 核心功能 -&gt; 关卡训练营”中，您可以先选择自己的所属声部（如男高音、女低音等），系统将自动为您规划最适合的练习音域。
+                                <br><br>
+                                <b>六大进阶关卡包含：</b><br>
+                                1. <b>稳定音高</b>：练习在基础发声中的音准保持。<br>
+                                2. <b>连音爬音</b>：练习气息支撑下平滑的音阶过渡。<br>
+                                3. <b>布鲁斯转音</b>：训练声带灵活性和快速反应。<br>
+                                4. <b>颤音控制</b>：练习喉头放松，保持声音的波动美感。<br>
+                                5. <b>真假声断音</b>：训练声带边缘振动与快速闭合。<br>
+                                6. <b>综合大考</b>：结合以上所有技巧的综合实战训练。
+                                <br><br>
+                                <b>智能视野跟随：</b>训练期间，您无需任何手动操作。在遇到跨度极大的高低音时，画面会自动提前平滑移动，为您提供最清晰的练习视野。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab 3: Advanced -->
+                    <div class="help-tab-content" id="helpTabContent_advanced">
+                        <h3 style="color: var(--text-main); font-size: 15px; margin-top: 0; margin-bottom: 16px; font-weight: 700; border-left: 3px solid var(--primary-cyan); padding-left: 8px; display: flex; align-items: center; gap: 6px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sliders" aria-hidden="true" class="lucide lucide-sliders lucide-icon"><path d="M10 8h4"></path><path d="M12 21v-9"></path><path d="M12 8V3"></path><path d="M17 16h4"></path><path d="M19 12V3"></path><path d="M19 21v-5"></path><path d="M3 14h4"></path><path d="M5 10V3"></path><path d="M5 21v-7"></path></svg> 声学引擎底层参数调节说明</h3>
+                        <p style="color: var(--text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 16px;">
+                            点击导航栏右上角的<b>“引擎调节”</b>可唤起参数配置面板。针对不同的使用环境和录音硬件，微调这三个核心阈值能将识别精度发挥到极致：
+                        </p><div class="help-card">
+                            <div class="help-card-title" style="font-size: 13px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="volume-2" aria-hidden="true" class="lucide lucide-volume-2 lucide-icon" style="color: var(--primary-cyan);"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"></path><path d="M16 9a5 5 0 0 1 0 6"></path><path d="M19.364 18.364a9 9 0 0 0 0-12.728"></path></svg> 响度激活门限 (Loudness Gate)
+                            </div>
+                            <p class="help-card-desc">
+                                <b>推荐基准值: 8</b><br>
+                                这是触发系统开始捕捉音高的最低音量门限。如果您处于喧闹的教学班级或房间，或者您的麦克风有强烈的交流电嗡嗡声底噪，建议将该值调高（如 12 至 15），从而有效防止环境音导致仪表盘无辜跳动。
+                            </p>
+                        </div>
+
+                        <div class="help-card">
+                            <div class="help-card-title" style="font-size: 13px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="filter" aria-hidden="true" class="lucide lucide-filter lucide-icon" style="color: var(--primary-cyan);"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"></path></svg> 发声纯净度门限 (Clarity Threshold)
+                            </div>
+                            <p class="help-card-desc">
+                                <b>推荐基准值: 0.65</b><br>
+                                用于控制系统对“漏气发声/气泡音/呼吸声”的捕获灵敏度。如果您想做气声哼唱、弱音或边缘振动（Vocal Fry）的精细测量，可将此值调低（如 0.4 至 0.5）。若是在普通的现场歌唱检测中，建议维持 0.65 或更高，以过滤换气时的气流声干扰。
+                            </p>
+                        </div>
+
+                        <div class="help-card">
+                            <div class="help-card-title" style="font-size: 13px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="zap" aria-hidden="true" class="lucide lucide-zap lucide-icon" style="color: var(--primary-cyan);"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg> 底噪极速追踪门限 (Noise Tracking)
+                            </div>
+                            <p class="help-card-desc">
+                                <b>推荐基准值: 20</b><br>
+                                控制降噪追踪器的敏感深度。当外界噪音或音频背景声的响度降到该临界点以下时，底层降噪追踪器会判定此时“歌手已停止发声”，在数毫秒内将信号强制静音归零。这能杜绝音高曲线上出现莫名的“尾音拖尾”杂点。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab 4: FAQ -->
+                    <div class="help-tab-content" id="helpTabContent_faq">
+                        <h3 style="color: var(--text-main); font-size: 15px; margin-top: 0; margin-bottom: 16px; font-weight: 700; border-left: 3px solid var(--primary-purple); padding-left: 8px; display: flex; align-items: center; gap: 6px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="lightbulb" aria-hidden="true" class="lucide lucide-lightbulb lucide-icon"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg> 声乐教学与分析高阶独门技巧</h3>
+                        
+                        <div class="help-tip-box" style="margin-top: 0; margin-bottom: 20px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="lightbulb" aria-hidden="true" class="lucide lucide-lightbulb lucide-icon" style="color: var(--primary-cyan); width: 24px; height: 24px; flex-shrink: 0; margin-top: 2px;"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg>
+                            <div class="help-tip-text">
+                                <strong style="color: var(--text-main); display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 13px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="flame" aria-hidden="true" class="lucide lucide-flame lucide-icon" style="color: var(--primary-red); width: 16px; height: 16px;"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg> 终极教学秘籍：如何完美测量一首现成歌曲的歌手精确音高？</strong>
+                                现成发行的流行乐曲中由于带有宏大的管弦乐、吉他或鼓声伴奏，如果直接导入声学检测，乐器的基频会极大干扰 YIN 追踪器，导致音高轨迹频繁乱跳或根本无法锁定。
+                                <br><br>
+                                <b style="display: inline-flex; align-items: center; gap: 4px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" aria-hidden="true" class="lucide lucide-check-circle lucide-icon" style="color: var(--primary-cyan); width: 14px; height: 14px;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg> 完美破解流线</b>：先将音轨导入到 <b>Pro 核心功能 -&gt; 音轨分离</b>，启动<b>“干声与和声分离”</b>，提取出纯人声（Vocals Stem）并保存到本地。随后，将该人声 WAV 文件导入 <b>歌声检测 -&gt; 导入音频检测 -&gt; 存为回放项目 -&gt; 实时监视 -&gt; 导入</b>。这样，系统测得的将是绝无干扰、极其平滑且 100% 对应歌手本人的真实物理音高与颤音轨迹！
+                            </div>
+                        </div>
+
+                        <div class="help-tip-box" style="margin-top: 0; margin-bottom: 20px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="target" aria-hidden="true" class="lucide lucide-target lucide-icon" style="color: var(--primary-cyan); width: 24px; height: 24px; flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                            <div class="help-tip-text">
+                                <strong style="color: var(--text-main); display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 13px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="activity" aria-hidden="true" class="lucide lucide-activity lucide-icon" style="color: var(--primary-red); width: 16px; height: 16px;"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg> 靶向得分换算机制</strong>
+                                训练营的得分不仅考量您的绝对音准，还引入了<b>瞬态响应时间</b>和<b>维持稳定度</b>的双重动态扣分换算。当您的音高完全击中靶向方块中心且持续稳定，将获得满分；若音高游离于边缘或发生明显抖动（Jitter过高），系统将动态扣减分值。高频度练习此机制能显著提升声带的闭合控制力。
+                            </div>
+                        </div>
+
+                        <div class="help-tip-box" style="margin-top: 0; margin-bottom: 20px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="music" aria-hidden="true" class="lucide lucide-music lucide-icon" style="color: var(--primary-cyan); width: 24px; height: 24px; flex-shrink: 0; margin-top: 2px;"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                            <div class="help-tip-text">
+                                <strong style="color: var(--text-main); display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 13px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="mic" aria-hidden="true" class="lucide lucide-mic lucide-icon" style="color: var(--primary-red); width: 16px; height: 16px;"><path d="M12 19v3"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><rect x="9" y="2" width="6" height="13" rx="3"></rect></svg> Soprano/Baritone 各声部物理共鸣基准表</strong>
+                                每个声部在进行跨越换声区（Passaggio）的训练时，其物理共鸣焦点是不同的。以 <b>女高音 (Soprano)</b> 为例，核心换声点通常在 F#5 附近，胸声主要集中在 C4-F4，进入头声的靶心多为 C5 以上；而 <b>男中音 (Baritone)</b> 的换声点则落在 Eb4-E4，其低频胸区（G2-C3）是巩固下盘机能的关键。您可以在“三类共鸣”等关卡中体验该基准表的靶向映射。
+                            </div>
+                        </div>
+
+                        <h3 style="color: var(--text-main); font-size: 14px; margin-top: 20px; margin-bottom: 12px; font-weight: 700;">常见问答 Q&amp;A</h3>
+                        
+                        <div class="help-card">
+                            <div class="help-card-title" style="font-size: 13px; color: var(--primary-cyan);">
+                                Q: 运行音轨分离时，首次启动或推理需要多长时间？
+                            </div>
+                            <p class="help-card-desc">
+                                A: 所有的核心 AI 模型权重文件和便携式推理库<b>已由系统内置的动态下载管理器在首次启动时拉取并校验完毕</b>。当您第一次在分离面板中启动推理时，Python 引擎需要一些时间将大模型从磁盘加载到显存/内存中，请耐心等待；加载完成后，后续的分离运算将是完全本地化、极速无感的高速离线推理。
+                            </p>
+                        </div>
+
+                        <div class="help-card">
+                            <div class="help-card-title" style="font-size: 13px; color: var(--primary-cyan);">
+                                Q: 音轨分离提取后，为什么保存或下载总是卡顿？
+                            </div>
+                            <p class="help-card-desc">
+                                A: 之前版本的 Tauri JS-to-Rust 二进制桥接在传输大体积无损 WAV 文件时会导致 UI 短暂假死。VocalMap v2.8.2引入了<b>本地 FastAPI 零拷贝（Zero-Copy）直写技术</b>，剥离出来的音轨由 Python 引擎直接以物理速度写入目标磁盘，彻底避免了内存占用与界面响应迟钝。先前版本用户请先行更新至v2.8.2以上版本即可解决。
+                            </p>
+                        </div>
+
+                        <div class="help-card">
+                            <div class="help-card-title" style="font-size: 13px; color: var(--primary-cyan);">
+                                Q: 为什么无法显示软件版本号，或界面有卡死感觉？
+                            </div>
+                            <p class="help-card-desc">
+                                A: 这通常代表本地 Python 诊断引擎被安全软件（如 360 或 Windows Defender）拦截、或者 WebSocket 通信接口（5050 端口）被其他本地代理软件占用。请尝试将软件加入杀毒白名单，并确保没有其他应用程序占用 5050 端口。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab 5: About -->
+                    <div class="help-tab-content" id="helpTabContent_about">
+                        <h3 style="color: var(--text-main); font-size: 15px; margin-top: 0; margin-bottom: 16px; font-weight: 700; border-left: 3px solid var(--primary-purple); padding-left: 8px; display: flex; align-items: center; gap: 6px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="rocket" aria-hidden="true" class="lucide lucide-rocket lucide-icon"><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09"></path><path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05"></path></svg> 版本、授权激活与问题反馈</h3>
+                        
+                        <div class="help-card">
+                            <div class="help-card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="crown" aria-hidden="true" class="lucide lucide-crown lucide-icon" style="color: var(--primary-purple);"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"></path><path d="M5 21h14"></path></svg> VocalMap Pro 专业特权激活
+                            </div>
+                            <p class="help-card-desc">
+                                系统为保护原创底层算法，对高级全息诊断和音轨分离实行设备绑定授权锁。您可以在 Pro 激活界面查看本机的<b>“硬件指纹”</b>，在官方渠道购买月度通行证或永久买断版 CDK，粘贴至输入框一键激活，云端将秒级下发本地离线许可证书。
+                            </p>
+                        </div>
+
+                        <div class="help-card">
+                            <div class="help-card-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="refresh-cw" aria-hidden="true" class="lucide lucide-refresh-cw lucide-icon" style="color: var(--primary-purple);"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg> OTA 极速静默升级
+                            </div>
+                            <p class="help-card-desc">
+                                在顶部导航栏中，您可以一键<b>“检查更新”</b>。升级程序已接入高速分发网，发现新版本后会自动在后台异步流式下载，下载完成后只需点击<b>“重启安装”</b>即可无感替换主程序，保证您的核心 AI 模型与声学算法始终处于业界最前沿！
+                            </p>
+                        </div>
+
+                        <div class="help-card" style="margin-bottom: 0;">
+                            <div class="help-card-title" style="color: var(--primary-red); font-size: 13px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="bug" aria-hidden="true" class="lucide lucide-bug lucide-icon" style="color: var(--primary-red);"><path d="M12 20v-9"></path><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"></path><path d="M14.12 3.88 16 2"></path><path d="M21 21a4 4 0 0 0-3.81-4"></path><path d="M21 5a4 4 0 0 1-3.55 3.97"></path><path d="M22 13h-4"></path><path d="M3 21a4 4 0 0 1 3.81-4"></path><path d="M3 5a4 4 0 0 0 3.55 3.97"></path><path d="M6 13H2"></path><path d="m8 2 1.88 1.88"></path><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"></path></svg> 遇到系统故障？一键 GitHub 反馈
+                            </div>
+                            <p class="help-card-desc" style="margin-bottom: 14px;">
+                                声卡驱动不兼容、神经网络崩溃、或者是对声学指纹有更好的改进建议？您可以随时点击下方按钮前往我们的官方开源社区提交 Issue，开发团队将在第一时间响应！
+                            </p>
+                            <button class="btn-primary" onclick="submitBug()" style="background: var(--gradient-accent); border: none; padding: 10px 20px; font-weight: bold; width: 100%;">
+                                <i data-lucide="github" class="lucide-icon"></i> 前往 GitHub 提交反馈与故障日志
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="help-modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+                <span style="font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">VocalMap Studio© 2026</span>
+                <button class="btn-cyan" style="padding: 6px 20px; font-size: 13px;" onclick="closeHelp()">已知晓，开始体验</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <script src="js/dom-to-image.min.js"></script>
+    <script src="js/globals.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/realtime_monitor.js"></script>
+    <script src="js/pro_diagnosis.js"></script>
+    <script src="js/audio_engine.js"></script>
+    <script src="js/playback.js"></script>
+    <script src="js/separation.js"></script>
+    <script src="js/training.js"></script>
+    <script src="js/payment.js"></script>
+    <script src="js/updater_settings.js"></script>
+    <script>
+        // Initialize Lucide vector icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

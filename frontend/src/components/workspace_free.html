@@ -1,0 +1,80 @@
+<div id="freeWorkspace" class="w-full max-w-1320 flex gap-24 flex-1 overflow-hidden box-border">
+        
+        <div class="glass-panel flex-1 h-full flex flex-col" style="min-width: 0;">
+            <div class="canvas-container flex-1 relative" style="border-radius: 12px 12px 0 0;">
+                <canvas id="pitchCanvas" width="850" height="520"></canvas>
+                <div id="pitchTooltip" class="absolute hidden pointer-events-none text-cyan text-12 font-bold z-10 whitespace-nowrap font-mono py-6 px-8 rounded-6" style="background:rgba(0,0,0,0.8); border: 1px solid var(--primary-cyan);"></div>
+            </div>
+            
+            <div id="recordControlBar" class="flex items-center px-16 gap-12" style="height: 60px; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.1); border-radius: 0 0 12px 12px;">
+                <button id="btnToggleRecord" class="btn-ghost text-red" style="border-color: rgba(255,82,82,0.3);"><i data-lucide="circle-dot" class="lucide-icon"></i> 开始监视录制</button>
+                <div style="width: 1px; height: 30px; background: var(--glass-border); margin: 0 4px;"></div>
+                
+                <div id="playbackControls" class="hidden flex-1 items-center gap-12">
+                    <button id="btnPlayPause" class="btn-ghost px-12 py-6" style="width: 80px;"><i data-lucide="play" class="lucide-icon"></i> 播放</button>
+                    <input type="range" id="playbackSlider" min="0" max="100" value="0" class="flex-1 m-0">
+                    <span id="playbackTime" class="font-mono text-13 text-muted text-right" style="width: 100px;">0.0s / 0.0s</span>
+                    <button id="btnClosePlayback" class="btn-ghost text-red px-10 py-6" title="关闭回放"><i data-lucide="x" class="lucide-icon"></i> 关闭</button>
+                </div>
+                <div id="recordStatusText" class="hidden text-red text-13 font-bold flex-1" style="animation: pulse 1.5s infinite;">录制中... 0.0s</div>
+
+                <div class="ml-auto flex gap-8">
+                    <button id="btnExportRecord" class="btn-ghost px-10 py-6" title="导出"><i data-lucide="download" class="lucide-icon"></i> 导出</button>
+                    <button id="btnImportRecord" class="btn-ghost px-10 py-6" title="导入"><i data-lucide="folder-open" class="lucide-icon"></i> 导入</button>
+                    <input type="file" id="importRecordFile" accept=".json,.vmap" class="hidden">
+                </div>
+            </div>
+        </div>
+        <div class="dashboard glass-panel box-border h-full overflow-y-auto" style="flex: 0 1 460px; min-width: 380px;">
+            <h3 class="dashboard-title">声学监视特征数据</h3>
+
+            <div class="gauge-card glass-panel card-large">
+                <div class="gauge-title">音高 (Pitch)</div>
+                <div id="valPitch" class="pitch-val-empty">--</div>
+                <div class="gauge-desc" id="descPitch">等待发声...</div>
+            </div>
+
+            <div class="gauge-card glass-panel card-medium">
+                <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="gauge-title" style="text-align: left;">音准 (Cents)</div>
+                    <div id="valDev" style="font-size: 28px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; color: var(--text-main);">0</div>
+                    <div class="gauge-desc" id="descDev" style="text-align: left; justify-content: flex-start; height: auto;">等待发声...</div>
+                </div>
+                
+                <div class="v-bar-container">
+                    <div class="v-bar-axis">
+                        <span>+50</span><span>+40</span><span>+30</span><span>+20</span><span>+10</span>
+                        <span style="font-weight: bold; color: var(--text-main);">0</span>
+                        <span>-10</span><span>-20</span><span>-30</span><span>-40</span><span>-50</span>
+                    </div>
+                    <div class="v-bar-ticks"></div>
+                    <div class="v-bar-center-line"></div>
+                    <div id="barFillDev" class="v-bar-fill"></div>
+                </div>
+            </div>
+
+            <div class="gauge-card glass-panel card-small">
+                <div class="gauge-title">响度 (Loud)</div>
+                <div class="gauge-wrapper"><div class="gauge-ring" id="ringLoud"></div><div class="gauge-inner" id="valLoud">0</div></div>
+                <div class="gauge-desc" id="descLoud">正常</div>
+            </div>
+
+            <div class="gauge-card glass-panel card-small">
+                <div class="gauge-title">机能 (H1/H2)</div>
+                <div class="gauge-wrapper"><div class="gauge-ring" id="ringBright"></div><div class="gauge-inner" id="valBright">0</div></div>
+                <div class="gauge-desc" id="descBright">等待发声...</div>
+            </div>
+
+            <div class="gauge-card glass-panel card-small">
+                <div class="gauge-title">纯净 (HNR)</div>
+                <div class="gauge-wrapper"><div class="gauge-ring" id="ringPure"></div><div class="gauge-inner" id="valPure">0</div></div>
+                <div class="gauge-desc" id="descPure">等待发声...</div>
+            </div>
+
+            <div class="gauge-card glass-panel card-small">
+                <div class="gauge-title">稳定 (Jitter)</div>
+                <div class="gauge-wrapper"><div class="gauge-ring" id="ringStab"></div><div class="gauge-inner" id="valStab">0</div></div>
+                <div class="gauge-desc" id="descStab">等待发声...</div>
+            </div>
+        </div>
+    </div>

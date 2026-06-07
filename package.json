@@ -1,0 +1,26 @@
+{
+  "name": "vocalmap",
+  "version": "3.0.3",
+  "description": "VocalMap 声境 - 专业级声乐诊断平台",
+  "scripts": {
+    "build:ui": "node scripts/build_ui.js",
+    "dev": "npm run build:ui && tauri dev",
+    "build": "npm run build:ui && tauri build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/noto-sans-sc": "^5.2.9",
+    "@tauri-apps/api": "^2.0.0",
+    "@tauri-apps/plugin-dialog": "^2.7.1",
+    "@tauri-apps/plugin-fs": "^2.5.1",
+    "@tauri-apps/plugin-shell": "^2.0.0",
+    "@tauri-apps/plugin-updater": "^2.0.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "javascript-obfuscator": "^5.4.3"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "VocalMap",
+  "version": "3.0.3",
+  "identifier": "com.vocalmap.engine",
+  "build": {
+    "frontendDist": "../frontend",
+    "beforeDevCommand": "",
+    "beforeBuildCommand": ""
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "VocalMap 声境",
+        "width": 1200,
+        "height": 800,
+        "resizable": false,
+        "maximizable": false,
+        "fullscreen": false,
+        "backgroundColor": "#121212"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "createUpdaterArtifacts": true,
+    "active": true,
+    "targets": ["nsis"],
+    "icon": [
+      "icons/2.8.02x2.8.02.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [
+      "../backend/**/*",
+      "../logic_bsroformer/**/*",
+      "../python_runtime/**/*"
+    ]
+  },
+  "plugins": {
+    "updater": {
+      "dangerousInsecureTransportProtocol": true,
+      "endpoints": [
+        "http://66.112.209.251/latest.json",
+        "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/latest/download/latest.json",
+        "https://github.com/DX-Protst/VocalMap-Release/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIxODk1OTVDNkYwMEU5NzMKUldSejZRQnZYRm1KSVZ2L05CVHNNZERCTzhZU0hVRGs0VWgzeENNOVJ5MzZWQ3dsdnd5ZVY0M3oK"
+    }
+  }
+}
