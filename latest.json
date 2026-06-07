@@ -1,11 +1,11 @@
 {
-  "version": "3.0.3",
-  "notes": "修复更新时 Python 僵尸进程锁定文件的致命 Bug。全新的平滑升级体验！",
+  "version": "3.0.4",
+  "notes": "Major security and core architecture upgrade: Implemented robust RSA-based offline/cloud license verification, secured the backend acoustic engine with Cython binary compilation to prevent reverse engineering, and integrated a fully automated one-click release deployment pipeline.",
   "pub_date": "2026-05-26T12:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSVJ1YzNvUFZOYWFmcHptZEZIVndueW9zL2pYMWZWZ3RUVnlldXk0SUR4UjhhZkFpakZpKzh1ZFd6ZzRxMjNXRVIrdFpNdStwdS9BN3NSSDhuVU1wNmdFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgwNzIwMzI0CWZpbGU6Vm9jYWxNYXBfMy4wLjNfeDY0LXNldHVwLmV4ZQoyWEZtY2IwcmJSRTgzcmR3YWZyclhUMnN3LzZtVnZEeWtGTFJMSGRUL3NjQkxTL3B2Z1p0ekRsWnl3dzlFb0NDMWlGSEsyU0tTRWVnOC8ra0I5d3hCQT09Cg==",
-      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.0.3/VocalMap_3.0.3_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSVlWaEdwS1hsaDlsR1NZZ044TGtlQTltZHVWc0x0VEc0OVh4MjM1Yjk3RlpPd0pXdDZRdjVFY012U2c3Uk5qWXJ0UWFtSU5vbVhTOXh0UlNtT2ZHNEFvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgwODM0MDcwCWZpbGU6Vm9jYWxNYXBfMy4wLjRfeDY0LXNldHVwLmV4ZQpEV2RJdURjSVM2YlRrWXc5T25CNUxXK1RZNCtGWnZRWmhYL0tMZjhvaUNkSkZ2RXVjenhqSEZZS21LeGlFVno5a0dYN3BoM09JbDJhN1Bqb01yNjlEdz09Cg==",
+      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.0.4/VocalMap_3.0.4_x64-setup.exe"
     }
   }
 }

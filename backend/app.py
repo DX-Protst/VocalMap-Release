@@ -15,6 +15,9 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, B
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
+# 强制将 backend 目录加入 sys.path，防止便携版 Python 找不到模块
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 def watch_parent_process():
     parent_pid = os.environ.get("VOCALMAP_PARENT_PID")
     if not parent_pid:
