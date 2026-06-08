@@ -54,9 +54,9 @@ if (btnToggleRecord) {
     btnToggleRecord.addEventListener('click', () => {
         if (!isRunning && !isRecordingMonitor) {
             if (typeof showToast === 'function') {
-                showToast("引擎未就绪", "请先启动右上角声学引擎，建立麦克风桥接后再开启录制！", "warning");
+                showToast(t('monitor.record_engine_warning_title', "引擎未就绪"), t('monitor.record_engine_warning', "请先启动右上角声学引擎，建立麦克风桥接后再开启录制！"), "warning");
             } else {
-                alert("请先启动引擎后再开始录制！");
+                alert(t('monitor.engine_unready_alert', "请先启动引擎后再开始录制！"));
             }
             return;
         }
@@ -64,7 +64,7 @@ if (btnToggleRecord) {
             isRecordingMonitor = true;
             recordedPitchData = [];
             monitorRecordStartTime = performance.now();
-             btnToggleRecord.innerHTML = '<i data-lucide="square" class="lucide-icon"></i> 停止监视录制';
+             btnToggleRecord.innerHTML = t('monitor.record_start', '<i data-lucide="square" class="lucide-icon"></i> 停止监视录制');
              lucide.createIcons();
             if (recordStatusText) recordStatusText.style.display = 'block';
             playbackControls.style.display = 'none';
@@ -86,8 +86,8 @@ if (btnToggleRecord) {
             mediaRecorder.start();
         } else {
             isRecordingMonitor = false;
-             btnToggleRecord.innerHTML = '<i data-lucide="circle-dot" class="lucide-icon"></i> 开始监视录制';
-             lucide.createIcons();
+              btnToggleRecord.innerHTML = t('monitor.record_stop', '<i data-lucide="circle-dot" class="lucide-icon"></i> 开始监视录制');
+              lucide.createIcons();
             if (recordStatusText) recordStatusText.style.display = 'none';
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
@@ -119,18 +119,18 @@ function playbackLoop() {
 }
 
 playbackAudio.addEventListener('play', () => {
-    btnPlayPause.innerHTML = '<i data-lucide="pause" class="lucide-icon"></i> 暂停';
+    btnPlayPause.innerHTML = t('monitor.playback_pause', '<i data-lucide="pause" class="lucide-icon"></i> 暂停');
     lucide.createIcons();
     requestAnimationFrame(playbackLoop);
 });
 
 playbackAudio.addEventListener('pause', () => {
-    btnPlayPause.innerHTML = '<i data-lucide="play" class="lucide-icon"></i> 播放';
+    btnPlayPause.innerHTML = t('monitor.playback_play', '<i data-lucide="play" class="lucide-icon"></i> 播放');
     lucide.createIcons();
 });
 
 playbackAudio.addEventListener('ended', () => {
-    btnPlayPause.innerHTML = '<i data-lucide="play" class="lucide-icon"></i> 播放';
+    btnPlayPause.innerHTML = t('monitor.playback_play', '<i data-lucide="play" class="lucide-icon"></i> 播放');
     lucide.createIcons();
     playbackAudio.currentTime = 0;
     playbackCurrentIndex = 0;
@@ -161,7 +161,7 @@ if (playbackSlider) {
 if (btnExportRecord) {
     btnExportRecord.addEventListener('click', async () => {
         if (recordedPitchData.length === 0 || !recordedAudioBlob) {
-            alert("暂无完整的录制数据");
+            alert(t('monitor.no_record_data', "暂无完整的录制数据"));
             return;
         }
         
@@ -169,7 +169,7 @@ if (btnExportRecord) {
         const core = window.__TAURI__ ? window.__TAURI__.core : null;
         
         if (!dialog || !core) {
-            alert("非桌面端环境，无法使用原生导出");
+            alert(t('diag.not_desktop', "非桌面端环境，无法使用原生导出"));
             return;
         }
         
@@ -191,10 +191,10 @@ if (btnExportRecord) {
                 // Write binary data directly to avoid IPC JSON serialization
                 await fs.writeFile(webmPath, uint8Array);
                 
-                alert(`导出成功！已保存:\n${savePath}\n${webmPath}`);
+                alert(t('diag.export_vmap_success', "导出成功！已保存:\n") + `${savePath}\n${webmPath}`);
             }
         } catch (err) {
-            alert("导出失败: " + err);
+            alert(t('monitor.export_failed', "导出失败: ") + err);
         }
     });
 }
@@ -206,7 +206,7 @@ if (btnImportRecord) {
         const core = window.__TAURI__ ? window.__TAURI__.core : null;
         
         if (!dialog || !core || !fs) {
-            alert("非桌面端环境，无法使用原生导入");
+            alert(t('diag.not_desktop', "非桌面端环境，无法使用原生导入"));
             return;
         }
         
@@ -231,7 +231,7 @@ if (btnImportRecord) {
                 }
             }
         } catch (err) {
-            alert("导入失败或缺少音频文件: " + err);
+            alert(t('monitor.import_failed', "导入失败或缺少音频文件: ") + err);
         }
     });
 }

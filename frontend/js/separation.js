@@ -81,24 +81,22 @@ function showDownloadOverlay() {
         
         overlay.innerHTML = `
             <div class="modal-content glass-panel" style="padding:40px;width:540px;text-align:center;">
-                <h2 style="margin-top:0;color:var(--primary-cyan);">初始化 AI 分离引擎</h2>
+                <h2 style="margin-top:0;color:var(--primary-cyan);">${t('sep.dl_title', '初始化 AI 分离引擎')}</h2>
                 <p style="color:var(--text-muted);font-size:14px;line-height:1.6;margin-bottom:20px;">
-                    首次使用音轨分离功能需要下载运行环境及模型权重。<br>
-                    这包含 PyTorch、CUDA 加速库以及两个高性能模型（总计约 5GB）。<br>
-                    下载时间取决于您的网速，请保持网络畅通。
+                    ${t('sep.dl_desc', '首次使用音轨分离功能需要下载运行环境及模型权重。<br>这包含 PyTorch、CUDA 加速库以及两个高性能模型（总计约 5GB）。<br>下载时间取决于您的网速，请保持网络畅通。')}
                 </p>
                 <div id="dlProgressContainer" style="display:none;margin-bottom:20px;">
                     <div style="width:100%;height:8px;background:var(--glass-border);border-radius:4px;overflow:hidden;">
                         <div id="dlProgressBar" style="width:0%;height:100%;background:var(--primary-cyan);transition:width 0.3s;"></div>
                     </div>
-                    <p id="dlProgressText" style="color:var(--primary-cyan);font-size:13px;margin-top:10px;">准备下载...</p>
+                    <p id="dlProgressText" style="color:var(--primary-cyan);font-size:13px;margin-top:10px;">${t('sep.dl_preparing', '准备下载...')}</p>
                 </div>
                 <div id="dlConsole" style="display:none; width:100%; height:180px; background:rgba(0,0,0,0.5); border:1px solid var(--glass-border); border-radius:6px; margin-bottom:20px; overflow-y:auto; text-align:left; padding:10px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#a399b5; box-sizing:border-box;"></div>
                 <button id="btnStartEnvDl" style="background:var(--primary-cyan);color:#121212;border:none;padding:12px 30px;border-radius:6px;font-size:15px;cursor:pointer;font-weight:bold;transition:0.2s;">
-                    🚀 立即开始下载 (5GB)
+                    ${t('sep.dl_btn_dl', '🚀 立即开始下载 (5GB)')}
                 </button>
                 <button id="btnCancelEnvDl" style="background:transparent;color:var(--text-muted);border:none;margin-top:15px;cursor:pointer;font-size:13px;">
-                    以后再说，返回主界面
+                    ${t('sep.dl_btn_later', '以后再说，返回主界面')}
                 </button>
             </div>
         `;
@@ -107,10 +105,10 @@ function showDownloadOverlay() {
         document.getElementById('btnCancelEnvDl').onclick = () => {
             overlay.style.display = 'none';
             document.getElementById('btnStartEnvDl').style.display = 'inline-block';
-            document.getElementById('btnCancelEnvDl').innerText = '以后再说，返回主界面';
+            document.getElementById('btnCancelEnvDl').innerText = t('sep.dl_btn_later', '以后再说，返回主界面');
             document.getElementById('dlProgressContainer').style.display = 'none';
             document.getElementById('dlProgressBar').style.width = '0%';
-            document.getElementById('dlProgressText').innerText = '准备下载...';
+            document.getElementById('dlProgressText').innerText = t('sep.dl_preparing', '准备下载...');
             document.getElementById('dlProgressText').style.color = 'var(--primary-cyan)';
             document.getElementById('dlProgressBar').style.background = 'var(--primary-cyan)';
             document.getElementById('dlConsole').style.display = 'none';
@@ -148,7 +146,7 @@ function showDownloadOverlay() {
 
                 const result = await invoke('start_download');
                 if (result.success) {
-                    document.getElementById('dlProgressText').innerText = '✅ 下载部署完成！正在进入系统...';
+                    document.getElementById('dlProgressText').innerText = t('sep.dl_success', '✅ 下载部署完成！正在进入系统...');
                     document.getElementById('dlProgressText').style.color = 'var(--primary-green)';
                     document.getElementById('dlProgressBar').style.background = 'var(--primary-green)';
                     
@@ -161,11 +159,11 @@ function showDownloadOverlay() {
                     }, 2000);
                 }
             } catch (error) {
-                document.getElementById('dlProgressText').innerText = '❌ 下载失败: ' + error;
+                document.getElementById('dlProgressText').innerText = t('sep.dl_failed', '❌ 下载失败: ') + error;
                 document.getElementById('dlProgressText').style.color = 'var(--primary-red)';
                 document.getElementById('dlProgressBar').style.background = 'var(--primary-red)';
                 document.getElementById('btnCancelEnvDl').style.display = 'inline-block';
-                document.getElementById('btnCancelEnvDl').innerText = '关闭并重试';
+                document.getElementById('btnCancelEnvDl').innerText = t('sep.dl_close_retry', '关闭并重试');
             }
         };
     }
@@ -231,7 +229,7 @@ function resetInstUI() {
     var zone = document.getElementById('sepInstUploadZone');
     if (zone) {
         zone.innerHTML = '<i data-lucide="folder-open" style="width: 36px; height: 36px; stroke-width: 1.5px; margin: 0 auto 12px; color: var(--primary-cyan); display: block;"></i>' +
-            '<p style="color: var(--text-main); margin: 3px 0; font-size: 14px; font-weight: bold;">点击或拖拽上传音频</p>' +
+            '<p style="color: var(--text-main); margin: 3px 0; font-size: 14px; font-weight: bold;">' + t('sep.click_to_upload', '点击或拖拽上传音频') + '</p>' +
             '<p style="color: var(--text-muted); font-size: 11px;">WAV / MP3 / FLAC</p>';
         if (window.lucide) window.lucide.createIcons();
     }
@@ -283,7 +281,7 @@ function resetVocUI() {
     var zone = document.getElementById('sepVocUploadZone');
     if (zone) {
         zone.innerHTML = '<i data-lucide="music" style="width: 36px; height: 36px; stroke-width: 1.5px; margin: 0 auto 12px; color: var(--primary-purple); display: block;"></i>' +
-            '<p style="color: var(--text-main); margin: 3px 0; font-size: 14px; font-weight: bold;">点击或拖拽上传音频</p>' +
+            '<p style="color: var(--text-main); margin: 3px 0; font-size: 14px; font-weight: bold;">' + t('sep.click_to_upload', '点击或拖拽上传音频') + '</p>' +
             '<p style="color: var(--text-muted); font-size: 11px;">WAV / MP3 / FLAC</p>';
         if (window.lucide) window.lucide.createIcons();
     }
@@ -303,7 +301,7 @@ async function startSeparation(panelType) {
     document.getElementById(btnId).style.display = 'none';
     document.getElementById(resId).style.display = 'none';
     document.getElementById(procId).style.display = 'block';
-    document.getElementById(progId).innerText = forceCPU ? 'CPU 处理中...' : '上传并推理中...';
+    document.getElementById(progId).innerText = forceCPU ? t('sep.cpu_processing', 'CPU 处理中...') : t('sep.uploading_processing', '上传并推理中...');
 
     var formData = new FormData();
     formData.append('file', selectedFile);
@@ -317,15 +315,15 @@ async function startSeparation(panelType) {
         });
         var data = await resp.json();
         if (data.error) {
-            alert('分离失败: ' + data.error);
+            alert(t('sep.task_error', '分离失败: ') + data.error);
             if (panelType === 'inst') resetInstUI(); else resetVocUI();
             return;
         }
         var taskId = data.task_id;
-        document.getElementById(progId).innerText = '模型推理中，请耐心等待...';
+        document.getElementById(progId).innerText = t('sep.model_running_wait', '模型推理中，请耐心等待...');
         pollSepTask(taskId, panelType);
     } catch (err) {
-        alert('请求失败: ' + err.message);
+        alert(t('sep.request_failed', '请求失败: ') + err.message);
         if (panelType === 'inst') resetInstUI(); else resetVocUI();
     }
 }
@@ -339,17 +337,17 @@ async function pollSepTask(taskId, panelType) {
             showSepResults(taskId, task, panelType);
             return;
         } else if (task.status === 'error') {
-            alert('分离出错: ' + (task.error || '未知错误'));
+            alert(t('sep.task_error', '分离出错: ') + (task.error || '未知错误'));
             if (panelType === 'inst') resetInstUI(); else resetVocUI();
             return;
         } else {
             if (task.progress !== undefined && task.progress > 0) {
-                document.getElementById(progId).innerText = '模型推理中，进度: ' + task.progress + '% ...';
+                document.getElementById(progId).innerText = t('sep.model_running', '模型推理中，进度: ') + task.progress + '% ...';
             } else {
                 if (task.status_text) {
                     document.getElementById(progId).innerText = task.status_text;
                 } else {
-                    document.getElementById(progId).innerText = '模型初始化中，请稍候...';
+                    document.getElementById(progId).innerText = t('sep.model_loading', '模型初始化中，请稍候...');
                 }
             }
         }
@@ -372,9 +370,9 @@ function showSepResults(taskId, task, panelType) {
     var labels, colors, icons;
     if (panelType === 'inst') {
         labels = {
-            'bass': '贝斯', 'drums': '鼓组', 'vocals': '人声',
-            'other': '其他', 'guitar': '吉他', 'piano': '钢琴',
-            'instrumental': '纯伴奏'
+            'bass': t('sep.stem.bass', '贝斯'), 'drums': t('sep.stem.drums', '鼓组'), 'vocals': t('sep.stem.vocals', '人声'),
+            'other': t('sep.stem.other', '其他'), 'guitar': t('sep.stem.guitar', '吉他'), 'piano': t('sep.stem.piano', '钢琴'),
+            'instrumental': t('sep.stem.instrumental', '纯伴奏')
         };
         colors = {
             'bass': '#FF9100', 'drums': '#FF5252', 'vocals': '#00FFF5',
@@ -387,7 +385,7 @@ function showSepResults(taskId, task, panelType) {
             'instrumental': 'music'
         };
     } else {
-        labels = { 'vocals': '伴奏与和声', 'instrumental': '人声' };
+        labels = { 'vocals': t('sep.stem.voc_harmony', '伴奏与和声'), 'instrumental': t('sep.stem.voc_lead', '人声') };
         colors = { 'vocals': '#CE93D8', 'instrumental': '#00FFF5' };
         icons = { 'vocals': 'music', 'instrumental': 'mic' };
     }
@@ -401,7 +399,7 @@ function showSepResults(taskId, task, panelType) {
         html += '<div style="display: flex; align-items: center; background: var(--upload-zone-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(8px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 10px 14px; border-radius: 8px; border-left: 4px solid ' + color + '; margin-bottom: 6px;">' +
             '<i data-lucide="' + iconName + '" style="color: ' + color + '; margin-right: 10px; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center;"></i>' +
             '<span style="flex: 1; color: var(--text-main); font-size: 14px; font-weight: bold;">' + label + '</span>' +
-            '<button onclick="window.downloadStemResult(event, \'' + taskId + '\', \'' + instr + '\', \'' + label + '\')" style="background: ' + color + '; color: #121212; border: none; padding: 4px 12px; border-radius: 3px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; outline: none;">下载 WAV</button>' +
+            '<button onclick="window.downloadStemResult(event, \'' + taskId + '\', \'' + instr + '\', \'' + label + '\')" style="background: ' + color + '; color: #121212; border: none; padding: 4px 12px; border-radius: 3px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; outline: none;">' + t('sep.write_wav', '下载 WAV') + '</button>' +
             '</div>';
     }
     document.getElementById(listId).innerHTML = html;
@@ -425,7 +423,7 @@ window.downloadStemResult = async function(event, taskId, instr, label) {
 
             const btn = event.target;
             const oldText = btn.innerText;
-            btn.innerText = "写入中...";
+            btn.innerText = t('sep.writing', "写入中...");
             btn.disabled = true;
 
             const res = await fetch(SEP_BASE + '/api/separation/save_to_disk', {
@@ -440,12 +438,12 @@ window.downloadStemResult = async function(event, taskId, instr, label) {
             const data = await res.json();
             if (data.error) throw new Error(data.error);
             
-            btn.innerText = "写入成功";
+            btn.innerText = t('sep.write_success', "写入成功");
             setTimeout(() => { btn.innerText = oldText; btn.disabled = false; }, 2000);
         } catch (e) {
-            alert("下载出错: " + e.message);
+            alert(t('sep.write_failed', "下载出错: ") + e.message);
             const btn = event.target;
-            btn.innerText = "下载失败";
+            btn.innerText = t('sep.write_failed', "下载失败");
             btn.disabled = false;
         }
     } else {

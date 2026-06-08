@@ -37,19 +37,21 @@ function clearLicenseCache() {
     localStorage.removeItem(LICENSE_CACHE_KEY);
 }
 
+let currentPlanType = null; // Store active license status to support dynamic language switching
+
 async function initPaymentSystem() {
     try {
         localMachineId = await invoke('get_machine_id');
         const displayEl = document.getElementById('displayMachineId');
         if (displayEl) {
-            displayEl.innerText = localMachineId || "浏览器测试环境 (请在桌面客户端运行)";
+            displayEl.innerText = localMachineId || t('pay.browser_env', "浏览器测试环境 (请在桌面客户端运行)");
         }
         if (!localMachineId) {
             localMachineId = "WEB_TEST_" + Math.random().toString(36).substr(2, 9).toUpperCase();
         }
     } catch (e) {
         const displayEl = document.getElementById('displayMachineId');
-        if (displayEl) displayEl.innerText = "浏览器测试环境 (请在桌面客户端运行)";
+        if (displayEl) displayEl.innerText = t('pay.browser_env', "浏览器测试环境 (请在桌面客户端运行)");
         localMachineId = "WEB_TEST_" + Math.random().toString(36).substr(2, 9).toUpperCase();
     }
     await checkLicenseStatus(true);
@@ -75,7 +77,7 @@ async function checkLicenseStatus(silent) {
                 let msgEl = document.getElementById('payMessage');
                 if (msgEl) {
                     msgEl.style.color = '#FF5252';
-                    msgEl.innerText = data.message || '许可证无效';
+                    msgEl.innerText = data.message || t('pay.license_invalid', '尚未激活，请购买或输入激活码。');
                 }
             }
         }
@@ -84,13 +86,14 @@ async function checkLicenseStatus(silent) {
             let msgEl = document.getElementById('payMessage');
             if (msgEl) {
                 msgEl.style.color = '#FF5252';
-                msgEl.innerText = '无法连接许可证服务器，请检查网络。';
+                msgEl.innerText = t('pay.server_error', '无法连接许可证服务器，请检查网络。');
             }
         }
     }
 }
 
 function hidePremiumOverlay(planType) {
+    currentPlanType = planType;
     let overlay = document.getElementById('premiumOverlay');
     if (overlay) {
         overlay.style.display = 'none';
@@ -98,7 +101,7 @@ function hidePremiumOverlay(planType) {
     let msgEl = document.getElementById('payMessage');
     if (msgEl) {
         msgEl.style.color = '#00E676';
-        msgEl.innerText = `已激活 (${planType === 'lifetime' ? '永久版' : '月度版'})`;
+        msgEl.innerText = planType === 'lifetime' ? t('pay.activated_lifetime', '已激活 (永久版)') : t('pay.activated_monthly', '已激活 (月度版)');
     }
 }
 
@@ -110,17 +113,17 @@ async function activateCDK() {
 
     if (!cdk) {
         msgEl.style.color = '#FF5252';
-        msgEl.innerText = '请输入激活码';
+        msgEl.innerText = t('pay.enter_cdk', '请输入激活码');
         return;
     }
     if (!cdk.toUpperCase().startsWith('VMAP-')) {
         msgEl.style.color = '#FF5252';
-        msgEl.innerText = '激活码格式不正确，应为 VMAP-XXXX-XXXX-XXXX';
+        msgEl.innerText = t('pay.invalid_format', '激活码格式不正确，应为 VMAP-XXXX-XXXX-XXXX');
         return;
     }
 
     msgEl.style.color = '#00FFF5';
-    msgEl.innerText = '正在验证激活码...';
+    msgEl.innerText = t('pay.verifying', '正在验证激活码...');
 
     try {
         let resp = await fetch(`${LOCAL_API_BASE}/api/license/activate`, {
@@ -132,16 +135,16 @@ async function activateCDK() {
         if (data.success) {
             saveLicenseCache(data.plan_type, data.expires_at);
             msgEl.style.color = '#00E676';
-            msgEl.innerText = data.message || '激活成功！';
+            msgEl.innerText = data.message || t('pay.success', '激活成功！');
             cdkInput.value = '';
             setTimeout(() => hidePremiumOverlay(data.plan_type), 800);
         } else {
             msgEl.style.color = '#FF5252';
-            msgEl.innerText = data.message || '激活失败';
+            msgEl.innerText = data.message || t('pay.failed', '激活失败');
         }
     } catch (err) {
         msgEl.style.color = '#FF5252';
-        msgEl.innerText = '无法连接许可证服务器，请检查网络。';
+        msgEl.innerText = t('pay.server_error', '无法连接许可证服务器，请检查网络。');
     }
 }
 
@@ -149,7 +152,7 @@ async function refreshLicenseStatus() {
     let msgEl = document.getElementById('payMessage');
     if (!msgEl) return;
     msgEl.style.color = '#00FFF5';
-    msgEl.innerText = '正在刷新许可证状态...';
+    msgEl.innerText = t('pay.refreshing', '正在刷新许可证状态...');
 
     try {
         let resp = await fetch(`${LOCAL_API_BASE}/api/license/status?machine_id=${encodeURIComponent(localMachineId)}`);
@@ -157,16 +160,16 @@ async function refreshLicenseStatus() {
         if (data.valid) {
             saveLicenseCache(data.plan_type, data.expires_at);
             msgEl.style.color = '#00E676';
-            msgEl.innerText = '许可证有效，已解锁 Pro 功能。';
+            msgEl.innerText = t('pay.license_valid', '许可证有效，已解锁 Pro 功能。');
             setTimeout(() => hidePremiumOverlay(data.plan_type), 600);
         } else {
             clearLicenseCache();
             msgEl.style.color = '#FF5252';
-            msgEl.innerText = data.message || '尚未激活，请购买或输入激活码。';
+            msgEl.innerText = data.message || t('pay.license_invalid', '尚未激活，请购买或输入激活码。');
         }
     } catch (err) {
         msgEl.style.color = '#FF5252';
-        msgEl.innerText = '无法连接许可证服务器，请检查网络。';
+        msgEl.innerText = t('pay.server_error', '无法连接许可证服务器，请检查网络。');
     }
 }
 
@@ -174,7 +177,7 @@ async function requestPayment(planType) {
     const msgEl = document.getElementById('payMessage');
     if (!msgEl) return;
     msgEl.style.color = '#00FFF5';
-    msgEl.innerText = "正在生成支付通道...";
+    msgEl.innerText = t('pay.generating_gateway', "正在生成支付通道...");
     try {
         let response = await fetch(`${CLOUD_API_BASE}/create_order`, {
             method: 'POST',
@@ -183,17 +186,17 @@ async function requestPayment(planType) {
         });
         let data = await response.json();
         if (data.status === 'success') {
-            msgEl.innerText = "已打开浏览器支付页面。支付完成后请点击【刷新许可证状态】。";
+            msgEl.innerText = t('pay.order_created', "已打开浏览器支付页面。支付完成后请点击【刷新许可证状态】。");
             try {
                 await open(data.payment_url);
             } catch (err) {
-                msgEl.innerText = `网页环境拦截跳转，链接: ${data.payment_url}`;
+                msgEl.innerText = t('pay.blocked_popup', '网页环境拦截跳转，链接: ') + data.payment_url;
             }
         } else {
-            msgEl.style.color = '#FF5252'; msgEl.innerText = "失败：" + data.message;
+            msgEl.style.color = '#FF5252'; msgEl.innerText = t('pay.failed_prefix', "失败：") + data.message;
         }
     } catch (err) {
-        msgEl.style.color = '#FF5252'; msgEl.innerText = "云端连接失败，请检查网络。";
+        msgEl.style.color = '#FF5252'; msgEl.innerText = t('pay.cloud_failed', "云端连接失败，请检查网络。");
     }
 }
 
@@ -208,5 +211,23 @@ if (cdkInputEl) {
         if (e.key === 'Enter') activateCDK();
     });
 }
+
+window.addEventListener('languagechanged', (e) => {
+    const displayEl = document.getElementById('displayMachineId');
+    if (displayEl) {
+        if (!localMachineId || localMachineId.startsWith("WEB_TEST_")) {
+            displayEl.innerText = t('pay.browser_env', "浏览器测试环境 (请在桌面客户端运行)");
+        } else {
+            displayEl.innerText = localMachineId;
+        }
+    }
+    if (currentPlanType) {
+        let msgEl = document.getElementById('payMessage');
+        if (msgEl) {
+            msgEl.style.color = '#00E676';
+            msgEl.innerText = currentPlanType === 'lifetime' ? t('pay.activated_lifetime', '已激活 (永久版)') : t('pay.activated_monthly', '已激活 (月度版)');
+        }
+    }
+});
 
 initPaymentSystem();

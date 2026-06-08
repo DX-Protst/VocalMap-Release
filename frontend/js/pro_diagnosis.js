@@ -5,7 +5,6 @@
 const domIdle = document.getElementById('proStateIdle');
 const domRecording = document.getElementById('proStateRecording');
 const domReport = document.getElementById('proStateReport');
-const timerDisplay = document.getElementById('recordTimer');
 const btnImportAudioDetect = document.getElementById('btnImportAudioDetect');
 const importAudioDetectFile = document.getElementById('importAudioDetectFile');
 let currentDetectAudioSource = null;
@@ -14,9 +13,9 @@ if (document.getElementById('btnStartRecord')) {
     document.getElementById('btnStartRecord').addEventListener('click', () => {
         if (!isRunning || ws.readyState !== WebSocket.OPEN) {
             if (typeof showToast === 'function') {
-                showToast("全息诊断警告", "全息全录诊断舱需要先启动声学系统。请先点击右上角【连接后端并启动】按钮！", "warning");
+                showToast(t('diag.mic_warn_title', "全息诊断警告"), t('diag.mic_warn_msg', "全息全录诊断舱需要先启动声学系统。请先点击右上角【连接后端并启动】按钮！"), "warning");
             } else {
-                alert("请先点击右上角的【连接后端并启动】引擎！");
+                alert(t('audio.engine_start_failed_msg', "无法连接麦克风或后端分析引擎，请检查后端服务是否正在运行！"));
             }
             return;
         }
@@ -28,7 +27,10 @@ if (document.getElementById('btnStartRecord')) {
         
         isProRecording = true; recordStartTime = performance.now();
         recordTimerInterval = setInterval(() => {
-            timerDisplay.innerText = ((performance.now() - recordStartTime) / 1000).toFixed(1) + 's';
+            const elTimer = document.getElementById('recordTimer');
+            if (elTimer) {
+                elTimer.innerText = ((performance.now() - recordStartTime) / 1000).toFixed(1) + 's';
+            }
         }, 100);
         
         proAudioChunks = [];
@@ -55,9 +57,9 @@ if (btnImportAudioDetect) {
     btnImportAudioDetect.addEventListener('click', () => {
         if (!isRunning || ws.readyState !== WebSocket.OPEN) {
             if (typeof showToast === 'function') {
-                showToast("全息诊断警告", "导入全长音频进行一键诊断需要先启动声学引擎，打通底层检测服务通道！", "warning");
+                showToast(t('diag.mic_warn_title', "全息诊断警告"), t('diag.import_warn_msg', "导入全长音频进行一键诊断需要先启动声学引擎，打通底层检测服务通道！"), "warning");
             } else {
-                alert("请先点击右上角的【连接后端并启动】引擎！");
+                alert(t('audio.engine_start_failed_msg', "无法连接麦克风或后端分析引擎，请检查后端服务是否正在运行！"));
             }
             return;
         }
@@ -80,7 +82,7 @@ if (importAudioDetectFile) {
             void domReport.offsetWidth;
             domReport.classList.add('animate-slide-up');
             
-            document.getElementById('reportContent').innerText = "🚀 正在进行离线高速分析，请稍候...";
+            document.getElementById('reportContent').innerText = t('diag.processing', "🚀 正在进行离线高速分析，请稍候...");
 
             const arrayBuffer = await file.arrayBuffer();
             proAudioBlob = new Blob([arrayBuffer], { type: file.type });
@@ -103,10 +105,10 @@ if (importAudioDetectFile) {
             if (data.type === 'pro_report') {
                 renderProReport(data.report);
             } else {
-                document.getElementById('reportContent').innerText = "分析失败: 未知返回格式";
+                document.getElementById('reportContent').innerText = t('diag.process_failed', "分析失败: 未知返回格式");
             }
         } catch (err) {
-            alert("无法分析音频文件: " + err);
+            alert(t('diag.export_failed', "保存长图失败: ") + err);
             domReport.style.display = 'none';
             domIdle.style.display = 'flex';
         }
@@ -135,14 +137,18 @@ if (document.getElementById('btnStopRecord')) {
             }
         }
         
-        document.getElementById('reportContent').innerText = "正在综合分析刚才的演唱数据，请稍候...";
+        document.getElementById('reportContent').innerText = t('diag.analyzing_rec', "正在综合分析刚才的演唱数据，请稍候...");
         ws.send(JSON.stringify({ action: "stop_record" }));
     });
 }
 
 if (document.getElementById('btnResetRecord')) {
     document.getElementById('btnResetRecord').addEventListener('click', () => {
-        domReport.style.display = 'none'; domIdle.style.display = 'flex'; timerDisplay.innerText = '0.0s';
+        domReport.style.display = 'none'; domIdle.style.display = 'flex';
+        const elTimer = document.getElementById('recordTimer');
+        if (elTimer) {
+            elTimer.innerText = '0.0s';
+        }
         proAudioBlob = null;
         proTimeline = null;
         domIdle.classList.remove('animate-slide-left', 'animate-slide-right', 'animate-slide-up');
@@ -156,7 +162,7 @@ const btnExportImage = document.getElementById('btnExportImage');
 if (btnExportImage) {
     btnExportImage.addEventListener('click', () => {
         if (typeof domtoimage === 'undefined') {
-            alert("长图导出库尚未加载完成，请稍后再试！");
+            alert(t('diag.library_loading', "长图导出库尚未加载完成，请稍后再试！"));
             return;
         }
         const exportDiv = document.querySelector('#proStateReport > div:first-child > div');
@@ -177,7 +183,7 @@ if (btnExportImage) {
         overlay.style.flexDirection = 'column';
         overlay.style.alignItems = 'center';
         overlay.style.justifyContent = 'center';
-        overlay.innerHTML = '<div style="font-size: 64px; animation: pulse 1.5s infinite;">📸</div><div style="color: var(--primary-cyan); margin-top: 24px; font-size: 18px; font-weight: 800; letter-spacing: 1px;">正在为您提取原生高精度图像...</div>';
+        overlay.innerHTML = '<div style="font-size: 64px; animation: pulse 1.5s infinite;">📸</div><div style="color: var(--primary-cyan); margin-top: 24px; font-size: 18px; font-weight: 800; letter-spacing: 1px;">' + t('diag.image_exporting_overlay', "正在为您提取原生高精度图像...") + '</div>';
         document.body.appendChild(overlay);
         
         const origContainerHeight = reportContainer.style.height;
@@ -253,9 +259,9 @@ if (btnExportImage) {
                     const fs = window.__TAURI__.fs;
 
                     await fs.writeFile(savePath, byteArray);
-                    alert(`报告长图导出成功！\n已保存至: ${savePath}`);
+                    alert(t('diag.export_success', "报告长图导出成功！\n已保存至: ") + savePath);
                 } catch (err) {
-                    alert("保存长图失败: " + err);
+                    alert(t('diag.export_failed', "保存长图失败: ") + err);
                 }
             }).catch(err => {
                 reportContainer.style.height = origContainerHeight;
@@ -269,7 +275,7 @@ if (btnExportImage) {
                 if (exportDiv) exportDiv.style.display = 'flex';
                 if (btnReset && btnReset.parentNode.tagName !== 'DIV') btnReset.style.display = 'inline-block';
                 document.body.removeChild(overlay);
-                alert("长图导出失败: " + err);
+                alert(t('diag.export_failed', "长图导出失败: ") + err);
             });
         }, 300);
     });
@@ -280,13 +286,13 @@ const btnExportVmap = document.getElementById('btnExportVmap');
 if (btnExportVmap) {
     btnExportVmap.addEventListener('click', async () => {
         if (!proAudioBlob || !proTimeline) {
-            alert("无法导出：缺少音频录制数据或时间轴数据。");
+            alert(t('diag.no_data', "无法导出：缺少音频录制数据或时间轴数据。"));
             return;
         }
         const dialog = window.__TAURI__ ? window.__TAURI__.dialog : null;
         const core = window.__TAURI__ ? window.__TAURI__.core : null;
         if (!dialog || !core) {
-            alert("非桌面端环境，无法使用原生导出");
+            alert(t('diag.not_desktop', "非桌面端环境，无法使用原生导出"));
             return;
         }
 
@@ -304,9 +310,9 @@ if (btnExportVmap) {
             await fs.writeTextFile(savePath, JSON.stringify(proTimeline));
             await fs.writeFile(webmPath, audioBytes);
             
-            alert(`导出成功！已保存:\n${savePath}\n${webmPath}`);
+            alert(t('diag.export_vmap_success', "导出成功！已保存:\n") + savePath + "\n" + webmPath);
         } catch (e) {
-            alert("保存失败: " + e);
+            alert(t('diag.export_failed', "保存失败: ") + e);
         }
     });
 }
@@ -319,7 +325,7 @@ function drawRadarChart(canvas, radarData) {
     var R = 115; 
     var labelR = R + 30;
 
-    var labels = ['音准', '稳定', '纯净', '共鸣', '颤音'];
+    var labels = [t('diag.radar_accuracy', '音准'), t('diag.radar_stability', '稳定'), t('diag.radar_purity', '纯净'), t('diag.radar_resonance', '共鸣'), t('diag.radar_vibrato', '颤音')];
     var keys = ['accuracy', 'stability', 'purity', 'resonance', 'vibrato'];
     var N = labels.length;
     var values = keys.map(function(k) { return radarData[k] || 0; });
@@ -437,8 +443,18 @@ function renderProReport(reportData) {
     el.style.textAlign = 'left';
 
     if (!reportData || reportData.status === 'error') {
+        let errMsg = reportData ? reportData.message : t('diag.report_unavailable', '报告数据不可用，请重新录制。');
+        if (errMsg === '有效发声数据不足，请大声演唱并保持足够时长。') {
+            errMsg = t('diag.insufficient_data', '有效发声数据不足，请大声演唱并保持足够时长。');
+        } else if (errMsg && errMsg.indexOf('未找到许可证文件') !== -1) {
+            errMsg = t('diag.license_missing', '未找到许可证文件。请先购买 Pro 版并激活。');
+        } else if (errMsg && errMsg.indexOf('您的许可证已过期') !== -1) {
+            errMsg = t('diag.license_expired', '您的许可证已过期，请续费。');
+        } else if (errMsg && (errMsg.indexOf('许可证验证失败') !== -1 || errMsg.indexOf('许可证校验异常') !== -1 || errMsg.indexOf('许可证签名伪造') !== -1)) {
+            errMsg = t('diag.license_invalid', '许可证验证失败，请重新激活。');
+        }
         el.innerHTML = '<div style="color:#FF5252; text-align:center; padding:40px;">'
-            + (reportData ? reportData.message : '报告数据不可用，请重新录制。')
+            + errMsg
             + '</div>';
         return;
     }
@@ -453,7 +469,7 @@ function renderProReport(reportData) {
 
     if (reportData.radar_data) {
         var rd = reportData.radar_data;
-        var labels = ['音准','稳定','纯净','共鸣','颤音'];
+        var labels = [t('diag.radar_accuracy', '音准'), t('diag.radar_stability', '稳定'), t('diag.radar_purity', '纯净'), t('diag.radar_resonance', '共鸣'), t('diag.radar_vibrato', '颤音')];
         var keys = ['accuracy','stability','purity','resonance','vibrato'];
         html += '<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">';
         for (var i = 0; i < labels.length; i++) {
@@ -472,7 +488,7 @@ function renderProReport(reportData) {
     var dims = (reportData.analysis && reportData.analysis.dimensions) || [];
     if (dims.length > 0) {
         hasContent = true;
-        html += '<div style="color:var(--primary-cyan); font-size:14px; font-weight:bold; margin-bottom:8px;">诊断发现</div>';
+        html += '<div style="color:var(--primary-cyan); font-size:14px; font-weight:bold; margin-bottom:8px;">' + t('diag.report_findings', '诊断发现') + '</div>';
         dims.forEach(function(d) {
             var v = d.value || 0;
             var tc = v >= 80 ? 'var(--primary-cyan)' : (v >= 50 ? '#FFEA00' : 'var(--primary-red)');
@@ -489,7 +505,7 @@ function renderProReport(reportData) {
     var cross = (reportData.analysis && reportData.analysis.cross) || [];
     if (cross.length > 0) {
         hasContent = true;
-        html += '<div style="color:var(--primary-cyan); font-size:14px; font-weight:bold; margin-bottom:8px; margin-top:14px;">多维交叉洞察</div>';
+        html += '<div style="color:var(--primary-cyan); font-size:14px; font-weight:bold; margin-bottom:8px; margin-top:14px;">' + t('diag.report_insights', '多维交叉洞察') + '</div>';
         cross.forEach(function(cr) {
             html += '<div style="background:var(--upload-zone-bg); border:1px solid var(--glass-border); backdrop-filter:blur(8px); box-shadow:0 4px 12px rgba(0,0,0,0.05); color:var(--text-main); padding:8px 12px; margin-bottom:8px; border-radius:8px; border-left:4px solid var(--primary-cyan);">'
                 + '<span style="color:var(--primary-cyan); font-size:11px; font-weight:bold;">' + cr.pair + '</span> '
@@ -499,12 +515,12 @@ function renderProReport(reportData) {
     }
 
     if (!hasContent) {
-        html += '<div style="color:var(--text-muted); text-align:center; padding:30px;">各项指标均在正常范围，未发现明显问题。</div>';
+        html += '<div style="color:var(--text-muted); text-align:center; padding:30px;">' + t('diag.report_normal', '各项指标均在正常范围，未发现明显问题。') + '</div>';
     }
 
     html += '<div style="margin-top:14px; color:var(--text-muted); font-size:11px; border-top:1px solid var(--glass-border); padding-top:8px;">'
-        + '录制时长: ' + (reportData.duration_sec || 0) + 's'
-        + '  |  数据量: ' + (reportData.data_size_kb || 0) + 'KB</div>';
+        + t('diag.report_duration', '录制时长') + ': ' + (reportData.duration_sec || 0) + 's'
+        + '  |  ' + t('diag.report_data_size', '数据量') + ': ' + (reportData.data_size_kb || 0) + 'KB</div>';
 
     el.innerHTML = html;
     el.scrollTop = 0;

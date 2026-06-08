@@ -184,7 +184,12 @@ function handleBackendData(data) {
     _latestCurrentPitch = finalPitch;
     
     if (isRecordingMonitor) {
+        const elapsed = (performance.now() - monitorRecordStartTime) / 1000;
         recordedPitchData.push({ pitch: finalPitch > 0 ? finalPitch : -1, time: performance.now() - monitorRecordStartTime });
+        const statusEl = document.getElementById('recordStatusText');
+        if (statusEl) {
+            statusEl.innerText = t('monitor.rec_status_text', '录制中... ') + `${elapsed.toFixed(1)}s`;
+        }
     }
     
     let isPerfMode = typeof performanceMode !== 'undefined' && performanceMode;
@@ -440,7 +445,7 @@ function renderFrame() {
         if (valPitchEl) {
             valPitchEl.innerText = '--';
             valPitchEl.style.color = 'rgba(255,255,255,0.2)';
-            setGaugeDesc('Pitch', "等待发声...");
+            setGaugeDesc('Pitch', t('monitor.waiting', "等待发声..."));
         }
     }
 
@@ -477,11 +482,11 @@ function renderFrame() {
                     avgDev = textBuffer.dev.reduce((a, b) => a + b, 0) / len;
                 }
 
-                setGaugeDesc('Loud', avgLoud > 85 ? "💥 强音/爆音" : (avgLoud < 30 ? "🤫 轻声" : "🗣️ 正常音量"));
-                setGaugeDesc('Bright', avgBright > 70 ? "🟡 头声主导" : (avgBright < 40 ? "🟠 胸声主导" : "🔵 混声"));
-                setGaugeDesc('Pure', avgPure > 70 ? "🛡️ 闭合紧密" : (avgPure < 50 ? "💨 气声漏气" : "🎵 声音集中"));
-                setGaugeDesc('Stab', avgStab > 90 ? "➖ 平稳长直" : (avgStab < 60 ? "⚠️ 震荡" : "🌊 颤音自然"));
-                setGaugeDesc('Dev', avgDev > 15 ? "🔺 偏高 (Sharp)" : (avgDev < -15 ? "🔻 偏低 (Flat)" : "✅ 命中靶心"));
+                setGaugeDesc('Loud', avgLoud > 85 ? t('monitor.loud_loud', "💥 强音/爆音") : (avgLoud < 30 ? t('monitor.loud_soft', "🤫 轻声") : t('monitor.loud_normal', "🗣️ 正常音量")));
+                setGaugeDesc('Bright', avgBright > 70 ? t('monitor.bright_head', "🟡 头声主导") : (avgBright < 40 ? t('monitor.bright_chest', "🟠 胸声主导") : t('monitor.bright_mix', "🔵 混声")));
+                setGaugeDesc('Pure', avgPure > 70 ? t('monitor.pure_tight', "🛡️ 闭合紧密") : (avgPure < 50 ? t('monitor.pure_breathy', "💨 气声漏气") : t('monitor.pure_focused', "🎵 声音集中")));
+                setGaugeDesc('Stab', avgStab > 90 ? t('monitor.stab_straight', "➖ 平稳长直") : (avgStab < 60 ? t('monitor.stab_jitter', "⚠️ 震荡") : t('monitor.stab_vibrato', "🌊 颤音自然")));
+                setGaugeDesc('Dev', avgDev > 15 ? t('monitor.dev_sharp', "🔺 偏高 (Sharp)") : (avgDev < -15 ? t('monitor.dev_flat', "🔻 偏低 (Flat)") : t('monitor.dev_hit', "✅ 命中靶心")));
             }
         } else {
             updateGaugeCSS('Loud', m.loudness, lColor, m.loudness.toFixed(0));
@@ -492,11 +497,11 @@ function renderFrame() {
             updateBipolarGaugeCSS('Dev', 0, inactiveColor, '0');
 
             if (silentFrames > 20) {
-                setGaugeDesc('Loud', m.loudness > 85 ? "💥 强音/爆音" : (m.loudness < 30 ? "安静" : "🗣️ 正常说话音量"));
-                setGaugeDesc('Bright', "等待持续发声...");
-                setGaugeDesc('Pure', "等待持续发声...");
-                setGaugeDesc('Stab', "等待持续发声...");
-                setGaugeDesc('Dev', "等待持续发声...");
+                setGaugeDesc('Loud', m.loudness > 85 ? t('monitor.loud_loud', "💥 强音/爆音") : (m.loudness < 30 ? t('monitor.loud_soft', "🤫 轻声") : t('monitor.loud_normal', "🗣️ 正常音量")));
+                setGaugeDesc('Bright', t('monitor.bright_waiting', "等待持续发声..."));
+                setGaugeDesc('Pure', t('monitor.bright_waiting', "等待持续发声..."));
+                setGaugeDesc('Stab', t('monitor.bright_waiting', "等待持续发声..."));
+                setGaugeDesc('Dev', t('monitor.bright_waiting', "等待持续发声..."));
                 textBuffer = { loud: [], bright: [], pure: [], stab: [], dev: [], vibrato: [] };
                 textBufferSum = { loud: 0, bright: 0, pure: 0, stab: 0, dev: 0, vibrato: 0 };
             }
@@ -573,7 +578,7 @@ function drawTrainingTargets(ctx, canvasW, canvasH, getLocalY, deltaTime) {
                 if (t.type === 'stability') {
                     let latestStab = textBuffer.stab.length > 0 ? textBuffer.stab[textBuffer.stab.length - 1] : 0;
                     if (latestStab < 70) hitCondition = false;
-                    hitReason = hitCondition ? "气息稳定!" : "气息不稳!";
+                    hitReason = hitCondition ? t('train.hit_stable', "气息稳定!") : t('train.hit_unstable', "气息不稳!");
                 } else if (t.type === 'chest') {
                     let latestPure = textBuffer.pure.length > 0 ? textBuffer.pure[textBuffer.pure.length - 1] : 0;
                     if (latestPure < 15) hitCondition = false;
@@ -625,13 +630,19 @@ function drawTrainingTargets(ctx, canvasW, canvasH, getLocalY, deltaTime) {
             break;
         }
     }
-    
     const overlay = document.getElementById('trainingInstructionOverlay');
     const overlayText = document.getElementById('trainingInstructionText');
     if (overlay && overlayText) {
         if (upcomingTarget && upcomingTarget.instruction) {
-            if (overlayText.innerText !== upcomingTarget.instruction) {
-                overlayText.innerText = upcomingTarget.instruction;
+            let displayInst = upcomingTarget.instruction;
+            if (displayInst.startsWith('[听音提示] ')) {
+                let actualInst = displayInst.replace('[听音提示] ', '');
+                displayInst = t('[听音提示] ', '[Listening Hint] ') + t(actualInst, actualInst);
+            } else {
+                displayInst = t(displayInst, displayInst);
+            }
+            if (overlayText.innerText !== displayInst) {
+                overlayText.innerText = displayInst;
             }
             overlay.style.opacity = '1';
         } else {
@@ -686,12 +697,12 @@ function drawTrainingTargets(ctx, canvasW, canvasH, getLocalY, deltaTime) {
                     if (typeof showTrainingResultModal === 'function') {
                         showTrainingResultModal(safeScore);
                     } else {
-                        alert(`训练完成！最终达成率: ${safeScore}%`);
+                        alert(t('train.finished_alert_prefix', '训练完成！最终达成率: ') + `${safeScore}%`);
                         if (typeof exitTraining === 'function') exitTraining();
                     }
                 } catch (e) {
                     console.error("Error showing modal:", e);
-                    alert(`训练完成！(展示结算面板时发生错误)`);
+                    alert(t('train.modal_error', '训练完成！(展示结算面板时发生错误)'));
                     if (typeof exitTraining === 'function') exitTraining();
                 }
             }

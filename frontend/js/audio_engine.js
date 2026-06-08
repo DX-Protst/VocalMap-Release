@@ -16,14 +16,14 @@ async function initMicrophoneSelect() {
         select.innerHTML = '';
         const defaultOption = document.createElement('option');
         defaultOption.value = 'default';
-        defaultOption.text = '系统默认设备 (Default)';
+        defaultOption.text = t('audio.default_device', '系统默认设备 (Default)');
         select.appendChild(defaultOption);
         
         audioInputs.forEach(device => {
             if (device.deviceId === 'default' || device.deviceId === 'communications') return;
             const option = document.createElement('option');
             option.value = device.deviceId;
-            option.text = device.label || `麦克风 (${device.deviceId.substring(0,5)}...)`;
+            option.text = device.label || `${t('audio.mic_label', '麦克风')} (${device.deviceId.substring(0,5)}...)`;
             if (device.deviceId === savedDeviceId) {
                 option.selected = true;
             }
@@ -37,7 +37,7 @@ async function initMicrophoneSelect() {
     } catch (e) {
         console.error("无法枚举麦克风", e);
         if (select.options.length === 0) {
-            select.innerHTML = '<option value="default">无法获取设备列表</option>';
+            select.innerHTML = '<option value="default">' + t('audio.no_devices', '无法获取设备列表') + '</option>';
         }
     }
 }
@@ -46,7 +46,7 @@ async function checkEnvironment() {
     try {
         let hasVCRedist = await invoke('check_vcredist');
         if (!hasVCRedist) {
-            alert("⚠️ 严重环境缺失：\n\n检测到您的系统未安装微软 C++ 运行库 (VC++ 2015-2022 Redistributable)。\n\nVocalMap 的音频核心需要此底层环境才能运行。\n\n点击【确定】将自动为您打开微软官方下载链接，请下载并安装 x64 版本后，重新启动本软件！");
+            alert(t('audio.vc_redist_warning', "⚠️ 严重环境缺失：\n\n检测到您的系统未安装微软 C++ 运行库 (VC++ 2015-2022 Redistributable)。\n\nVocalMap 的音频核心需要此底层环境才能运行。\n\n点击【确定】将自动为您打开微软官方下载链接，请下载并安装 x64 版本后，重新启动本软件！"));
             await open("https://aka.ms/vs/17/release/vc_redist.x64.exe");
             return false;
         }
@@ -64,7 +64,7 @@ async function startEngine() {
         ws = new WebSocket('ws://127.0.0.1:5050/ws');
         
         ws.onopen = async () => {
-            wsStatus.innerText = "后端状态: 已连接"; wsStatus.style.color = "#00ADB5";
+            wsStatus.innerText = t('audio.backend_connected', "连接状态: 已连接"); wsStatus.style.color = "#00ADB5";
             try {
                 let baseConstraints = {
                     echoCancellation: false,
@@ -108,16 +108,16 @@ async function startEngine() {
                     renderLoop();
                 }
                 if (typeof sendSettings === 'function') sendSettings();
-                startBtn.innerHTML = '<i data-lucide="square" class="lucide-icon"></i> 停止引擎 / Stop';
+                startBtn.innerHTML = t('audio.stop_engine', '<i data-lucide="square" class="lucide-icon"></i> 停止引擎 / Stop');
                 lucide.createIcons();
                 startBtn.className = "btn-danger";
                 startBtn.style.backgroundColor = ""; // Clear any lingering inline styles
             } catch (err) {
                 console.error('麦克风访问失败:', err);
                 if (typeof showToast === 'function') {
-                    showToast("麦克风访问失败", "无法访问您的音频输入设备: " + err.name + "。请确认 Windows 麦克风隐私授权已开启！", "error");
+                    showToast(t('audio.mic_access_failed_title', "麦克风访问失败"), t('audio.mic_access_failed_msg', "无法访问您的音频输入设备: ") + err.name + "。请确认 Windows 麦克风隐私授权已开启！", "error");
                 } else {
-                    alert("无法访问麦克风: " + err.name + " - " + err.message + "\n请检查 Windows 麦克风隐私设置或权限。");
+                    alert(t('audio.mic_access_failed_alert', "无法访问麦克风: ") + err.name + " - " + err.message);
                 }
                 ws.close();
             }
@@ -134,9 +134,9 @@ async function startEngine() {
     } catch (err) { 
         console.error('引擎启动失败:', err); 
         if (typeof showToast === 'function') {
-            showToast("引擎启动失败", "无法连接麦克风或后端分析引擎，请检查后端服务是否正在运行！", "error");
+            showToast(t('audio.engine_start_failed_title', "引擎启动失败"), t('audio.engine_start_failed_msg', "无法连接麦克风或后端分析引擎，请检查后端服务是否正在运行！"), "error");
         } else {
-            alert("无法连接麦克风或后端引擎，请检查设置。");
+            alert(t('audio.engine_start_failed_msg', "无法连接麦克风或后端引擎，请检查设置。"));
         }
     }
 }
@@ -147,7 +147,7 @@ function stopEngine() {
     if (typeof exitTraining === 'function' && typeof activeTrainingSequence !== 'undefined' && activeTrainingSequence !== null) {
         exitTraining();
         if (typeof showToast === 'function') {
-            showToast("训练已终止", "后端引擎已断开，当前训练被强制终止。", "warning");
+            showToast(t('audio.training_terminated_title', "训练已终止"), t('audio.training_terminated_msg', "后端引擎已断开，当前训练被强制终止。"), "warning");
         }
     }
 
@@ -156,7 +156,7 @@ function stopEngine() {
     if (audioContext) audioContext.close();
     if (ws) ws.close();
     
-    startBtn.innerHTML = '<i data-lucide="zap" class="lucide-icon"></i> 启动引擎'; 
+    startBtn.innerHTML = t('audio.start_engine', '<i data-lucide="zap" class="lucide-icon"></i> 启动引擎'); 
     lucide.createIcons();
     startBtn.className = "btn-cyan";
     startBtn.style.backgroundColor = ""; // Clear inline styles
@@ -172,12 +172,35 @@ function stopEngine() {
     if (valPitchEl) {
         valPitchEl.innerText = '--';
         valPitchEl.style.color = '#555';
-        document.getElementById('descPitch').innerText = "等待发声...";
+        document.getElementById('descPitch').innerText = t('monitor.waiting', "等待发声...");
     }
-    wsStatus.innerText = "后端状态: 断开"; wsStatus.style.color = "#E23E57";
+    wsStatus.innerText = t('audio.backend_disconnected', "连接状态: 已断开"); wsStatus.style.color = "#E23E57";
 }
 
 startBtn.addEventListener('click', () => isRunning ? stopEngine() : startEngine());
 
 // Initialize microphone list on startup
 initMicrophoneSelect();
+
+// Listen to language changes to update wsStatus and startBtn texts dynamically
+window.addEventListener('languagechanged', () => {
+    if (wsStatus) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            wsStatus.innerText = t('audio.backend_connected', "连接状态: 已连接");
+            wsStatus.style.color = "#00ADB5";
+        } else {
+            wsStatus.innerText = t('audio.backend_disconnected', "连接状态: 已断开");
+            wsStatus.style.color = "#E23E57";
+        }
+    }
+    if (startBtn) {
+        if (isRunning) {
+            startBtn.innerHTML = t('audio.stop_engine', '<i data-lucide="square" class="lucide-icon"></i> 停止引擎 / Stop');
+        } else {
+            startBtn.innerHTML = t('audio.start_engine', '<i data-lucide="zap" class="lucide-icon"></i> 启动引擎');
+        }
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    }
+});

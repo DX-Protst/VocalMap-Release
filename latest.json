@@ -1,11 +1,11 @@
 {
-  "version": "3.0.4",
-  "notes": "Major security and core architecture upgrade: Implemented robust RSA-based offline/cloud license verification, secured the backend acoustic engine with Cython binary compilation to prevent reverse engineering, and integrated a fully automated one-click release deployment pipeline.",
+  "version": "3.1.0",
+  "notes": "Supported English/Chinese localization for the Help Manual, redesigned the OTA upgrade UI, and fixed several bugs including the diagnosis timer freeze and analysis hang on insufficient data.",
   "pub_date": "2026-05-26T12:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSVlWaEdwS1hsaDlsR1NZZ044TGtlQTltZHVWc0x0VEc0OVh4MjM1Yjk3RlpPd0pXdDZRdjVFY012U2c3Uk5qWXJ0UWFtSU5vbVhTOXh0UlNtT2ZHNEFvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgwODM0MDcwCWZpbGU6Vm9jYWxNYXBfMy4wLjRfeDY0LXNldHVwLmV4ZQpEV2RJdURjSVM2YlRrWXc5T25CNUxXK1RZNCtGWnZRWmhYL0tMZjhvaUNkSkZ2RXVjenhqSEZZS21LeGlFVno5a0dYN3BoM09JbDJhN1Bqb01yNjlEdz09Cg==",
-      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.0.4/VocalMap_3.0.4_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSVhTcU5GRnp2WklrWWFTNFBLY0M2d1d6UzhmTmhQQUJyMDVUUEhsQmJRZXZzSlNmaytCLzQzNDkzeXkwMVlrSHZtY3FxWWRYVEVXSWFmdERWeWxoR2drPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgwODg4NTYyCWZpbGU6Vm9jYWxNYXBfMy4xLjBfeDY0LXNldHVwLmV4ZQpqWGcyOEFkbFZ5VlF3NWFJalBBSWk3Nllrb2R2dHpFeEx2WEFjcHIxOEZmcEhjbyt2UnYrVzVhQWtTMzFHaFF6M3VXVXkrNTY5MVA3STlFWWoybURCUT09Cg==",
+      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.1.0/VocalMap_3.1.0_x64-setup.exe"
     }
   }
 }

@@ -55,9 +55,8 @@ window.switchTab = function(tabName) {
 
     btnCheck.addEventListener('click', async function() {
         btnCheck.disabled = true;
-        if (statusText) {
-            statusText.innerText = '正在检查更新...';
-            statusText.style.color = '#00FFF5';
+        if (typeof showToast === 'function') {
+            showToast(t('update.toast_title_checking', '更新检测'), t('update.checking', '正在检查更新...'), 'info');
         }
         
         try {
@@ -68,27 +67,24 @@ window.switchTab = function(tabName) {
                 if (progressWrapper) progressWrapper.style.display = 'none';
                 if (btnInstall) {
                     btnInstall.style.display = 'block';
-                    btnInstall.innerText = '下载更新';
+                    btnInstall.innerText = t('update.download', '下载更新');
                     btnInstall.disabled = false;
                 }
-                if (statusText) {
-                    statusText.innerText = '发现新版本 v' + update.version + '，请点击下载更新';
-                    statusText.style.color = '#00ADB5';
+                if (typeof showToast === 'function') {
+                    showToast(t('update.toast_title_found', '发现新版本'), t('update.found_prefix', '发现新版本 v') + update.version + t('update.found_suffix', '，请点击下载更新'), 'success');
                 }
                 if (progressBar) progressBar.style.width = '0%';
                 updateState = 'download-ready';
             } else {
                 btnCheck.style.display = 'block';
                 btnCheck.disabled = false;
-                if (statusText) {
-                    statusText.innerText = '已是最新版本';
-                    statusText.style.color = '#00E676';
+                if (typeof showToast === 'function') {
+                    showToast(t('update.toast_title_latest', '检查完毕'), t('update.latest', '已是最新版本'), 'success');
                 }
             }
         } catch (err) {
-            if (statusText) {
-                statusText.innerText = '更新失败: ' + err;
-                statusText.style.color = '#FF5252';
+            if (typeof showToast === 'function') {
+                showToast(t('update.toast_title_error', '检测失败'), t('update.check_failed', '更新失败: ') + err, 'error');
             }
             btnCheck.disabled = false;
             btnCheck.style.display = 'block';
@@ -100,7 +96,7 @@ window.switchTab = function(tabName) {
             if (updateState === 'download-ready') {
                 updateState = 'downloading';
                 btnInstall.disabled = true;
-                btnInstall.innerText = '正在下载...';
+                btnInstall.innerText = t('update.downloading', '正在下载...');
                 if (progressWrapper) progressWrapper.style.display = 'block';
                 if (progressBar) progressBar.style.width = '0%';
                 
@@ -115,29 +111,26 @@ window.switchTab = function(tabName) {
                                 break;
                             case 'Progress':
                                 downloaded += event.data.chunkLength;
-                                if (contentLength > 0 && progressBar && statusText) {
+                                if (contentLength > 0 && progressBar) {
                                     const pct = Math.round((downloaded / contentLength) * 100);
                                     progressBar.style.width = pct + '%';
-                                    statusText.innerText = '下载中 ' + pct + '%';
                                 }
                                 break;
                         }
                     });
 
                     if (progressWrapper) progressWrapper.style.display = 'none';
-                    if (statusText) {
-                        statusText.innerText = 'v' + updateObject.version + ' 下载完成，请点击安装并重启';
-                        statusText.style.color = '#00E676';
+                    if (typeof showToast === 'function') {
+                        showToast(t('update.toast_title_ready', '下载完成'), t('update.download_success_prefix', 'v') + updateObject.version + t('update.download_success_suffix', ' 下载完成，请点击安装并重启'), 'success');
                     }
-                    btnInstall.innerText = '安装并重启';
+                    btnInstall.innerText = t('update.install', '安装并重启');
                     btnInstall.disabled = false;
                     updateState = 'install-ready';
                 } catch (err) {
-                    if (statusText) {
-                        statusText.innerText = '下载失败: ' + err;
-                        statusText.style.color = '#FF5252';
+                    if (typeof showToast === 'function') {
+                        showToast(t('update.toast_title_error', '下载失败'), t('update.download_failed', '下载失败: ') + err, 'error');
                     }
-                    btnInstall.innerText = '重新下载';
+                    btnInstall.innerText = t('update.redownload', '重新下载');
                     btnInstall.disabled = false;
                     updateState = 'download-ready';
                     if (progressWrapper) progressWrapper.style.display = 'none';
@@ -145,10 +138,9 @@ window.switchTab = function(tabName) {
             } else if (updateState === 'install-ready') {
                 updateState = 'installing';
                 btnInstall.disabled = true;
-                btnInstall.innerText = '正在安装...';
-                if (statusText) {
-                    statusText.innerText = '正在安装更新，准备重启...';
-                    statusText.style.color = '#00FFF5';
+                btnInstall.innerText = t('update.installing', '正在安装...');
+                if (typeof showToast === 'function') {
+                    showToast(t('update.toast_title_installing', '正在安装'), t('update.installing_status', '正在安装更新，准备重启...'), 'info');
                 }
                 
                 try {
@@ -160,17 +152,46 @@ window.switchTab = function(tabName) {
                         console.warn("relaunch_app command not found");
                     }
                 } catch (err) {
-                    if (statusText) {
-                        statusText.innerText = '安装失败: ' + err;
-                        statusText.style.color = '#FF5252';
+                    if (typeof showToast === 'function') {
+                        showToast(t('update.toast_title_error', '安装失败'), t('update.install_failed', '安装失败: ') + err, 'error');
                     }
-                    btnInstall.innerText = '重新安装';
+                    btnInstall.innerText = t('update.reinstall', '重新安装');
                     btnInstall.disabled = false;
                     updateState = 'install-ready';
                 }
             }
         });
     }
+
+    window.addEventListener('languagechanged', () => {
+        if (btnCheck) {
+            btnCheck.innerText = t('update.check_btn', '检查更新');
+        }
+        if (btnInstall) {
+            if (updateState === 'download-ready') {
+                btnInstall.innerText = t('update.download', '下载更新');
+            } else if (updateState === 'downloading') {
+                btnInstall.innerText = t('update.downloading', '正在下载...');
+            } else if (updateState === 'install-ready') {
+                btnInstall.innerText = t('update.install', '安装并重启');
+            } else if (updateState === 'installing') {
+                btnInstall.innerText = t('update.installing', '正在安装...');
+            } else {
+                btnInstall.innerText = t('update.install_btn', '重启安装');
+            }
+        }
+        if (statusText) {
+            if (updateState === 'none') {
+                if (statusText.innerText !== '') {
+                    statusText.innerText = t('update.latest', '已是最新版本');
+                }
+            } else if (updateState === 'download-ready' && updateObject) {
+                statusText.innerText = t('update.found_prefix', '发现新版本 v') + updateObject.version + t('update.found_suffix', '，请点击下载更新');
+            } else if (updateState === 'install-ready' && updateObject) {
+                statusText.innerText = t('update.download_success_prefix', 'v') + updateObject.version + t('update.download_success_suffix', ' 下载完成，请点击安装并重启');
+            }
+        }
+    });
 })();
 
 // Advanced Settings panel
@@ -196,6 +217,10 @@ const DEFAULT_SETTINGS = {
 
 window.openSettings = function() {
     if (sPerfMode) sPerfMode.checked = performanceMode;
+    const selectLanguage = document.getElementById('selectLanguage');
+    if (selectLanguage) {
+        selectLanguage.value = localStorage.getItem('vmap_set_lang') || 'zh';
+    }
     if (settingsModal) settingsModal.classList.add('active');
 };
 

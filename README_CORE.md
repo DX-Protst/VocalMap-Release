@@ -116,6 +116,12 @@ graph TD
 
 ## 📦 最近更新 (Recent Updates)
 
+* **[国际化]** **帮助手册全面本地化**：重构了 `frontend/src/components/modal_help.html` 中的 HTML 文本，用特定 ID 的 `<span>`/`<p>` 标签隔离文字与 SVG 图标，并在 `frontend/js/lang.js` 中新增完整的英文与中文手册映射，实现 100% 国际化翻译支持。
+* **[国际化]** **系统语言自动探测与缓存**：首次加载应用时，系统会根据 OS 系统语言（如 `navigator.language`）自动初始化语言（中文则显示中文，否则为英文），并在 `localStorage` 进行持久化缓存；将语言选择菜单挪至“引擎调节”参数面板最顶端。
+* **[更新系统]** **重构更新提示 UI & Toast 弹窗**：移除了顶部导航栏硬编码的更新状态文本。所有的检查更新状态、下载百分比进度、更新失败及重启引导均通过 `showToast()` 气泡提醒，并且重写了更新说明窗口布局与滚动条样式以杜绝溢出。
+* **[修复]** **声乐诊断计时器挂死修复**：重构了 `frontend/js/pro_diagnosis.js`，改为在计时器循环中动态获取 `#recordTimer` 节点，彻底修复了因中英文语言切换重写 DOM 导致计时器 DOM 引用丢失、使麦克风实时监测时间锁定在 0s 的 Bug。
+* **[修复]** **分析流程挂死与报错提示**：在 `backend/app.py` 中对一键离线诊断及录音诊断进行了更全面的 `try-except` 捕获。在有效发声数据不足（或抛出其他后台异常）时，不再会让前端无限卡死在“正在分析”状态，而是主动向前端返回错误 status 并使用 Toast 抛出“数据不足，请维持足够时长”等多语言警告。
+* **[优化]** **授权检测逻辑优化**：优化了 Pro 模式的授权激活界面跳转与验证逻辑，避免已购买 Pro 版本的用户在合理使用功能时反复弹出激活 CDK 的覆盖提示。
 * **[优化]** `logic_bsroformer/inference.py` 残差逻辑重构：智能判断 `target_instrument`。针对预测伴奏的 Karaoke 模型，将残差重定向命名为 `Vocals`，彻底修复了分离伴奏时由于 Windows 文件大小写不敏感导致的相互覆盖（伴奏变人声）严重 Bug。
 * **[修复]** 修正了 `logic_bsroformer/configs/config_karaoke_frazer_becruily.yaml` 中的目标对象，将其硬编码指回 `Instrumental`。
 * **[UI]** 调整了 `frontend/js/separation.js` 中的轨道映射字典，正确适配了 Karaoke 模型的下载对应关系，并为 `logic_roformer_6s` 模型配置了全新的 `纯伴奏` 专属中文标签与图标。

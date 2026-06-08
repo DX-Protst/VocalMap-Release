@@ -25,18 +25,18 @@
                 </div>
             </div>
         </div>
-        <div class="dashboard glass-panel box-border h-full overflow-y-auto" style="flex: 0 1 460px; min-width: 380px;">
+        <div class="dashboard glass-panel box-border h-full overflow-y-auto custom-scrollbar" style="flex: 0 1 460px; min-width: 380px;">
             <h3 class="dashboard-title">声学监视特征数据</h3>
 
             <div class="gauge-card glass-panel card-large">
-                <div class="gauge-title">音高 (Pitch)</div>
+                <div class="gauge-title" id="titlePitch">音高 (Pitch)</div>
                 <div id="valPitch" class="pitch-val-empty">--</div>
                 <div class="gauge-desc" id="descPitch">等待发声...</div>
             </div>
 
             <div class="gauge-card glass-panel card-medium">
                 <div style="display: flex; flex-direction: column; justify-content: space-between;">
-                    <div class="gauge-title" style="text-align: left;">音准 (Cents)</div>
+                    <div class="gauge-title" id="titleDev" style="text-align: left;">音准 (Cents)</div>
                     <div id="valDev" style="font-size: 28px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; color: var(--text-main);">0</div>
                     <div class="gauge-desc" id="descDev" style="text-align: left; justify-content: flex-start; height: auto;">等待发声...</div>
                 </div>
@@ -54,25 +54,25 @@
             </div>
 
             <div class="gauge-card glass-panel card-small">
-                <div class="gauge-title">响度 (Loud)</div>
+                <div class="gauge-title" id="titleLoud">响度 (Loud)</div>
                 <div class="gauge-wrapper"><div class="gauge-ring" id="ringLoud"></div><div class="gauge-inner" id="valLoud">0</div></div>
                 <div class="gauge-desc" id="descLoud">正常</div>
             </div>
 
             <div class="gauge-card glass-panel card-small">
-                <div class="gauge-title">机能 (H1/H2)</div>
+                <div class="gauge-title" id="titleBright">机能 (H1/H2)</div>
                 <div class="gauge-wrapper"><div class="gauge-ring" id="ringBright"></div><div class="gauge-inner" id="valBright">0</div></div>
                 <div class="gauge-desc" id="descBright">等待发声...</div>
             </div>
 
             <div class="gauge-card glass-panel card-small">
-                <div class="gauge-title">纯净 (HNR)</div>
+                <div class="gauge-title" id="titlePure">纯净 (HNR)</div>
                 <div class="gauge-wrapper"><div class="gauge-ring" id="ringPure"></div><div class="gauge-inner" id="valPure">0</div></div>
                 <div class="gauge-desc" id="descPure">等待发声...</div>
             </div>
 
             <div class="gauge-card glass-panel card-small">
-                <div class="gauge-title">稳定 (Jitter)</div>
+                <div class="gauge-title" id="titleStab">稳定 (Jitter)</div>
                 <div class="gauge-wrapper"><div class="gauge-ring" id="ringStab"></div><div class="gauge-inner" id="valStab">0</div></div>
                 <div class="gauge-desc" id="descStab">等待发声...</div>
             </div>

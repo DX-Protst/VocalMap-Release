@@ -373,7 +373,14 @@ async def websocket_endpoint(websocket: WebSocket):
                         is_recording = False
                         print(f"[DONE] [Pro] 录制结束。共极地 {len(audio_buffer)} 字节数据...")
                         
-                        report = generate_comprehensive_report(audio_buffer, analyzer)
+                        try:
+                            report = generate_comprehensive_report(audio_buffer, analyzer)
+                        except Exception as e:
+                            import traceback
+                            print(f"[ERROR] 报告生成异常: {e}")
+                            traceback.print_exc()
+                            report = {"status": "error", "message": str(e)}
+                            
                         await websocket.send_json({
                             "type": "pro_report",
                             "report": report
