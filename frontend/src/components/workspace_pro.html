@@ -53,7 +53,7 @@
                 <span style="color: var(--text-muted);"><i data-lucide="cpu" class="lucide-icon" style="margin-right: 4px;"></i> 运行设备:</span>
                 <button id="btnGPU" onclick="setDevice('gpu')" class="btn-cyan" style="padding: 6px 16px; font-size: 13px;"><i data-lucide="zap" class="lucide-icon"></i> GPU 加速</button>
                 <button id="btnCPU" onclick="setDevice('cpu')" class="btn-ghost" style="padding: 6px 16px;"><i data-lucide="cpu" class="lucide-icon"></i> CPU 兼容</button>
-                <span style="color: rgba(144, 75, 255, 0.3); font-size: 12px; margin-left: auto;">(首选 GPU，显存需 >6GB)</span>
+                <span style="color: var(--text-muted); opacity: 0.8; font-size: 12px; margin-left: auto;">(首选 GPU，显存需 >6GB)</span>
             </div>
 
             <!-- 音轨分离组件 -->
@@ -70,17 +70,17 @@
                     <div id="sepInstUploadZone" class="sep-upload-zone">
                         <i data-lucide="folder-open" style="width: 36px; height: 36px; stroke-width: 1.5px; margin: 0 auto 10px; color: var(--primary-cyan); display: block;"></i>
                         <p style="color: var(--text-main); margin: 4px 0; font-size: 14px; font-weight: 600;">选择本地音频文件</p>
-                        <p style="color: rgba(255,255,255,0.3); font-size: 12px;">WAV / MP3 / FLAC</p>
+                        <p style="color: var(--text-muted); opacity: 0.7; font-size: 12px;">WAV / MP3 / FLAC</p>
                         <input type="file" id="sepInstFileInput" accept=".wav,.mp3,.flac,audio/wav,audio/mpeg,audio/flac" style="display: none;">
                     </div>
                     
-                    <div style="color: rgba(255,255,255,0.4); font-size: 12px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">Model: <span id="sepInstModelName" style="color: var(--primary-cyan);">Logic-RoFormer INT8</span></div>
+                    <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">Model: <span id="sepInstModelName" style="color: var(--primary-cyan);">Logic-RoFormer INT8</span></div>
                     <button id="btnStartSepInst" class="btn-cyan" style="display: none; width: 100%; padding: 14px;">
                         <i data-lucide="zap" class="lucide-icon"></i> 启动乐器分离
                     </button>
                     
                     <div id="sepInstProcessing" style="display: none; text-align: center; padding: 30px;">
-                        <div style="width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary-cyan); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; box-shadow: 0 0 15px rgba(0,229,255,0.3);"></div>
+                        <div style="width: 36px; height: 36px; border: 3px solid var(--glass-border); border-top-color: var(--primary-cyan); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; box-shadow: 0 0 15px var(--cyan-shadow);"></div>
                         <p style="color: var(--primary-cyan); font-size: 14px; font-weight: 600; margin: 8px 0;">乐器声部离线分离中...</p>
                         <p style="color: var(--text-muted); font-size: 12px;" id="sepInstProgress">算法正在进行高速傅里叶变换，请耐心等待...</p>
                     </div>
@@ -103,17 +103,17 @@
                     <div id="sepVocUploadZone" class="sep-upload-zone">
                         <i data-lucide="music" style="width: 36px; height: 36px; stroke-width: 1.5px; margin: 0 auto 10px; color: var(--primary-purple); display: block;"></i>
                         <p style="color: var(--text-main); margin: 4px 0; font-size: 14px; font-weight: 600;">选择本地音频文件</p>
-                        <p style="color: rgba(255,255,255,0.3); font-size: 12px;">WAV / MP3 / FLAC</p>
+                        <p style="color: var(--text-muted); opacity: 0.7; font-size: 12px;">WAV / MP3 / FLAC</p>
                         <input type="file" id="sepVocFileInput" accept=".wav,.mp3,.flac,audio/wav,audio/mpeg,audio/flac" style="display: none;">
                     </div>
                     
-                    <div style="color: rgba(255,255,255,0.4); font-size: 12px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">Model: <span id="sepVocModelName" style="color: var(--primary-purple);">BS-RoFormer Karaoke</span></div>
+                    <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">Model: <span id="sepVocModelName" style="color: var(--primary-purple);">BS-RoFormer Karaoke</span></div>
                     <button id="btnStartSepVoc" class="btn-primary" style="display: none; width: 100%; padding: 14px; background: linear-gradient(135deg, #a855f7, #c084fc); box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);">
                         <i data-lucide="mic" class="lucide-icon"></i> 启动人声分离
                     </button>
                     
                     <div id="sepVocProcessing" style="display: none; text-align: center; padding: 30px;">
-                        <div style="width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary-purple); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; box-shadow: 0 0 15px rgba(192,132,252,0.3);"></div>
+                        <div style="width: 36px; height: 36px; border: 3px solid var(--glass-border); border-top-color: var(--primary-purple); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; box-shadow: 0 0 15px var(--purple-bg-hover);"></div>
                         <p style="color: var(--primary-purple); font-size: 14px; font-weight: 600; margin: 8px 0;">主唱/背景和声离线分离中...</p>
                         <p style="color: var(--text-muted); font-size: 12px;" id="sepVocProgress">深度学习推理进行中，请耐心等待...</p>
                     </div>
@@ -300,27 +300,8 @@
             
         </div>
 
-        <!-- CDK Activation & Purchase overlay -->
-        <div id="premiumOverlay" class="glass-panel" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 0; border: none; background-color: rgba(13, 9, 20, 1); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease;">
-            <i data-lucide="lock" style="width: 72px; height: 72px; margin-bottom: 24px; stroke-width: 1.5px; color: var(--primary-purple); filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.45)); display: block;"></i>
-            <h1 style="color: var(--text-main); margin-bottom: 12px; font-weight: 800; font-size: 32px; letter-spacing: 1px;">VocalMap <span style="background: var(--gradient-accent); -webkit-background-clip: text; color: transparent;">Pro</span> 专业特权激活</h1>
-            <p style="color: var(--text-muted); font-size: 16px; margin-bottom: 32px;">激活后即可解锁全息声学诊断、雷达图报告导出及音轨分离等高级功能。</p>
-            
-            <div class="glass-panel" style="padding: 16px 32px; margin-bottom: 24px; display: flex; align-items: center;">
-                <span style="color: var(--text-muted); font-size: 14px;">本机硬件设备指纹: </span>
-                <code id="displayMachineId" style="color: var(--primary-cyan); font-weight: bold; margin-left: 12px; font-family: 'JetBrains Mono', monospace; font-size: 16px;">正在获取中...</code>
-            </div>
 
-            <!-- CDK 激活码 -->
-            <div class="glass-panel" style="padding: 16px 24px; margin-bottom: 24px; display: flex; gap: 12px; align-items: center;">
-                <span style="color: var(--text-main); font-size: 14px; font-weight: 600;">CDK 激活码:</span>
-                <input id="cdkInput" type="text" placeholder="VMAP-XXXX-XXXX-XXXX"
-                    class="cdk-input-field"
-                    style="padding: 10px 16px; border-radius: 6px; font-size: 15px; font-family: 'JetBrains Mono', monospace; width: 250px; outline: none; transition: 0.2s;">
-                <button id="btnActivateCDK" class="btn-cyan"><i data-lucide="key" class="lucide-icon"></i> 一键激活 Pro 特权</button>
-            </div>
-
-            <div style="display: flex; gap: 24px; margin-bottom: 24px;">
+            <div id="purchaseContainer" style="display: flex; gap: 24px; margin-bottom: 24px;">
                 <button id="btnBuyMonthly" class="btn-cyan" style="padding: 16px 36px; font-size: 16px; border-width: 2px;">
                     <i data-lucide="calendar" class="lucide-icon"></i> 购买月度通行证 <span style="font-size: 24px; font-weight: 800; margin-left: 8px;">￥ 19.9</span>
                 </button>

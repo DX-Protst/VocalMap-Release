@@ -161,7 +161,11 @@ if (playbackSlider) {
 if (btnExportRecord) {
     btnExportRecord.addEventListener('click', async () => {
         if (recordedPitchData.length === 0 || !recordedAudioBlob) {
-            alert(t('monitor.no_record_data', "暂无完整的录制数据"));
+            if (typeof showToast === 'function') {
+                showToast(t('diag.prompt', "提示"), t('monitor.no_record_data', "暂无完整的录制数据"), "warning");
+            } else {
+                alert(t('monitor.no_record_data', "暂无完整的录制数据"));
+            }
             return;
         }
         

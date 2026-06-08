@@ -4,11 +4,23 @@
 
 function saveLicenseCache(planType, expiresAt) {
     if (!localMachineId) return;
+    
+    let actTime = Date.now();
+    try {
+        let oldRaw = localStorage.getItem(LICENSE_CACHE_KEY);
+        if (oldRaw) {
+            let oldCache = JSON.parse(oldRaw);
+            if (oldCache && oldCache.cached_at) {
+                actTime = oldCache.cached_at;
+            }
+        }
+    } catch(e) {}
+
     const cache = {
         machine_id: localMachineId,
         plan_type: planType,
         expires_at: expiresAt || null,
-        cached_at: Date.now()
+        cached_at: actTime
     };
     try {
         localStorage.setItem(LICENSE_CACHE_KEY, JSON.stringify(cache));
@@ -58,9 +70,9 @@ async function initPaymentSystem() {
 }
 
 function showPremiumOverlay() {
-    let overlay = document.getElementById('premiumOverlay');
-    if (overlay) {
-        overlay.style.display = 'flex';
+    const proWs = document.getElementById('proWorkspace');
+    if (proWs && proWs.style.display === 'block') {
+        if (typeof switchTab === 'function') switchTab('pro');
     }
 }
 
@@ -106,17 +118,97 @@ async function checkLicenseStatus(silent) {
 }
 
 function hidePremiumOverlay(planType) {
-    currentPlanType = planType;
-    let overlay = document.getElementById('premiumOverlay');
-    if (overlay) {
-        overlay.style.display = 'none';
+    const licenseWs = document.getElementById('licenseWorkspace');
+    if (licenseWs && licenseWs.style.display === 'flex') {
+        if (typeof switchTab === 'function') switchTab('pro');
     }
+    currentPlanType = planType;
     let msgEl = document.getElementById('payMessage');
-    if (msgEl) {
+    if (msgEl && planType) {
         msgEl.style.color = '#00E676';
         msgEl.innerText = planType === 'lifetime' ? t('pay.activated_lifetime', '已激活 (永久版)') : t('pay.activated_monthly', '已激活 (月度版)');
     }
 }
+
+window.viewLicenseStatus = function() {
+    if (typeof closeSettings === 'function') closeSettings();
+    if (typeof switchTab === 'function') switchTab('license');
+    
+    const cache = getLicenseCache();
+    let overlays = document.querySelectorAll('#licenseWorkspace');
+    
+    overlays.forEach(overlay => {
+        // No need to set display here, switchTab handles it
+        
+        let buyContainer = overlay.querySelector('#purchaseContainer');
+        let cdkContainer = overlay.querySelector('#cdkInputContainer');
+        let btnClose = overlay.querySelector('#btnClosePremiumOverlay');
+        let infoContainer = overlay.querySelector('#activeLicenseInfo');
+        
+        if (cache) {
+            if (buyContainer) {
+                buyContainer.style.display = 'flex';
+                buyContainer.style.opacity = '0.4';
+                buyContainer.style.pointerEvents = 'none';
+                buyContainer.style.filter = 'none';
+            }
+            if (cdkContainer) {
+                cdkContainer.style.display = 'flex';
+                cdkContainer.style.opacity = '0.4';
+                cdkContainer.style.pointerEvents = 'none';
+                cdkContainer.style.filter = 'none';
+            }
+            if (btnClose) {
+                btnClose.style.display = 'flex';
+                if (typeof lucide !== 'undefined') lucide.createIcons({ root: btnClose });
+            }
+            
+            if (!infoContainer) {
+                infoContainer = document.createElement('div');
+                infoContainer.id = 'activeLicenseInfo';
+                infoContainer.className = 'glass-panel';
+                infoContainer.style.padding = '16px 24px';
+                infoContainer.style.marginBottom = '24px';
+                infoContainer.style.display = 'flex';
+                infoContainer.style.flexDirection = 'column';
+                infoContainer.style.gap = '8px';
+                overlay.insertBefore(infoContainer, overlay.querySelector('#btnRefreshStatus'));
+            }
+            
+            let actDate = new Date(cache.cached_at).toLocaleString();
+            let remText = cache.plan_type === 'lifetime' ? '永久有效' : '';
+            if (cache.plan_type !== 'lifetime' && cache.expires_at) {
+                let remDays = Math.ceil((cache.expires_at - (Date.now()/1000)) / 86400);
+                remText = `剩余 ${remDays} 天`;
+            }
+            
+            infoContainer.innerHTML = `
+                <div style="color: var(--text-main); font-size: 14px; font-weight: 600;">已激活: <span style="color: var(--primary-cyan);">${cache.plan_type === 'lifetime' ? '永久买断版' : '月度通行证'}</span></div>
+                <div style="color: var(--text-muted); font-size: 13px;">激活时间: ${actDate}</div>
+                <div style="color: var(--text-muted); font-size: 13px;">有效期: <span style="color: #00E676; font-weight: bold;">${remText}</span></div>
+            `;
+            infoContainer.style.display = 'flex';
+        } else {
+            if (buyContainer) {
+                buyContainer.style.display = 'flex';
+                buyContainer.style.opacity = '1';
+                buyContainer.style.pointerEvents = 'auto';
+                buyContainer.style.filter = 'none';
+            }
+            if (cdkContainer) {
+                cdkContainer.style.display = 'flex';
+                cdkContainer.style.opacity = '1';
+                cdkContainer.style.pointerEvents = 'auto';
+                cdkContainer.style.filter = 'none';
+            }
+            if (btnClose) btnClose.style.display = 'none';
+            if (infoContainer) infoContainer.style.display = 'none';
+            
+            let msgEl = overlay.querySelector('#payMessage');
+            if (msgEl) msgEl.innerText = '';
+        }
+    });
+};
 
 async function activateCDK() {
     let cdkInput = document.getElementById('cdkInput');

@@ -30,6 +30,7 @@ Equipped with SOTA **BS-RoFormer** and **Logic-RoFormer** deep learning separati
 ### 4. Next-Gen Geek-Style User Experience
 *   Fully adopts high-end Liquid Glass UI with seamless dark/light modes.
 *   Smooth transition animations and **fixed golden ratio window size (1200x800)** to avoid layout deformation or scaling issues.
+*   **Independent Unoccluded Activation/Status Panel**: Completely refactored the Pro license activation and status viewing logic, replacing the traditional global overlay with a smooth, full-sized independent workspace. Users can also instantly check their exact initial activation time and remaining validity directly from the system settings.
 
 ### 5. Multilingual Support & Seamless OTA Updates (Newly Upgraded)
 *   **Chinese/English Bilingual Support & Persistent Caching**: Detects system language and caches user language selections. Help manuals and diagnostic panels are 100% localized.

@@ -118,10 +118,10 @@ const LANG_DICTIONARY = {
         '#trainingInstructionText': '准备开始',
         
         // Premium Overlay
-        '#premiumOverlay h1': 'VocalMap <span style="background: var(--gradient-accent); -webkit-background-clip: text; color: transparent;">Pro</span> 专业特权激活',
-        '#premiumOverlay p:first-of-type': '激活后即可解锁全息声学诊断、雷达图报告导出及音轨分离等高级功能。',
-        '#premiumOverlay div:nth-of-type(1) span': '本机硬件设备指纹: ',
-        '#premiumOverlay div:nth-of-type(2) span': 'CDK 激活码:',
+        '#licenseWorkspace h1': 'VocalMap <span style="background: var(--gradient-accent); -webkit-background-clip: text; color: transparent;">Pro</span> 专业特权激活',
+        '#licenseWorkspace p:first-of-type': '激活后即可解锁全息声学诊断、雷达图报告导出及音轨分离等高级功能。',
+        '#licenseWorkspace div:nth-of-type(1) span': '本机硬件设备指纹: ',
+        '#licenseWorkspace div:nth-of-type(2) span': 'CDK 激活码:',
         '#btnActivateCDK': '<i data-lucide="key" class="lucide-icon"></i> 一键激活 Pro 特权',
         '#btnBuyMonthly': '<i data-lucide="calendar" class="lucide-icon"></i> 购买月度通行证 <span style="font-size: 24px; font-weight: 800; margin-left: 8px;">￥ 19.9</span>',
         '#btnBuyLifetime': '<i data-lucide="infinity" class="lucide-icon"></i> 购买永久买断版 <span style="font-size: 24px; font-weight: 800; margin-left: 8px;">￥ 59.9</span>',
@@ -344,10 +344,10 @@ const LANG_DICTIONARY = {
         '#trainingInstructionText': 'Ready',
         
         // Premium Overlay
-        '#premiumOverlay h1': 'VocalMap <span style="background: var(--gradient-accent); -webkit-background-clip: text; color: transparent;">Pro</span> Activation',
-        '#premiumOverlay p:first-of-type': 'Unlock holographic acoustic diagnosis, radar chart report export, and offline stem separation.',
-        '#premiumOverlay div:nth-of-type(1) span': 'Machine hardware fingerprint: ',
-        '#premiumOverlay div:nth-of-type(2) span': 'CDK Code:',
+        '#licenseWorkspace h1': 'VocalMap <span style="background: var(--gradient-accent); -webkit-background-clip: text; color: transparent;">Pro</span> Activation',
+        '#licenseWorkspace p:first-of-type': 'Unlock holographic acoustic diagnosis, radar chart report export, and offline stem separation.',
+        '#licenseWorkspace div:nth-of-type(1) span': 'Machine hardware fingerprint: ',
+        '#licenseWorkspace div:nth-of-type(2) span': 'CDK Code:',
         '#btnActivateCDK': '<i data-lucide="key" class="lucide-icon"></i> Activate Pro Privileges',
         '#btnBuyMonthly': '<i data-lucide="calendar" class="lucide-icon"></i> Purchase Monthly Pass <span style="font-size: 24px; font-weight: 800; margin-left: 8px;">￥ 19.9</span>',
         '#btnBuyLifetime': '<i data-lucide="infinity" class="lucide-icon"></i> Purchase Lifetime License <span style="font-size: 24px; font-weight: 800; margin-left: 8px;">￥ 59.9</span>',

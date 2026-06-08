@@ -1,11 +1,11 @@
 {
-  "version": "3.1.1",
-  "notes": "The security upgrade implements dynamic port routing and local token handshakes to protect user microphone privacy and prevent local malware from hijacking host GPU/CPU resources, prioritizing device safety over licensing checks.",
+  "version": "3.1.2",
+  "notes": "In this update, we completely refactored the Pro license activation interface into a sleek, standalone workspace to provide a cleaner, unoccluded user experience, while also adding a new 'View License Status' option in the settings menu that allows you to accurately track your initial activation date and remaining validity. Additionally, we fixed a bug that caused the activation timestamp to incorrectly reset upon app restarts, and further polished the activation UI for flawless visual compatibility across both light and dark modes.",
   "pub_date": "2026-05-26T12:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSVh2NXlhM3dFZzd6WUNkbFIvQ2pJSENiQ29GU2JMblZXdE1QeGRtdlJDN2pjVURmZjZDN21VWVI3RGpSUU44S1ZReit3SmxlSURkNFhJRWM0UDM1M1FZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgwODkwNDI0CWZpbGU6Vm9jYWxNYXBfMy4xLjFfeDY0LXNldHVwLmV4ZQpxL0pTbElPeGJrMEpqNXE1c1JmampsTHQ5bXZnejhGZXpUNGhpbS9iZVRJMjhZd1gxelNJTU5ROUJjWGJ6U1Q0M1VXRzhIc0VZM0hjOUk2bEZWMWpCZz09Cg==",
-      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.1.1/VocalMap_3.1.1_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSVE4bXNHVXB3dWcxRGUwbndicXBoTkV6RVhwN3NZL2ErUnpRRjRCell6TCtjamFFL0Rud0E5U3FpaWl5ZHJtZGZEV1RoQTFwREJNQnlWNUdSQzEzTWcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgwOTE5NzA0CWZpbGU6Vm9jYWxNYXBfMy4xLjJfeDY0LXNldHVwLmV4ZQptUW5UV0szNWlNYTRCQnExNi8xeUZDTVM2WmpVVlY3NzE4OUE0SFJMaXh6V0s4TE8wNVpHYUM0SUt6c05wZHZaVmNrUkxLajc5Y1U3Z094U3Q2d3hBUT09Cg==",
+      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.1.2/VocalMap_3.1.2_x64-setup.exe"
     }
   }
 }

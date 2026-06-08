@@ -8,6 +8,8 @@ window.switchTab = function(tabName) {
     const btnFree = document.getElementById('tabBtnFree');
     const btnPro = document.getElementById('tabBtnPro');
 
+    const licenseWs = document.getElementById('licenseWorkspace');
+
     function triggerAnimation(el, className) {
         if (!el) return;
         el.classList.remove('animate-slide-left', 'animate-slide-right', 'animate-slide-up');
@@ -18,15 +20,31 @@ window.switchTab = function(tabName) {
     if (tabName === 'free') {
         if (freeWs) freeWs.style.display = 'flex'; 
         if (proWs) proWs.style.display = 'none';
+        if (licenseWs) licenseWs.style.display = 'none';
         if (btnFree) btnFree.classList.add('active');
         if (btnPro) btnPro.classList.remove('active', 'active-pro');
         if (freeWs) triggerAnimation(freeWs, 'animate-slide-left');
-    } else {
+    } else if (tabName === 'pro') {
         if (freeWs) freeWs.style.display = 'none'; 
-        if (proWs) proWs.style.display = 'block'; 
+        const cache = typeof getLicenseCache === 'function' ? getLicenseCache() : null;
+        if (cache) {
+            if (proWs) proWs.style.display = 'block';
+            if (licenseWs) licenseWs.style.display = 'none';
+            if (proWs) triggerAnimation(proWs, 'animate-slide-right');
+        } else {
+            if (proWs) proWs.style.display = 'none';
+            if (licenseWs) licenseWs.style.display = 'flex';
+            if (licenseWs) triggerAnimation(licenseWs, 'animate-slide-right');
+        }
         if (btnPro) btnPro.classList.add('active-pro');
         if (btnFree) btnFree.classList.remove('active');
-        if (proWs) triggerAnimation(proWs, 'animate-slide-right');
+    } else if (tabName === 'license') {
+        if (freeWs) freeWs.style.display = 'none';
+        if (proWs) proWs.style.display = 'none';
+        if (licenseWs) licenseWs.style.display = 'flex';
+        if (btnPro) btnPro.classList.add('active-pro');
+        if (btnFree) btnFree.classList.remove('active');
+        if (licenseWs) triggerAnimation(licenseWs, 'animate-slide-right');
     }
 };
 

@@ -1,0 +1,32 @@
+<!-- CDK Activation & Purchase Standalone Workspace -->
+<div id="licenseWorkspace" class="workspace glass-panel" style="display: none; position: relative; width: 100%; max-width: 1320px; flex: 1; min-height: 0; box-sizing: border-box; overflow: hidden; flex-direction: column; align-items: center; justify-content: center;">
+    <i data-lucide="lock" style="width: 72px; height: 72px; margin-bottom: 24px; stroke-width: 1.5px; color: var(--primary-purple); filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.45)); display: block;"></i>
+    <h1 style="color: var(--text-main); margin-bottom: 12px; font-weight: 800; font-size: 32px; letter-spacing: 1px;">VocalMap <span style="background: var(--gradient-accent); -webkit-background-clip: text; color: transparent;">Pro</span> 专业特权激活</h1>
+    <p style="color: var(--text-muted); font-size: 16px; margin-bottom: 32px;">激活后即可解锁全息声学诊断、雷达图报告导出及音轨分离等高级功能。</p>
+    
+    <div class="glass-panel" style="padding: 16px 32px; margin-bottom: 24px; display: flex; align-items: center;">
+        <span style="color: var(--text-muted); font-size: 14px;">本机硬件设备指纹: </span>
+        <code id="displayMachineId" style="color: var(--primary-cyan); font-weight: bold; margin-left: 12px; font-family: 'JetBrains Mono', monospace; font-size: 16px;">正在获取中...</code>
+    </div>
+
+    <!-- CDK 激活码 -->
+    <div id="cdkInputContainer" class="glass-panel" style="padding: 16px 24px; margin-bottom: 24px; display: flex; gap: 12px; align-items: center;">
+        <span style="color: var(--text-main); font-size: 14px; font-weight: 600;">CDK 激活码:</span>
+        <input id="cdkInput" type="text" placeholder="VMAP-XXXX-XXXX-XXXX"
+            class="cdk-input-field"
+            style="padding: 10px 16px; border-radius: 6px; font-size: 15px; font-family: 'JetBrains Mono', monospace; width: 250px; outline: none; transition: 0.2s;">
+        <button id="btnActivateCDK" class="btn-cyan"><i data-lucide="key" class="lucide-icon"></i> 一键激活 Pro 特权</button>
+    </div>
+
+    <div id="purchaseContainer" style="display: flex; gap: 24px; margin-bottom: 24px;">
+        <button id="btnBuyMonthly" class="btn-cyan" style="padding: 16px 36px; font-size: 16px; border-width: 2px;">
+            <i data-lucide="calendar" class="lucide-icon"></i> 购买月度通行证 <span style="font-size: 24px; font-weight: 800; margin-left: 8px;">￥ 19.9</span>
+        </button>
+        <button id="btnBuyLifetime" class="btn-primary" style="padding: 16px 36px; font-size: 16px; background: linear-gradient(135deg, #a855f7, #c084fc);">
+            <i data-lucide="infinity" class="lucide-icon"></i> 购买永久买断版 <span style="font-size: 24px; font-weight: 800; margin-left: 8px;">￥ 59.9</span>
+        </button>
+    </div>
+    
+    <div id="payMessage" style="margin-top: 16px; font-size: 14px; font-weight: 600;"></div>
+    <div id="activeLicenseInfo" style="margin-top: 24px; display: none; flex-direction: column; align-items: center; gap: 8px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(255, 255, 255, 0.05);"></div>
+</div>
