@@ -35,6 +35,7 @@ backend/cdk_data.json
 # 发布脚本与包含服务器信息的敏感配置
 scripts/release_auto.ps1
 *.bat
+backend/cloud_server.py
 
 # Node / Web
 node_modules/
