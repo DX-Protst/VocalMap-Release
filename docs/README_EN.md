@@ -54,6 +54,12 @@ To protect user privacy (especially voice recordings and audio assets) and shiel
 > [!NOTE]
 > NVIDIA GPU owners with CUDA configured will experience tens of times faster stem separation and acoustic analysis.
 
-## Development Guide
+## 📄 Copyright & Legal Compliance
 
+This project (including but not limited to the Tauri frontend, FastAPI backend, and compiled `.pyd` core acoustic/AI separation modules) holds full independent intellectual property rights.
+*   **Non-commercial Restriction**: Distributed under the **PolyForm Noncommercial License 1.0.0**. Any commercial exploitation, distribution, or reproduction of this software without official written commercial authorization is strictly prohibited.
+*   **Prohibition of Cracking & Redistribution**: The built-in safety controls (dynamic API tokens, port randomization, clock tampering checks) constitute legally recognized "Technological Protection Measures" (TPM). Bypassing, cracking, or destroying these security controls is illegal. Modifying, repackaging, or redistributing cracked versions (including uploading to open-source hosting, cloud drives, or app stores) is a copyright infringement.
+*   **Legal Action**: We actively monitor and enforce our copyrights. For any violations, unauthorized secondary distribution, or commercial exploitation, we reserve all rights to pursue DMCA takedowns, civil litigation for damages, and criminal prosecution.
+
+## 🛠️ Development Guide
 See [README_CORE_EN.md](README_CORE_EN.md)
