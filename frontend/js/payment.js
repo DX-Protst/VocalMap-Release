@@ -57,22 +57,32 @@ async function initPaymentSystem() {
     await checkLicenseStatus(true);
 }
 
+function showPremiumOverlay() {
+    let overlay = document.getElementById('premiumOverlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+    }
+}
+
 async function checkLicenseStatus(silent) {
     if (!localMachineId) return;
 
     const cache = getLicenseCache();
     if (cache) {
         hidePremiumOverlay(cache.plan_type);
-        return;
     }
 
     try {
-        let resp = await fetch(`${LOCAL_API_BASE}/api/license/status?machine_id=${encodeURIComponent(localMachineId)}`);
+        let resp = await fetch(`${LOCAL_API_BASE}/api/license/status?machine_id=${encodeURIComponent(localMachineId)}`, {
+            headers: { 'X-VocalMap-Token': window.internalApiToken || '' }
+        });
         let data = await resp.json();
         if (data.valid) {
             saveLicenseCache(data.plan_type, data.expires_at);
             hidePremiumOverlay(data.plan_type);
         } else {
+            clearLicenseCache();
+            showPremiumOverlay();
             if (!silent) {
                 let msgEl = document.getElementById('payMessage');
                 if (msgEl) {
@@ -82,11 +92,14 @@ async function checkLicenseStatus(silent) {
             }
         }
     } catch (err) {
-        if (!silent) {
-            let msgEl = document.getElementById('payMessage');
-            if (msgEl) {
-                msgEl.style.color = '#FF5252';
-                msgEl.innerText = t('pay.server_error', '无法连接许可证服务器，请检查网络。');
+        if (!cache) {
+            showPremiumOverlay();
+            if (!silent) {
+                let msgEl = document.getElementById('payMessage');
+                if (msgEl) {
+                    msgEl.style.color = '#FF5252';
+                    msgEl.innerText = t('pay.server_error', '无法连接许可证服务器，请检查网络。');
+                }
             }
         }
     }
@@ -128,7 +141,10 @@ async function activateCDK() {
     try {
         let resp = await fetch(`${LOCAL_API_BASE}/api/license/activate`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-VocalMap-Token': window.internalApiToken || ''
+            },
             body: JSON.stringify({ cdk: cdk.toUpperCase(), machine_id: localMachineId })
         });
         let data = await resp.json();
@@ -155,7 +171,9 @@ async function refreshLicenseStatus() {
     msgEl.innerText = t('pay.refreshing', '正在刷新许可证状态...');
 
     try {
-        let resp = await fetch(`${LOCAL_API_BASE}/api/license/status?machine_id=${encodeURIComponent(localMachineId)}`);
+        let resp = await fetch(`${LOCAL_API_BASE}/api/license/status?machine_id=${encodeURIComponent(localMachineId)}`, {
+            headers: { 'X-VocalMap-Token': window.internalApiToken || '' }
+        });
         let data = await resp.json();
         if (data.valid) {
             saveLicenseCache(data.plan_type, data.expires_at);
@@ -164,6 +182,7 @@ async function refreshLicenseStatus() {
             setTimeout(() => hidePremiumOverlay(data.plan_type), 600);
         } else {
             clearLicenseCache();
+            showPremiumOverlay();
             msgEl.style.color = '#FF5252';
             msgEl.innerText = data.message || t('pay.license_invalid', '尚未激活，请购买或输入激活码。');
         }

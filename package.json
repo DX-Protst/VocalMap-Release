@@ -1,6 +1,6 @@
 {
   "name": "vocalmap",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "VocalMap 声境 - 专业级声乐诊断平台",
   "scripts": {
     "build:ui": "node scripts/build_ui.js",

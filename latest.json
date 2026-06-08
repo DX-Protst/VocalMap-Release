@@ -1,11 +1,11 @@
 {
-  "version": "3.1.0",
-  "notes": "Supported English/Chinese localization for the Help Manual, redesigned the OTA upgrade UI, and fixed several bugs including the diagnosis timer freeze and analysis hang on insufficient data.",
+  "version": "3.1.1",
+  "notes": "The security upgrade implements dynamic port routing and local token handshakes to protect user microphone privacy and prevent local malware from hijacking host GPU/CPU resources, prioritizing device safety over licensing checks.",
   "pub_date": "2026-05-26T12:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSVhTcU5GRnp2WklrWWFTNFBLY0M2d1d6UzhmTmhQQUJyMDVUUEhsQmJRZXZzSlNmaytCLzQzNDkzeXkwMVlrSHZtY3FxWWRYVEVXSWFmdERWeWxoR2drPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgwODg4NTYyCWZpbGU6Vm9jYWxNYXBfMy4xLjBfeDY0LXNldHVwLmV4ZQpqWGcyOEFkbFZ5VlF3NWFJalBBSWk3Nllrb2R2dHpFeEx2WEFjcHIxOEZmcEhjbyt2UnYrVzVhQWtTMzFHaFF6M3VXVXkrNTY5MVA3STlFWWoybURCUT09Cg==",
-      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.1.0/VocalMap_3.1.0_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSVh2NXlhM3dFZzd6WUNkbFIvQ2pJSENiQ29GU2JMblZXdE1QeGRtdlJDN2pjVURmZjZDN21VWVI3RGpSUU44S1ZReit3SmxlSURkNFhJRWM0UDM1M1FZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgwODkwNDI0CWZpbGU6Vm9jYWxNYXBfMy4xLjFfeDY0LXNldHVwLmV4ZQpxL0pTbElPeGJrMEpqNXE1c1JmampsTHQ5bXZnejhGZXpUNGhpbS9iZVRJMjhZd1gxelNJTU5ROUJjWGJ6U1Q0M1VXRzhIc0VZM0hjOUk2bEZWMWpCZz09Cg==",
+      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.1.1/VocalMap_3.1.1_x64-setup.exe"
     }
   }
 }

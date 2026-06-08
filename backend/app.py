@@ -11,7 +11,8 @@ import urllib.request
 import urllib.error
 import threading
 import ctypes
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, BackgroundTasks, Form, Request
+import secrets
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, BackgroundTasks, Form, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
@@ -51,8 +52,19 @@ if hasattr(sys, '_MEIPASS'):
     if _internal not in sys.path:
         sys.path.insert(0, _internal)
 
-from acoustic_engine.analyzer import VocalAnalyzer
+from acoustic_engine.analyzer import VocalAnalyzer, verify_pro_license, LicenseError
 from services.reporter import generate_comprehensive_report
+
+# ==========================================
+# 0.5 内部 API 通信令牌与 Pro 校验辅助函数
+# ==========================================
+INTERNAL_TOKEN = os.environ.get("VOCALMAP_INTERNAL_TOKEN") or secrets.token_hex(16)
+
+def enforce_pro_license():
+    try:
+        verify_pro_license()
+    except LicenseError as le:
+        raise HTTPException(status_code=403, detail=str(le))
 
 # 音轨分离引擎 (Pro功能) - 使用 BS-RoFormer 模型
 try:
@@ -77,6 +89,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def check_api_token(request: Request, call_next):
+    path = request.url.path
+    if path in ["/api/license/status", "/api/license/activate", "/api/log", "/api/status"]:
+        return await call_next(request)
+        
+    if request.method == "OPTIONS":
+        return await call_next(request)
+
+    token = request.headers.get("X-VocalMap-Token") or request.query_params.get("token")
+    if not token or token != INTERNAL_TOKEN:
+        return JSONResponse({"error": "Unauthorized: Invalid API Token"}, status_code=401)
+        
+    return await call_next(request)
 
 analyzer = VocalAnalyzer(canvas_height=500)
 
@@ -124,6 +151,7 @@ from fastapi.concurrency import run_in_threadpool
 @app.post("/api/analyze_buffer")
 async def analyze_buffer_api(request: Request):
     """接收原始的 Int16 PCM 音频字节，进行离线高速分析"""
+    enforce_pro_license()
     audio_bytes = await request.body()
     # 放入线程池防止阻塞异步主循环
     report = await run_in_threadpool(generate_comprehensive_report, audio_bytes, analyzer)
@@ -228,6 +256,7 @@ async def separate_audio(
     force_cpu: bool = Form(False),
 ):
     """上传音频文件并进行音轨分离"""
+    enforce_pro_license()
     import uuid
 
     if not SEPARATION_AVAILABLE or not separation_engine:
@@ -334,6 +363,7 @@ async def save_separation_to_disk(request: Request):
 @app.get("/api/separation/preload/{model_key}")
 async def preload_separation_model(model_key: str = "logic_roformer_6s"):
     """预加载音轨分离模型 (减少首次分离的等待时间)"""
+    enforce_pro_license()
     if not SEPARATION_AVAILABLE or not separation_engine:
         return JSONResponse({"error": "音轨分离引擎不可用"}, status_code=503)
     try:
@@ -344,7 +374,13 @@ async def preload_separation_model(model_key: str = "logic_roformer_6s"):
 
 
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket, token: str = ""):
+    if not token or token != INTERNAL_TOKEN:
+        await websocket.accept()
+        await websocket.send_json({"error": "Unauthorized: Invalid API Token"})
+        await websocket.close(code=1008)
+        return
+
     await websocket.accept()
     is_recording = False
     audio_buffer = bytearray() 
@@ -374,7 +410,11 @@ async def websocket_endpoint(websocket: WebSocket):
                         print(f"[DONE] [Pro] 录制结束。共极地 {len(audio_buffer)} 字节数据...")
                         
                         try:
+                            verify_pro_license()
                             report = generate_comprehensive_report(audio_buffer, analyzer)
+                        except LicenseError as le:
+                            print(f"[WARN] [Pro] 录制报告被拦截: {le}")
+                            report = {"status": "error", "message": str(le)}
                         except Exception as e:
                             import traceback
                             print(f"[ERROR] 报告生成异常: {e}")

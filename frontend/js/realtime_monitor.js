@@ -677,7 +677,7 @@ function drawTrainingTargets(ctx, canvasW, canvasH, getLocalY, deltaTime) {
             window.lastTimelineLogTime = now;
             const progressMsg = `[Canvas Draw] elapsedSeconds: ${elapsedSeconds.toFixed(1)}s / targetEndTime: ${endTime.toFixed(1)}s, isModalShowing: ${isTrainingModalShowing}`;
             console.log(progressMsg);
-            fetch('http://127.0.0.1:5050/api/log', {
+            fetch(LOCAL_API_BASE + '/api/log', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: progressMsg })

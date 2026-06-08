@@ -9,9 +9,52 @@ use std::path::PathBuf;
 
 struct BackendProcess(Mutex<Option<Child>>);
 
+struct ApiToken(String);
+
+struct BackendPort(u16);
+
+fn get_available_port() -> Option<u16> {
+    std::net::TcpListener::bind("127.0.0.1:0")
+        .and_then(|listener| listener.local_addr())
+        .map(|addr| addr.port())
+        .ok()
+}
+
+fn generate_token() -> String {
+    use std::time::SystemTime;
+    let seed = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .map(|d| d.as_nanos())
+        .unwrap_or(0);
+    let mut state = seed;
+    let mut token = String::new();
+    for _ in 0..32 {
+        state = state.wrapping_mul(6364136223846793005).wrapping_add(1);
+        let val = (state >> 32) as u32;
+        let char_code = (val % 62) as u8;
+        let c = match char_code {
+            0..=9 => b'0' + char_code,
+            10..=35 => b'a' + (char_code - 10),
+            _ => b'A' + (char_code - 36),
+        };
+        token.push(c as char);
+    }
+    token
+}
+
 #[tauri::command]
 fn get_machine_id() -> String {
     machine_uid::get().unwrap_or_else(|_| "unknown_machine_id".to_string())
+}
+
+#[tauri::command]
+fn get_internal_token(token: tauri::State<'_, ApiToken>) -> String {
+    token.0.clone()
+}
+
+#[tauri::command]
+fn get_backend_port(port: tauri::State<'_, BackendPort>) -> u16 {
+    port.0
 }
 
 #[tauri::command]
@@ -34,12 +77,18 @@ fn relaunch_app(app_handle: tauri::AppHandle) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let token = generate_token();
+    let token_clone = token.clone();
+    let port = get_available_port().unwrap_or(5050);
+
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
-        .setup(|app| {
+        .setup(move |app| {
+            app.manage(ApiToken(token_clone));
+            app.manage(BackendPort(port));
             let resolver = app.path();
             let root_dir = resolver.resource_dir().unwrap_or_else(|_| PathBuf::from(""));
             
@@ -79,16 +128,17 @@ pub fn run() {
                     "-m", "uvicorn",
                     "app:app",
                     "--host", "127.0.0.1",
-                    "--port", "5050",
+                    "--port", &port.to_string(),
                     "--log-level", "warning"
                 ])
                 .current_dir(&backend_dir)
                 .env("VOCALMAP_HOST", "127.0.0.1")
-                .env("VOCALMAP_PORT", "5050")
+                .env("VOCALMAP_PORT", &port.to_string())
                 .env("VOCALMAP_MODEL_DIR", model_dir.to_string_lossy().to_string())
                 .env("VOCALMAP_DATA_DIR", app_data_dir.to_string_lossy().to_string())
                 .env("PYTHONPATH", site_packages_dir.to_string_lossy().to_string())
-                .env("VOCALMAP_PARENT_PID", std::process::id().to_string());                
+                .env("VOCALMAP_PARENT_PID", std::process::id().to_string())
+                .env("VOCALMAP_INTERNAL_TOKEN", &token);
             #[cfg(target_os = "windows")]
             cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
             
@@ -103,7 +153,7 @@ pub fn run() {
 
             match child {
                 Ok(proc) => {
-                    println!("[Tauri] FastAPI 后端已启动, PID: {}", proc.id());
+                    println!("[Tauri] FastAPI 后端已启动, PID: {}, 端口: {}", proc.id(), port);
                     app.manage(BackendProcess(Mutex::new(Some(proc))));
                 }
                 Err(e) => {
@@ -115,6 +165,8 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             get_machine_id,
+            get_internal_token,
+            get_backend_port,
             check_vcredist,
             downloader::check_dependencies,
             downloader::start_download,

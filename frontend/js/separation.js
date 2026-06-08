@@ -311,7 +311,10 @@ async function startSeparation(panelType) {
     try {
         var resp = await fetch(SEP_BASE + '/api/separation/separate', {
             method: 'POST',
-            body: formData
+            body: formData,
+            headers: {
+                'X-VocalMap-Token': window.internalApiToken || ''
+            }
         });
         var data = await resp.json();
         if (data.error) {
@@ -331,7 +334,11 @@ async function startSeparation(panelType) {
 async function pollSepTask(taskId, panelType) {
     var progId = panelType === 'inst' ? 'sepInstProgress' : 'sepVocProgress';
     try {
-        var resp = await fetch(SEP_BASE + '/api/separation/task/' + taskId);
+        var resp = await fetch(SEP_BASE + '/api/separation/task/' + taskId, {
+            headers: {
+                'X-VocalMap-Token': window.internalApiToken || ''
+            }
+        });
         var task = await resp.json();
         if (task.status === 'completed') {
             showSepResults(taskId, task, panelType);
@@ -409,7 +416,7 @@ function showSepResults(taskId, task, panelType) {
 }
 
 window.downloadStemResult = async function(event, taskId, instr, label) {
-    var downloadUrl = SEP_BASE + '/api/separation/download/' + taskId + '/' + instr;
+    var downloadUrl = SEP_BASE + '/api/separation/download/' + taskId + '/' + instr + '?token=' + encodeURIComponent(window.internalApiToken || '');
     const dialog = window.__TAURI__ ? window.__TAURI__.dialog : null;
     const core = window.__TAURI__ ? window.__TAURI__.core : null;
     
@@ -428,7 +435,10 @@ window.downloadStemResult = async function(event, taskId, instr, label) {
 
             const res = await fetch(SEP_BASE + '/api/separation/save_to_disk', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-VocalMap-Token': window.internalApiToken || ''
+                },
                 body: JSON.stringify({
                     task_id: taskId,
                     stem: instr,

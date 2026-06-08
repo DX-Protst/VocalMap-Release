@@ -6,7 +6,7 @@
 window.addEventListener('error', function(event) {
     const errorMsg = `Error: ${event.message} at ${event.filename || 'unknown'}:${event.lineno || 0}:${event.colno || 0}\nStack: ${event.error ? event.error.stack : 'No stack trace'}`;
     console.error(errorMsg);
-    fetch('http://127.0.0.1:5050/api/log', {
+    fetch(LOCAL_API_BASE + '/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: errorMsg })
@@ -17,7 +17,7 @@ window.addEventListener('error', function(event) {
 window.addEventListener('unhandledrejection', function(event) {
     const errorMsg = `Unhandled Promise Rejection: ${event.reason ? (event.reason.message || event.reason) : 'Unknown reason'}\nStack: ${event.reason && event.reason.stack ? event.reason.stack : 'No stack trace'}`;
     console.error(errorMsg);
-    fetch('http://127.0.0.1:5050/api/log', {
+    fetch(LOCAL_API_BASE + '/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: errorMsg })
@@ -77,9 +77,30 @@ const updater = tauri.updater || {};
 const check = updater.check || (async () => null);
 
 const CLOUD_API_BASE = 'http://66.112.209.251:8000/api';
-const LOCAL_API_BASE = 'http://127.0.0.1:5050';
+let LOCAL_API_BASE = 'http://127.0.0.1:5050';
 let localMachineId = '';
 const LICENSE_CACHE_KEY = 'vocalmap_license';
+
+window.internalApiToken = '';
+
+// Retrieve internal api token and backend port from Tauri when startup
+(async function initApiTokenAndPort() {
+    try {
+        if (typeof invoke === 'function') {
+            window.internalApiToken = await invoke('get_internal_token');
+            const port = await invoke('get_backend_port');
+            LOCAL_API_BASE = `http://127.0.0.1:${port}`;
+            window.LOCAL_API_BASE = LOCAL_API_BASE;
+            if (typeof SEP_BASE !== 'undefined') {
+                SEP_BASE = `http://127.0.0.1:${port}`;
+                window.SEP_BASE = SEP_BASE;
+            }
+            console.log(`[Tauri] Internal API Token secured. Backend Port: ${port}`);
+        }
+    } catch (e) {
+        console.warn("Failed to get internal api token or port", e);
+    }
+})();
 
 // Pro 模式诊断录制
 let isProRecording = false;
@@ -100,7 +121,7 @@ window.globalPlaybackVolume = 1.0;
 let currentProTab = 'sing';
 let selectedFileInst = null;
 let selectedFileVoc = null;
-const SEP_BASE = 'http://127.0.0.1:5050';
+let SEP_BASE = 'http://127.0.0.1:5050';
 let forceCPU = false;
 
 // ==========================================

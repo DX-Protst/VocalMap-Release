@@ -590,7 +590,7 @@ function startTraining() {
         
         const scheduleLog = `[Timer Scheduled] totalDurationSeconds: ${totalDurationSeconds}s, level: ${currentSelectedLevel}, range: ${currentSelectedRange}`;
         console.log(scheduleLog);
-        fetch('http://127.0.0.1:5050/api/log', {
+        fetch(LOCAL_API_BASE + '/api/log', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: scheduleLog })
@@ -600,7 +600,7 @@ function startTraining() {
             // Double check that the training session is still active and has not been cancelled/exited
             const activeCheckLog = `[Timer Fire] activeTrainingSequence: ${activeTrainingSequence}, currentSelectedLevel: ${currentSelectedLevel}, isTrainingModalShowing: ${isTrainingModalShowing}`;
             console.log(activeCheckLog);
-            fetch('http://127.0.0.1:5050/api/log', {
+            fetch(LOCAL_API_BASE + '/api/log', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: activeCheckLog })
@@ -668,7 +668,7 @@ function stopTraining() {
 function showTrainingResultModal(score) {
     const logCall = `[showTrainingResultModal] called with score: ${score}`;
     console.log(logCall);
-    fetch('http://127.0.0.1:5050/api/log', {
+    fetch(LOCAL_API_BASE + '/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: logCall })
@@ -681,7 +681,7 @@ function showTrainingResultModal(score) {
     
     const domCheck = `[showTrainingResultModal DOM check] modal: ${!!modal}, scoreVal: ${!!scoreVal}, feedbackBox: ${!!feedbackBox}, tutorialText: ${!!tutorialText}`;
     console.log(domCheck);
-    fetch('http://127.0.0.1:5050/api/log', {
+    fetch(LOCAL_API_BASE + '/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: domCheck })

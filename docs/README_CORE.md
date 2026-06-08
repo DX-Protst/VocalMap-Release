@@ -1,6 +1,9 @@
 # VocalMap 🎙️
 
+[English Version](README_CORE_EN.md) | 简体中文
+
 > 专业级声乐多维诊断与伴奏/乐器分离系统 (Professional Vocal Diagnosis & Stem Separation System)
+
 
 VocalMap 是一款面向专业声乐教学、声音诊断与音频后期制作的现代桌面应用。它将**实时声学诊断可视化**与基于 **BS-RoFormer 模型**的专业级高精度音轨/乐器分离完美融合，为歌手、声乐教师及音乐制作人提供一站式的声学分析方案。
 
@@ -39,6 +42,18 @@ VocalMap 是一款面向专业声乐教学、声音诊断与音频后期制作�
 ### 🎛️ 底层声学引擎优化 (`backend/acoustic_engine/analyzer.py`)
 * **Numba JIT 底层提速**：在 `analyzer.py` 中，使用 `@jit(nopython=True)` 将最吃 CPU 的 YIN 差分算法循环转化为 C 级别机器码，保证零卡顿。
 * **智能泛音/颤音解析**：结合 CMNDF 强置信度校验屏蔽假高频泛音；通过长达 2 秒的历史音高缓存测算 Zero-crossing Rate，精准识别演唱颤音并转化为 `vibrato` 评分。
+
+### 🔒 本地安全防护与网关机制 (Security & Privacy Protection)
+为了保护用户隐私（如麦克风采集的声乐数据及个人音频）以及防止主机的显卡/CPU 计算资源被恶意第三方软件非法越权调取，我们构建了一套本地安全网关体系：
+* **动态端口随机化机制 (Dynamic Port Allocation)**:
+  - 实现位置: [lib.rs](file:///c:/Users/10431/Desktop/vocal%20map/src-tauri/src/lib.rs) 中的 `get_available_port`
+  - 技术细节: 程序启动时，通过绑定 `127.0.0.1:0` 获取系统随机分配的空闲端口，并作为命令行参数注入给 FastAPI 后端。这不仅解决了多实例运行时的端口抢占冲突，更杜绝了第三方本地木马或恶意进程通过固定端口（如 5050）非法嗅探、劫持用户的 WebSocket 麦克风音频流及诊断隐私数据。
+* **内联网安全令牌校验 (Internal API Token)**:
+  - 实现位置: [lib.rs](file:///c:/Users/10431/Desktop/vocal%20map/src-tauri/src/lib.rs) 中的 `generate_token` 与 [app.py](file:///c:/Users/10431/Desktop/vocal%20map/backend/app.py) 中的 `check_api_token` 中分发的校验逻辑
+  - 技术细节: 每次启动时，Tauri 会在 Rust 中动态生成一个高强度的随机密匙令牌，通过 `VOCALMAP_INTERNAL_TOKEN` 环境变量传递给 FastAPI。所有高风险 HTTP API 请求与 WebSocket 双向连接都必须携带 `X-VocalMap-Token` 请求头，否则会返回 401 拒绝访问。此举彻底屏蔽了本机局域网或其它本地恶意脚本非法越权调取本地 AI 引擎推理算力的行为，防止了用户的 GPU/CPU 算力与电力资源被盗用。
+* **时钟回滚防御与对称混淆 (Anti-Clock Tampering & Obfuscation)**:
+  - 实现位置: [analyzer.py](file:///c:/Users/10431/Desktop/vocal%20map/backend/acoustic_engine/analyzer.py) 中的 `check_clock_tampering` 与 `get_public_key`
+  - 技术细节: 通过在应用数据目录保存经 XOR 混淆的 `.sys_state` 隐藏文件，并在每次核心功能（如 Pro 离线分析等）调用时检测本地系统时钟的异常回滚，保证系统运行日志、底层依赖的时序完整性。此外，对于用于签名验证的关键公钥，采用了 XOR 位运算的数组形式进行存储混淆，规避了明文字符串静态分析攻击。
 
 ---
 
@@ -116,6 +131,7 @@ graph TD
 
 ## 📦 最近更新 (Recent Updates)
 
+* **[安全防护]** **重构本地通信网络与安全防护机制**：为了杜绝本地其他恶意软件对麦克风音频流和声乐隐私数据的窃听，以及越权盗用本机的 GPU/CPU 算力，重构了底层通信网络。实现动态分配随机空闲端口、引入内联网 API 安全令牌校验（`VOCALMAP_INTERNAL_TOKEN`），并加入了防系统时钟篡改以及 RSA 密钥 XOR 混淆保护，全方位守护用户计算资源与数据安全。
 * **[国际化]** **帮助手册全面本地化**：重构了 `frontend/src/components/modal_help.html` 中的 HTML 文本，用特定 ID 的 `<span>`/`<p>` 标签隔离文字与 SVG 图标，并在 `frontend/js/lang.js` 中新增完整的英文与中文手册映射，实现 100% 国际化翻译支持。
 * **[国际化]** **系统语言自动探测与缓存**：首次加载应用时，系统会根据 OS 系统语言（如 `navigator.language`）自动初始化语言（中文则显示中文，否则为英文），并在 `localStorage` 进行持久化缓存；将语言选择菜单挪至“引擎调节”参数面板最顶端。
 * **[更新系统]** **重构更新提示 UI & Toast 弹窗**：移除了顶部导航栏硬编码的更新状态文本。所有的检查更新状态、下载百分比进度、更新失败及重启引导均通过 `showToast()` 气泡提醒，并且重写了更新说明窗口布局与滚动条样式以杜绝溢出。
@@ -133,4 +149,4 @@ graph TD
 
 VocalMap 核心分离算法基于 [BS-RoFormer](https://github.com/ZFTurbo/Music-Source-Separation-Training) 等开源成果二次开发。
 
-本项目采用软件源码可用、但限制商业用途的许可证授权。关于本项目的商业授权、源码复用及非商业化使用界限，请参见根目录下的 LICENSE 文件。
+本项目采用软件源码可用、但限制商业用途的许可证授权。关于本项目的商业授权、源码复用及非商业化使用界限，请参见本目录下的 [LICENSE.md](LICENSE.md) 文件。

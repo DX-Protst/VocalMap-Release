@@ -95,10 +95,13 @@ if (importAudioDetectFile) {
                 int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
             }
             
-            const response = await fetch('http://127.0.0.1:5050/api/analyze_buffer', {
+            const response = await fetch(`${LOCAL_API_BASE}/api/analyze_buffer`, {
                 method: 'POST',
                 body: int16Array.buffer,
-                headers: { 'Content-Type': 'application/octet-stream' }
+                headers: { 
+                    'Content-Type': 'application/octet-stream',
+                    'X-VocalMap-Token': window.internalApiToken || ''
+                }
             });
             
             const data = await response.json();

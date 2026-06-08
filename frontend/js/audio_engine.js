@@ -61,7 +61,8 @@ async function startEngine() {
     if (!envOk) return;
 
     try {
-        ws = new WebSocket('ws://127.0.0.1:5050/ws');
+        const wsUrl = LOCAL_API_BASE.replace('http://', 'ws://') + '/ws?token=' + encodeURIComponent(window.internalApiToken || '');
+        ws = new WebSocket(wsUrl);
         
         ws.onopen = async () => {
             wsStatus.innerText = t('audio.backend_connected', "连接状态: 已连接"); wsStatus.style.color = "#00ADB5";
