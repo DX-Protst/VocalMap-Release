@@ -63,3 +63,5 @@ model/
 *.log
 scratch/
 python_runtime/
+
+my-website/
