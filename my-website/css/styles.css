@@ -1,0 +1,439 @@
+body {
+    overflow-x: hidden;
+    letter-spacing: 0.02em;
+}
+
+.mesh-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(147, 51, 234, 0.08), transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.06), transparent 50%);
+    pointer-events: none;
+}
+
+/* Section Background Parallax */
+.section-bg-parallax {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    opacity: 0.26; /* Increased dark mode opacity for better detail visibility */
+    pointer-events: none;
+    transition: opacity 1s cubic-bezier(0.32, 0.72, 0, 1);
+}
+html:not(.dark) .section-bg-parallax {
+    opacity: 0.48; /* Increased light mode opacity for clarity */
+}
+.section-bg-parallax img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.5);
+    will-change: transform;
+    filter: brightness(1.25) contrast(1.05); /* Added brightness and contrast to make it clear and vibrant */
+}
+.section-bg-parallax::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(circle, transparent 20%, #050505 100%),
+        linear-gradient(to bottom, #050505 0%, transparent 20%, transparent 80%, #050505 100%);
+}
+html:not(.dark) .section-bg-parallax::after {
+    background: 
+        radial-gradient(circle, transparent 20%, #f8fafc 100%),
+        linear-gradient(to bottom, #f8fafc 0%, transparent 20%, transparent 80%, #f8fafc 100%);
+}
+
+/* Apple-style Section Reveal & Vanish */
+.section-panel {
+    opacity: 0;
+    filter: blur(12px);
+    transform: scale(0.95) translateY(6rem);
+    transition: all 1.2s cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform, opacity, filter;
+}
+.section-panel.active {
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1) translateY(0);
+}
+.section-panel.exit-up {
+    opacity: 0;
+    filter: blur(12px);
+    transform: scale(0.95) translateY(-6rem);
+    pointer-events: none;
+}
+
+/* Staggered entrance animation for elements inside section-panels */
+.section-panel .reveal-y {
+    opacity: 0;
+    transform: translateY(3rem);
+    filter: blur(8px);
+    transition: transform 1.2s cubic-bezier(0.32, 0.72, 0, 1),
+                opacity 1.2s cubic-bezier(0.32, 0.72, 0, 1),
+                filter 1.2s cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform, opacity, filter;
+}
+
+.section-panel.active .reveal-y {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+}
+
+.section-panel .reveal-x-left {
+    opacity: 0;
+    transform: translateX(-4rem);
+    filter: blur(8px);
+    transition: transform 1.2s cubic-bezier(0.32, 0.72, 0, 1),
+                opacity 1.2s cubic-bezier(0.32, 0.72, 0, 1),
+                filter 1.2s cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform, opacity, filter;
+}
+
+.section-panel.active .reveal-x-left {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0px);
+}
+
+.section-panel .reveal-x-right {
+    opacity: 0;
+    transform: translateX(4rem);
+    filter: blur(8px);
+    transition: transform 1.2s cubic-bezier(0.32, 0.72, 0, 1),
+                opacity 1.2s cubic-bezier(0.32, 0.72, 0, 1),
+                filter 1.2s cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform, opacity, filter;
+}
+
+.section-panel.active .reveal-x-right {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0px);
+}
+
+/* Delay classes */
+.delay-100 { transition-delay: 100ms !important; }
+.delay-200 { transition-delay: 200ms !important; }
+.delay-300 { transition-delay: 300ms !important; }
+.delay-400 { transition-delay: 400ms !important; }
+.delay-500 { transition-delay: 500ms !important; }
+.delay-600 { transition-delay: 600ms !important; }
+.delay-700 { transition-delay: 700ms !important; }
+
+/* Active Nav Links styling */
+.nav-link {
+    transition: color 0.5s cubic-bezier(0.32, 0.72, 0, 1), 
+                opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1), 
+                transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+    opacity: 0.6;
+    display: inline-block;
+}
+.nav-link:hover {
+    opacity: 1;
+}
+.nav-link.active {
+    color: #9333ea !important; /* purple-600 */
+    opacity: 1;
+    transform: scale(1.05);
+}
+.dark .nav-link.active {
+    color: #c084fc !important; /* purple-400 */
+}
+
+.inner-core {
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+.dark .inner-core {
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+html:not(.dark) .inner-core {
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+/* 3D Carousel Styles */
+.carousel-scene {
+    perspective: 1500px;
+    width: 100%;
+    height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: visible;
+}
+.carousel-track {
+    transform-style: preserve-3d;
+    position: relative;
+    width: 800px;
+    height: 520px;
+    transition: transform 1s cubic-bezier(0.32, 0.72, 0, 1);
+}
+@media (max-width: 1024px) {
+    .carousel-track { width: 600px; height: 400px; }
+    .carousel-scene { height: 500px; }
+}
+@media (max-width: 768px) {
+    .carousel-track { width: 320px; height: 220px; }
+    .carousel-scene { height: 350px; }
+}
+.carousel-card {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    background: #111;
+    backface-visibility: hidden;
+    transition: opacity 1s ease, filter 1s ease;
+}
+html:not(.dark) .carousel-card {
+    box-shadow: 0 30px 60px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.5);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.carousel-card img {
+    width: 100%; height: 100%; object-fit: cover; object-position: top;
+}
+.carousel-caption {
+    background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.5), transparent);
+}
+html:not(.dark) .carousel-caption {
+    background: linear-gradient(to top, rgba(255,255,255,0.95), rgba(255,255,255,0.7), transparent);
+}
+
+/* FAQ Fluid Accordion */
+.faq-content {
+    max-height: 0; opacity: 0; overflow: hidden;
+    transition: all 0.6s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.faq-item.active .faq-content {
+    max-height: 300px; opacity: 1; margin-top: 1rem;
+}
+.faq-item.active .faq-icon {
+    transform: rotate(45deg);
+}
+
+/* Scrollbar styling for Light/Dark */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.dark ::-webkit-scrollbar-track { background: #050505; }
+.dark ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #444; }
+
+/* Premium Loading Overlay */
+#loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8fafc; /* Light mode bg */
+    transition: opacity 0.8s cubic-bezier(0.32, 0.72, 0, 1), 
+                transform 0.8s cubic-bezier(0.32, 0.72, 0, 1),
+                visibility 0.8s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.dark #loading-screen {
+    background-color: #050505; /* Dark mode bg */
+}
+#loading-screen.fade-out {
+    opacity: 0;
+    transform: scale(1.05);
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.loading-logo-container {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    margin-bottom: 2rem;
+}
+.loading-logo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    animation: logoPulse 2s infinite ease-in-out;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+.dark .loading-logo {
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 30px rgba(147, 51, 234, 0.15);
+}
+
+.loading-spinner {
+    position: absolute;
+    inset: -6px;
+    border: 2px solid transparent;
+    border-top-color: #9333ea; /* Purple loading ring */
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+}
+
+.loading-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    color: #64748b; /* slate-500 */
+    text-transform: uppercase;
+    animation: textPulse 1.5s infinite ease-in-out;
+}
+.dark .loading-text {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+@keyframes logoPulse {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.05); filter: brightness(1.1); }
+}
+
+@keyframes textPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile Optimization Styles (<= 768px) */
+@media (max-width: 768px) {
+    /* 1. Limit section background parallax image height to prevent exceeding GPU texture size limits */
+    .section-bg-parallax {
+        height: 120vh !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        opacity: 0.18 !important; /* Slightly lower opacity for text readability on smaller viewports */
+    }
+    
+    html:not(.dark) .section-bg-parallax {
+        opacity: 0.35 !important;
+    }
+
+    .section-bg-parallax img {
+        transform: scale(1.1) !important; /* Lower scale factor to avoid cropping issues and save GPU memory */
+        filter: none !important; /* Disable runtime brightness/contrast filters on mobile */
+        will-change: auto !important; /* Avoid memory layer explosion */
+    }
+
+    /* Adjust gradient overlays to match limited-height background */
+    .section-bg-parallax::after {
+        background: linear-gradient(to bottom, #050505 0%, transparent 15%, transparent 70%, #050505 100%) !important;
+    }
+    html:not(.dark) .section-bg-parallax::after {
+        background: linear-gradient(to bottom, #f8fafc 0%, transparent 15%, transparent 70%, #f8fafc 100%) !important;
+    }
+
+    /* 2. Make all scroll sections and their sub-elements static on mobile to avoid translation/rendering overhead */
+    .section-panel {
+        opacity: 1 !important;
+        filter: none !important;
+        transform: none !important;
+        transition: none !important;
+        will-change: auto !important;
+        pointer-events: auto !important;
+    }
+    .section-panel.active,
+    .section-panel.exit-up {
+        opacity: 1 !important;
+        filter: none !important;
+        transform: none !important;
+    }
+
+    .section-panel .reveal-y,
+    .section-panel .reveal-x-left,
+    .section-panel .reveal-x-right {
+        opacity: 1 !important;
+        filter: none !important;
+        transform: none !important;
+        transition: none !important;
+        will-change: auto !important;
+    }
+    
+    .section-panel.active .reveal-y,
+    .section-panel.active .reveal-x-left,
+    .section-panel.active .reveal-x-right {
+        opacity: 1 !important;
+        filter: none !important;
+        transform: none !important;
+    }
+
+    /* 3. Disable resource-heavy backdrop filters (blur) on mobile to achieve smooth scrolling */
+    .backdrop-blur-3xl, 
+    .backdrop-blur-2xl, 
+    .backdrop-blur-xl, 
+    .backdrop-blur-lg, 
+    .backdrop-blur-md, 
+    .backdrop-blur,
+    .backdrop-blur-sm {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Increase backgrounds opacity on mobile to compensate for loss of blur */
+    nav div {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+    }
+    .dark nav div {
+        background-color: rgba(15, 15, 15, 0.95) !important;
+    }
+    
+    #mobile-menu {
+        background-color: rgba(255, 255, 255, 0.98) !important;
+    }
+    .dark #mobile-menu {
+        background-color: rgba(5, 5, 5, 0.98) !important;
+    }
+
+    .inner-core {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    .dark .inner-core {
+        background-color: rgba(15, 15, 15, 0.95) !important;
+    }
+    
+    .bg-white\/40 {
+        background-color: rgba(255, 255, 255, 0.8) !important;
+    }
+    .dark .bg-white\/5 {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    .bg-white\/60 {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+    }
+    .dark .bg-black\/60 {
+        background-color: rgba(10, 10, 10, 0.95) !important;
+    }
+
+    /* 4. Optimize Carousel Cards on Mobile */
+    .carousel-card {
+        box-shadow: 0 15px 30px rgba(0,0,0,0.3) !important;
+        filter: none !important;
+        will-change: transform, opacity !important;
+    }
+
+    /* 5. Hide fixed SVG turbulence noise filter overlay on mobile to save GPU composition */
+    div[style*="noiseFilter"] {
+        display: none !important;
+    }
+}

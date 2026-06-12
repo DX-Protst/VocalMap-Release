@@ -176,16 +176,16 @@ window.viewLicenseStatus = function() {
             }
             
             let actDate = new Date(cache.cached_at).toLocaleString();
-            let remText = cache.plan_type === 'lifetime' ? '永久有效' : '';
+            let remText = cache.plan_type === 'lifetime' ? t('pay.license_status_rem_lifetime', '永久有效') : '';
             if (cache.plan_type !== 'lifetime' && cache.expires_at) {
                 let remDays = Math.ceil((cache.expires_at - (Date.now()/1000)) / 86400);
-                remText = `剩余 ${remDays} 天`;
+                remText = t('pay.license_status_rem_days_prefix', '剩余 ') + remDays + t('pay.license_status_rem_days_suffix', ' 天');
             }
             
             infoContainer.innerHTML = `
-                <div style="color: var(--text-main); font-size: 14px; font-weight: 600;">已激活: <span style="color: var(--primary-cyan);">${cache.plan_type === 'lifetime' ? '永久买断版' : '月度通行证'}</span></div>
-                <div style="color: var(--text-muted); font-size: 13px;">激活时间: ${actDate}</div>
-                <div style="color: var(--text-muted); font-size: 13px;">有效期: <span style="color: #00E676; font-weight: bold;">${remText}</span></div>
+                <div style="color: var(--text-main); font-size: 14px; font-weight: 600;">${t('pay.license_status_activated', '已激活: ')}<span style="color: var(--primary-cyan);">${cache.plan_type === 'lifetime' ? t('pay.license_status_lifetime', '永久买断版') : t('pay.license_status_monthly', '月度通行证')}</span></div>
+                <div style="color: var(--text-muted); font-size: 13px;">${t('pay.license_status_act_time', '激活时间: ')}${actDate}</div>
+                <div style="color: var(--text-muted); font-size: 13px;">${t('pay.license_status_valid', '有效期: ')}<span style="color: #00E676; font-weight: bold;">${remText}</span></div>
             `;
             infoContainer.style.display = 'flex';
         } else {

@@ -495,12 +495,19 @@ function renderProReport(reportData) {
         dims.forEach(function(d) {
             var v = d.value || 0;
             var tc = v >= 80 ? 'var(--primary-cyan)' : (v >= 50 ? '#FFEA00' : 'var(--primary-red)');
+            var translatedLabel = d.label_key ? t(d.label_key, d.label) : d.label;
+            var translatedText = d.text_key ? t(d.text_key, d.text) : d.text;
+            if (d.text_params) {
+                for (var k in d.text_params) {
+                    translatedText = translatedText.replace('{' + k + '}', d.text_params[k]);
+                }
+            }
             html += '<div style="background:var(--upload-zone-bg); border:1px solid var(--glass-border); backdrop-filter:blur(8px); box-shadow:0 4px 12px rgba(0,0,0,0.05); color:var(--text-main); padding:8px 12px; margin-bottom:8px; border-radius:8px; border-left:4px solid ' + tc + ';">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">'
-                + '<span style="color:var(--text-muted); font-size:12px;">' + d.label + '</span>'
+                + '<span style="color:var(--text-muted); font-size:12px;">' + translatedLabel + '</span>'
                 + '<span style="color:' + tc + '; font-weight:bold; font-size:14px; font-family:monospace;">' + v + '</span>'
                 + '</div>'
-                + '<div style="color:var(--text-muted); font-size:12px; line-height:1.6;">' + d.text + '</div>'
+                + '<div style="color:var(--text-muted); font-size:12px; line-height:1.6;">' + translatedText + '</div>'
                 + '</div>';
         });
     }
@@ -510,9 +517,16 @@ function renderProReport(reportData) {
         hasContent = true;
         html += '<div style="color:var(--primary-cyan); font-size:14px; font-weight:bold; margin-bottom:8px; margin-top:14px;">' + t('diag.report_insights', '多维交叉洞察') + '</div>';
         cross.forEach(function(cr) {
+            var translatedPair = cr.pair_key ? t(cr.pair_key, cr.pair) : cr.pair;
+            var translatedText = cr.text_key ? t(cr.text_key, cr.text) : cr.text;
+            if (cr.text_params) {
+                for (var k in cr.text_params) {
+                    translatedText = translatedText.replace('{' + k + '}', cr.text_params[k]);
+                }
+            }
             html += '<div style="background:var(--upload-zone-bg); border:1px solid var(--glass-border); backdrop-filter:blur(8px); box-shadow:0 4px 12px rgba(0,0,0,0.05); color:var(--text-main); padding:8px 12px; margin-bottom:8px; border-radius:8px; border-left:4px solid var(--primary-cyan);">'
-                + '<span style="color:var(--primary-cyan); font-size:11px; font-weight:bold;">' + cr.pair + '</span> '
-                + '<span style="color:var(--text-muted); font-size:12px; line-height:1.5;">' + cr.text + '</span>'
+                + '<span style="color:var(--primary-cyan); font-size:11px; font-weight:bold;">' + translatedPair + '</span> '
+                + '<span style="color:var(--text-muted); font-size:12px; line-height:1.5;">' + translatedText + '</span>'
                 + '</div>';
         });
     }

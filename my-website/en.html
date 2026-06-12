@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VocalMap Official Release | Desktop Vocal Workstation</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '"Noto Sans SC"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        oled: '#050505',
+                        vantablack: '#0a0a0a',
+                    },
+                    transitionTimingFunction: {
+                        'fluid': 'cubic-bezier(0.32, 0.72, 0, 1)',
+                    }
+                }
+            }
+        }
+        
+        if (localStorage.getItem('theme') === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    
+    <script>
+        window.imagesData = [
+            { src: 'main.png', label: 'Immersive Dark Mode' },
+            { src: 'main_light.png', label: 'High Contrast Light Mode' },
+            { src: 'engine_settings.png', label: 'Security Gateway Config' },
+            { src: 'holographic_diagnosis.png', label: 'Holographic Radar Diagnosis' },
+            { src: 'stem_separation.png', label: 'Studio-Grade Stem Separation' },
+            { src: 'training_camp.png', label: 'Targeted Training Camp' },
+            { src: 'training_level.png', label: 'Dynamic Practice Levels' },
+            { src: 'vocal_information.png', label: 'Millisecond Feature Extraction' },
+            { src: 'vocal_range.png', label: 'Vocal Range & Stability' }
+        ];
+    </script>
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="antialiased selection:bg-purple-500/30 selection:text-purple-900 dark:selection:text-purple-100 bg-slate-50 dark:bg-[#050505] text-slate-900 dark:text-[#fafafa] transition-colors duration-500">
+
+    <!-- Premium Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-logo-container">
+            <div class="loading-spinner"></div>
+            <img src="icon.png" alt="Logo" class="loading-logo">
+        </div>
+        <div class="loading-text">Loading VocalMap...</div>
+    </div>
+
+    <div class="fixed inset-0 z-50 pointer-events-none opacity-[0.03] dark:opacity-[0.02]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
+    <div class="mesh-bg"></div>
+
+    <nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-max">
+        <div class="flex items-center gap-6 px-6 py-4 bg-white/70 dark:bg-white/5 backdrop-blur-2xl ring-1 ring-slate-200/50 dark:ring-white/10 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-colors duration-500">
+            <a href="#" class="flex items-center gap-3 group">
+                <img src="icon.png" alt="Logo" class="w-10 h-10 rounded-full transition-transform duration-700 ease-fluid group-hover:scale-110">
+                <span class="font-bold tracking-wide text-lg hidden sm:block text-slate-900 dark:text-white">VocalMap</span>
+            </a>
+            
+            <div class="hidden md:flex items-center gap-8 text-base font-semibold text-slate-600 dark:text-white/60 px-4">
+                <a href="#features" class="nav-link hover:text-purple-600 dark:hover:text-white transition-colors duration-500">Engine</a>
+                <a href="#security" class="nav-link hover:text-purple-600 dark:hover:text-white transition-colors duration-500">Security</a>
+                <a href="#pricing" class="nav-link hover:text-purple-600 dark:hover:text-white transition-colors duration-500">License</a>
+                <a href="#faq" class="nav-link hover:text-purple-600 dark:hover:text-white transition-colors duration-500">FAQ</a>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center bg-slate-200/50 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 transition-colors">
+                    <i id="theme-icon" class="ph-light text-xl text-slate-800 dark:text-white"></i>
+                </button>
+                
+                <a href="index.html" class="hidden sm:flex w-10 h-10 rounded-full items-center justify-center bg-slate-200/50 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 transition-colors font-bold text-xs text-slate-800 dark:text-white">
+                    中
+                </a>
+
+                <a href="#download" class="hidden sm:flex items-center justify-center bg-slate-900 dark:bg-white text-white dark:text-black px-6 py-2.5 rounded-full text-base font-bold hover:scale-105 transition-transform duration-500 ease-fluid ml-2">
+                    Download
+                </a>
+
+                <button id="hamburger-btn" class="relative w-12 h-12 flex items-center justify-center rounded-full bg-slate-200/50 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 transition-colors md:hidden">
+                    <span class="absolute block w-6 h-[1.5px] bg-slate-900 dark:bg-white transition-transform duration-700 ease-fluid -translate-y-1.5" id="line1"></span>
+                    <span class="absolute block w-6 h-[1.5px] bg-slate-900 dark:bg-white transition-transform duration-700 ease-fluid translate-y-1.5" id="line2"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-white/95 dark:bg-black/90 backdrop-blur-3xl opacity-0 pointer-events-none flex flex-col justify-center px-8 transition-colors duration-500">
+        <div class="flex flex-col gap-10 text-4xl md:text-5xl font-medium tracking-tight">
+            <a href="#features" class="nav-item mobile-link text-slate-500 dark:text-white/50 hover:text-slate-900 dark:hover:text-white transition-all duration-700 ease-fluid translate-y-12 opacity-0 delay-100">Engine</a>
+            <a href="#security" class="nav-item mobile-link text-slate-500 dark:text-white/50 hover:text-slate-900 dark:hover:text-white transition-all duration-700 ease-fluid translate-y-12 opacity-0 delay-150">Security</a>
+            <a href="#pricing" class="nav-item mobile-link text-slate-500 dark:text-white/50 hover:text-slate-900 dark:hover:text-white transition-all duration-700 ease-fluid translate-y-12 opacity-0 delay-200">License</a>
+            <a href="#download" class="nav-item mobile-link text-slate-500 dark:text-white/50 hover:text-slate-900 dark:hover:text-white transition-all duration-700 ease-fluid translate-y-12 opacity-0 delay-300">Download</a>
+            <a href="index.html" class="nav-item mobile-link text-purple-500 dark:text-purple-400 font-bold mt-4 transition-all duration-700 ease-fluid translate-y-12 opacity-0 delay-500">中文版 &rarr;</a>
+        </div>
+    </div>
+
+    <!-- MAIN SCROLL CONTAINERS -->
+
+    <section id="hero" class="section-panel pt-48 pb-24 min-h-[100dvh] flex flex-col items-center justify-center relative z-10 w-full px-4 overflow-hidden">
+        <!-- Hero Background Parallax Studio Image -->
+        <div class="section-bg-parallax">
+            <img src="photos/music_studio.png" alt="Music Studio Background">
+        </div>
+
+        <div class="max-w-4xl mx-auto flex flex-col items-center text-center relative z-10">
+            <div class="reveal-y mb-8 rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-medium bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 ring-1 ring-purple-500/20 shadow-[inset_0_1px_1px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+                v3.1.2 Official Release
+            </div>
+            
+            <h1 class="reveal-y delay-100 text-6xl md:text-7xl lg:text-[6rem] font-extrabold tracking-tighter leading-[1.05] mb-8 pb-4 text-transparent bg-clip-text bg-gradient-to-b from-slate-900 to-slate-500 dark:from-white dark:to-white/60">
+                Leave a tangible trace<br/>with every sound.
+            </h1>
+            
+            <p class="reveal-y delay-200 text-xl md:text-2xl text-slate-600 dark:text-white/60 max-w-3xl leading-relaxed font-medium">
+                Powered by SOTA AI stem separation networks and acoustic engines, a 100% locally-computed desktop vocal workstation.
+            </p>
+        </div>
+
+        <div class="reveal-y delay-300 carousel-scene mt-16 w-full max-w-[1400px] relative z-10">
+            <div class="carousel-track" id="carouselTrack"></div>
+            <button id="btnPrev" class="absolute left-2 md:left-12 lg:left-24 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/40 dark:bg-black/40 hover:bg-white/80 dark:hover:bg-black/80 backdrop-blur-md text-slate-900 dark:text-white flex items-center justify-center transition-colors z-30 shadow-2xl ring-1 ring-black/10 dark:ring-white/20">
+                <i class="ph-light ph-caret-left text-3xl"></i>
+            </button>
+            <button id="btnNext" class="absolute right-2 md:right-12 lg:right-24 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/40 dark:bg-black/40 hover:bg-white/80 dark:hover:bg-black/80 backdrop-blur-md text-slate-900 dark:text-white flex items-center justify-center transition-colors z-30 shadow-2xl ring-1 ring-black/10 dark:ring-white/20">
+                <i class="ph-light ph-caret-right text-3xl"></i>
+            </button>
+        </div>
+    </section>
+
+    <section id="features" class="section-panel py-32 px-4 min-h-[100dvh] flex flex-col justify-center relative z-10 w-full overflow-hidden">
+        <!-- Features Background Parallax Image -->
+        <div class="section-bg-parallax">
+            <img src="photos/features_bg.png" alt="Features Background">
+        </div>
+
+        <div class="max-w-[1400px] mx-auto w-full relative z-10 flex flex-col justify-center">
+            <div class="mb-24 max-w-3xl">
+            <div class="reveal-y inline-block mb-8 rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-medium bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20">
+                Core Engine Matrix
+            </div>
+            <h2 class="reveal-y delay-100 text-5xl md:text-6xl lg:text-[6.5rem] font-bold tracking-tight text-slate-900 dark:text-white mb-8 leading-[1.05]">Six-Dimensional<span class="font-light italic text-slate-500 dark:text-white/50"> Matrix</span></h2>
+            <p class="reveal-y delay-200 text-slate-600 dark:text-white/50 text-xl md:text-2xl leading-relaxed font-medium">Groundbreaking deep learning models and millisecond latency compensation thoroughly disrupt the traditional vocal analysis workflow.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 auto-rows-[minmax(350px,auto)] relative z-10">
+            <div class="reveal-x-left delay-100 md:col-span-8 md:row-span-2 flex flex-col bg-white/40 dark:bg-white/5 p-2 rounded-[2.5rem] ring-1 ring-slate-200/60 dark:ring-white/10 hover:bg-slate-100/40 dark:hover:bg-white/[0.07] transition-colors duration-700 ease-fluid group shadow-sm dark:shadow-none">
+                <div class="inner-core bg-white/60 dark:bg-black/60 backdrop-blur-xl rounded-[calc(2.5rem-0.5rem)] p-10 md:p-14 h-full flex flex-col relative overflow-hidden transition-colors duration-500">
+                    <div class="relative z-10 max-w-2xl">
+                        <i class="ph-light ph-target text-5xl text-rose-500 dark:text-rose-400 mb-8 block transform transition-transform duration-700 ease-fluid group-hover:scale-110 origin-left"></i>
+                        <h3 class="text-3xl font-bold text-slate-900 dark:text-white mb-6">Targeted <span class="font-light text-slate-500 dark:text-white/50">Training Camp</span></h3>
+                        <p class="text-slate-600 dark:text-white/60 text-lg md:text-xl leading-relaxed mb-8">Dynamically generates highly targeted progressive vocal practice levels. Equipped with a 3-second dynamic look-ahead camera.</p>
+                        <ul class="text-slate-500 dark:text-white/50 text-base md:text-lg space-y-4 mb-14 font-medium">
+                            <li class="flex items-center gap-4"><span class="w-2 h-2 rounded-full bg-rose-500 dark:bg-rose-400/60"></span> 100ms visual anti-latency compensation</li>
+                            <li class="flex items-center gap-4"><span class="w-2 h-2 rounded-full bg-rose-500 dark:bg-rose-400/60"></span> Studio-grade dual-track compression engine</li>
+                        </ul>
+                    </div>
+                    <div class="mt-auto relative w-full aspect-video rounded-2xl overflow-hidden ring-1 ring-slate-200 dark:ring-white/5 bg-slate-200 dark:bg-black">
+                        <img src="photos/training_camp.png" class="absolute inset-0 w-full h-full object-cover object-top transform transition-transform duration-[2000ms] group-hover:scale-105">
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-x-right delay-200 md:col-span-4 md:row-span-2 flex flex-col bg-white/40 dark:bg-white/5 p-2 rounded-[2.5rem] ring-1 ring-slate-200/60 dark:ring-white/10 hover:bg-slate-100/40 dark:hover:bg-white/[0.07] transition-colors duration-700 ease-fluid group shadow-sm dark:shadow-none">
+                <div class="inner-core bg-white/60 dark:bg-black/60 backdrop-blur-xl rounded-[calc(2.5rem-0.5rem)] p-10 md:p-12 h-full flex flex-col relative overflow-hidden transition-colors duration-500">
+                    <div class="relative z-10">
+                        <i class="ph-light ph-chart-radar text-5xl text-emerald-500 dark:text-emerald-400 mb-8 block transform transition-transform duration-700 ease-fluid group-hover:scale-110 origin-left"></i>
+                        <h3 class="text-3xl font-bold text-slate-900 dark:text-white mb-6">Multi-dimensional <span class="font-light text-slate-500 dark:text-white/50">Diagnosis</span></h3>
+                        <p class="text-slate-600 dark:text-white/60 text-base md:text-lg leading-relaxed mb-8 font-medium">Utilizes high-performance YIN pitch tracking variants and H1-H2 resonance evaluation. Captures vibrato at the millisecond level for independent scoring.</p>
+                    </div>
+                    <div class="mt-auto relative w-full aspect-video rounded-2xl overflow-hidden ring-1 ring-slate-200 dark:ring-white/5 bg-slate-200 dark:bg-black">
+                        <img src="photos/holographic_diagnosis.png" class="absolute inset-0 w-full h-full object-cover transform transition-transform duration-[2000ms] group-hover:scale-105">
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-x-left delay-300 md:col-span-7 flex flex-col bg-white/40 dark:bg-white/5 p-2 rounded-[2.5rem] ring-1 ring-slate-200/60 dark:ring-white/10 hover:bg-slate-100/40 dark:hover:bg-white/[0.07] transition-colors duration-700 ease-fluid group shadow-sm dark:shadow-none">
+                <div class="inner-core bg-white/60 dark:bg-black/60 backdrop-blur-xl rounded-[calc(2.5rem-0.5rem)] p-10 md:p-14 h-full flex flex-col md:flex-row gap-10 relative overflow-hidden transition-colors duration-500">
+                    <div class="relative z-10 flex-1">
+                        <i class="ph-light ph-faders text-5xl text-blue-500 dark:text-blue-400 mb-8 block transform transition-transform duration-700 ease-fluid group-hover:scale-110 origin-left"></i>
+                        <h3 class="text-3xl font-bold text-slate-900 dark:text-white mb-6">Professional <span class="font-light text-slate-500 dark:text-white/50">Stem Separation</span></h3>
+                        <p class="text-slate-600 dark:text-white/60 text-base md:text-lg leading-relaxed mb-6 font-medium">Equipped with SOTA BS-RoFormer and Logic-RoFormer deep learning models for ultra-clear separation strictly on local compute.</p>
+                    </div>
+                    <div class="w-full aspect-video md:w-auto md:flex-1 relative rounded-2xl overflow-hidden ring-1 ring-slate-200 dark:ring-white/5 bg-slate-200 dark:bg-black">
+                        <img src="photos/stem_separation.png" class="absolute inset-0 w-full h-full object-cover transform transition-transform duration-[2000ms] group-hover:scale-105">
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-x-right delay-400 md:col-span-5 flex flex-col bg-white/40 dark:bg-white/5 p-2 rounded-[2.5rem] ring-1 ring-slate-200/60 dark:ring-white/10 hover:bg-slate-100/40 dark:hover:bg-white/[0.07] transition-colors duration-700 ease-fluid group shadow-sm dark:shadow-none">
+                <div class="inner-core bg-white/60 dark:bg-black/60 backdrop-blur-xl rounded-[calc(2.5rem-0.5rem)] p-10 md:p-14 h-full flex flex-col relative overflow-hidden transition-colors duration-500">
+                    <div class="relative z-10">
+                        <i class="ph-light ph-drop text-5xl text-slate-400 dark:text-white/80 mb-8 block transform transition-transform duration-700 ease-fluid group-hover:scale-110 origin-left"></i>
+                        <h3 class="text-3xl font-bold text-slate-900 dark:text-white mb-6">Liquid Glass <span class="font-light text-slate-500 dark:text-white/50">UI</span></h3>
+                        <p class="text-slate-600 dark:text-white/60 text-base md:text-lg leading-relaxed font-medium">Globally locked golden ratio window (1200x800). Seamless flow between independent workspaces, with silent pop-up OTA updates.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+
+    <section id="security" class="section-panel py-32 px-4 min-h-[100dvh] flex flex-col justify-center relative z-10 w-full overflow-hidden">
+        <!-- Security Background Parallax Image -->
+        <div class="section-bg-parallax">
+            <img src="photos/security_bg.png" alt="Security Background">
+        </div>
+
+        <div class="max-w-[1400px] mx-auto w-full bg-white/40 dark:bg-white/5 p-2 rounded-[3.5rem] ring-1 ring-slate-200 dark:ring-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.05)] dark:shadow-2xl transition-colors duration-500 relative z-10">
+            <div class="inner-core bg-white/60 dark:bg-black/60 backdrop-blur-xl rounded-[calc(3.5rem-0.5rem)] p-14 md:p-28 relative overflow-hidden flex flex-col md:flex-row gap-20 items-center transition-colors duration-500">
+                
+                <div class="reveal-x-left flex-1 relative z-10">
+                    <div class="inline-block mb-8 rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-medium bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/20">
+                        Military-Grade Protection
+                    </div>
+                    <h2 class="flex flex-col mb-10">
+                        <span class="text-4xl md:text-5xl lg:text-6xl font-light tracking-widest text-slate-500 dark:text-white/50 mb-2">Local Security</span>
+                        <span class="text-6xl md:text-[6rem] lg:text-[7.5rem] font-black tracking-tighter text-slate-900 dark:text-white leading-[0.9]">Gateway</span>
+                    </h2>
+                    <p class="text-slate-600 dark:text-white/50 text-xl leading-relaxed mb-12 font-medium">Reconstructed IPC networks completely block third-party unauthorized calls, protecting your microphone data and GPU compute.</p>
+                    <ul class="space-y-8 text-slate-600 dark:text-white/60 font-medium text-base md:text-lg">
+                        <li class="reveal-y delay-100 flex gap-6 items-start">
+                            <i class="ph-light ph-shield-check text-3xl text-red-500 dark:text-red-400 shrink-0"></i>
+                            <div>
+                                <strong class="text-slate-900 dark:text-white block mb-2 text-lg md:text-xl">Dynamic Port Isolation</strong>
+                                <span>Perfectly prevents malicious LAN software from eavesdropping on audio streams.</span>
+                            </div>
+                        </li>
+                        <li class="reveal-y delay-200 flex gap-6 items-start">
+                            <i class="ph-light ph-key text-3xl text-red-500 dark:text-red-400 shrink-0"></i>
+                            <div>
+                                <strong class="text-slate-900 dark:text-white block mb-2 text-lg md:text-xl">Anti-Sniff API Tokens</strong>
+                                <span>Forced encrypted handshakes between Tauri and Python engines; denies access without token.</span>
+                            </div>
+                        </li>
+                        <li class="reveal-y delay-300 flex gap-6 items-start">
+                            <i class="ph-light ph-clock-counter-clockwise text-3xl text-red-500 dark:text-red-400 shrink-0"></i>
+                            <div>
+                                <strong class="text-slate-900 dark:text-white block mb-2 text-lg md:text-xl">Clock Rollback & Signature Sync</strong>
+                                <span>Defends against reverse engineering and illegal trojan injections.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="reveal-x-right delay-400 flex-1 relative z-10 w-full transform md:rotate-2 hover:rotate-0 transition-transform duration-1000 ease-fluid">
+                    <div class="bg-white/70 dark:bg-black/70 backdrop-blur-lg rounded-2xl ring-1 ring-slate-200 dark:ring-white/10 w-full font-mono text-sm md:text-base lg:text-lg overflow-hidden flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+                        <div class="flex items-center px-6 py-4 bg-slate-100/70 dark:bg-white/5 border-b border-slate-200 dark:border-white/5 gap-3">
+                            <div class="w-4 h-4 rounded-full bg-[#FF5F56]"></div>
+                            <div class="w-4 h-4 rounded-full bg-[#FFBD2E]"></div>
+                            <div class="w-4 h-4 rounded-full bg-[#27C93F]"></div>
+                            <span class="ml-5 text-slate-500 dark:text-white/40 text-xs md:text-sm uppercase tracking-wider font-semibold">vocalmap-daemon — bash</span>
+                        </div>
+                        <div class="p-8 text-emerald-600 dark:text-emerald-400/90 leading-relaxed space-y-4">
+                            <p><span class="text-purple-600 dark:text-purple-400">➜</span> <span class="text-slate-900 dark:text-white">~</span> vocalmap --start-daemon</p>
+                            <p class="text-slate-500 dark:text-white/40">[INFO] Initializing Audio Engine...</p>
+                            <p class="text-slate-500 dark:text-white/40">[INFO] Generating dynamic port for secure IPC...</p>
+                            <p>[SUCCESS] Port isolated & bound to <span class="text-blue-600 dark:text-blue-400">127.0.0.1:48392</span></p>
+                            <p class="text-slate-500 dark:text-white/40">[INFO] Enforcing internal API Token handshake...</p>
+                            <p>[SUCCESS] Token generated: <span class="text-yellow-600 dark:text-yellow-400">VMAP-Sec-******</span></p>
+                            <p class="text-slate-500 dark:text-white/40">[INFO] Validating algorithmic signatures and clock sync...</p>
+                            <p>[SUCCESS] Security Gateway active. AI Models ready.</p>
+                            <p class="animate-pulse">_</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="section-panel py-32 px-4 min-h-[100dvh] flex flex-col justify-center relative z-10 w-full overflow-hidden">
+        <!-- Pricing Background Parallax Image -->
+        <div class="section-bg-parallax">
+            <img src="photos/pricing_bg.png" alt="Pricing Background">
+        </div>
+
+        <div class="max-w-[1200px] mx-auto w-full relative z-10 flex flex-col justify-center">
+            <div class="mb-32">
+            <div class="text-center mb-24">
+                <div class="reveal-y inline-block mb-8 rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-medium bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+                    Commercial License
+                </div>
+                <h2 class="reveal-y delay-100 text-5xl md:text-7xl lg:text-[6rem] font-extrabold tracking-tighter text-slate-900 dark:text-white mb-8 leading-[1.05]">Get <span class="text-transparent bg-clip-text bg-gradient-to-br from-emerald-500 to-cyan-500 dark:from-emerald-400 dark:to-cyan-400">Full Access</span></h2>
+                <p class="reveal-y delay-200 text-slate-600 dark:text-white/50 text-xl md:text-2xl font-medium max-w-2xl mx-auto">Automatically deploys underlying models from high-speed mirrors upon first use, squeezing maximum hardware compute.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="reveal-x-left delay-100 bg-white/40 dark:bg-white/5 p-2 rounded-[2.5rem] ring-1 ring-slate-200 dark:ring-white/10 hover:bg-slate-50/40 dark:hover:bg-white/[0.08] transition-colors duration-700 ease-fluid shadow-lg dark:shadow-none">
+                    <div class="inner-core bg-white/60 dark:bg-black/60 backdrop-blur-xl rounded-[calc(2.5rem-0.5rem)] p-12 md:p-16 h-full flex flex-col">
+                        <h3 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-4">Monthly Pass</h3>
+                        <div class="flex items-baseline gap-3 mb-12">
+                            <span class="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white">￥19.9</span>
+                            <span class="text-base md:text-lg text-slate-500 dark:text-white/50 font-medium">/ month</span>
+                        </div>
+                        <ul class="space-y-6 text-slate-600 dark:text-white/60 text-base md:text-lg font-medium mb-12 flex-1">
+                            <li class="flex items-center gap-4"><i class="ph-light ph-check-circle text-emerald-600 dark:text-emerald-500 text-2xl"></i> 30 days premium privileges</li>
+                            <li class="flex items-center gap-4"><i class="ph-light ph-check-circle text-emerald-600 dark:text-emerald-500 text-2xl"></i> Advanced vocal analysis</li>
+                            <li class="flex items-center gap-4"><i class="ph-light ph-check-circle text-emerald-600 dark:text-emerald-500 text-2xl"></i> SOTA stem separation</li>
+                        </ul>
+                        <a href="#download" class="group relative flex items-center justify-between pl-8 pr-2 py-3 rounded-full border border-slate-300 dark:border-white/20 font-bold text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-all duration-700 ease-fluid active:scale-[0.98] w-full mt-auto">
+                            <span class="mx-auto">Download Trial</span>
+                            <div class="w-10 h-10 shrink-0 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center transition-transform duration-700 ease-fluid group-hover:translate-x-1 group-hover:-translate-y-[1px] group-hover:scale-105 absolute right-2">
+                                <i class="ph-light ph-arrow-up-right text-lg text-slate-900 dark:text-white"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="reveal-x-right delay-200 bg-emerald-500/10 p-2 rounded-[2.5rem] ring-1 ring-emerald-500/30 hover:bg-emerald-500/20 transition-colors duration-700 ease-fluid relative shadow-lg dark:shadow-none">
+                    <div class="absolute -top-5 right-10 bg-emerald-500 text-white dark:text-black text-xs md:text-sm font-extrabold uppercase tracking-widest px-6 py-2 rounded-full z-20 shadow-[0_10px_30px_rgba(16,185,129,0.4)]">
+                        Lifetime
+                    </div>
+                    <div class="inner-core bg-emerald-50/60 dark:bg-emerald-950/40 backdrop-blur-xl rounded-[calc(2.5rem-0.5rem)] p-12 md:p-16 h-full relative overflow-hidden flex flex-col">
+                        <h3 class="text-2xl md:text-3xl font-bold text-emerald-700 dark:text-emerald-300 mb-4">Perpetual License</h3>
+                        <div class="flex items-baseline gap-3 mb-12">
+                            <span class="text-6xl md:text-7xl font-bold text-slate-900 dark:text-white">￥59.9</span>
+                            <span class="text-base md:text-lg text-emerald-600/70 dark:text-emerald-300/50 font-medium">/ lifetime</span>
+                        </div>
+                        <ul class="space-y-6 text-slate-700 dark:text-white/70 text-base md:text-lg font-medium mb-12 flex-1">
+                            <li class="flex items-center gap-4"><i class="ph-light ph-check-circle text-emerald-600 dark:text-emerald-400 text-2xl"></i> All monthly features included</li>
+                            <li class="flex items-center gap-4"><i class="ph-light ph-check-circle text-emerald-600 dark:text-emerald-400 text-2xl"></i> Permanent usage rights</li>
+                            <li class="flex items-center gap-4"><i class="ph-light ph-check-circle text-emerald-600 dark:text-emerald-400 text-2xl"></i> Offline independent activation</li>
+                        </ul>
+                        <a href="#download" class="group relative flex items-center justify-between pl-8 pr-2 py-3 rounded-full bg-emerald-600 dark:bg-emerald-500 text-white dark:text-black font-bold hover:bg-emerald-700 dark:hover:bg-emerald-400 transition-all duration-700 ease-fluid active:scale-[0.98] shadow-xl w-full mt-auto">
+                            <span class="mx-auto">Download & Unlock Now</span>
+                            <div class="w-10 h-10 shrink-0 rounded-full bg-white/20 dark:bg-black/10 flex items-center justify-center transition-transform duration-700 ease-fluid group-hover:translate-x-1 group-hover:-translate-y-[1px] group-hover:scale-105 absolute right-2">
+                                <i class="ph-light ph-download-simple text-lg text-white dark:text-black"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="faq" class="section-panel max-w-4xl mx-auto w-full pt-16 relative z-10">
+            <h2 class="reveal-y text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-14 text-center">Frequently Asked Questions</h2>
+            <div class="space-y-6">
+                <div class="reveal-x-left delay-100 faq-item bg-white/40 dark:bg-white/5 p-1 rounded-[1.5rem] ring-1 ring-slate-200 dark:ring-white/10 cursor-pointer hover:bg-slate-50/40 dark:hover:bg-white/[0.08] transition-colors shadow-sm dark:shadow-none">
+                    <div class="inner-core bg-white/60 dark:bg-black/60 backdrop-blur-xl rounded-[calc(1.5rem-0.25rem)] p-8 md:p-10 transition-colors duration-500">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-bold text-slate-900 dark:text-white text-lg md:text-xl">How secure is my data?</h4>
+                            <i class="ph-light ph-plus faq-icon text-slate-400 dark:text-white/50 text-2xl transition-transform duration-500"></i>
+                        </div>
+                        <div class="faq-content text-slate-600 dark:text-white/60 text-base md:text-lg leading-relaxed font-medium">
+                            We never upload any audio or personal data. VocalMap strictly adheres to a 100% local privacy baseline. All AI inferences and diagnoses are computed offline entirely on your CPU/GPU.
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal-x-right delay-200 faq-item bg-white/40 dark:bg-white/5 p-1 rounded-[1.5rem] ring-1 ring-slate-200 dark:ring-white/10 cursor-pointer hover:bg-slate-50/40 dark:hover:bg-white/[0.08] transition-colors shadow-sm dark:shadow-none">
+                    <div class="inner-core bg-white/60 dark:bg-black/60 backdrop-blur-xl rounded-[calc(1.5rem-0.25rem)] p-8 md:p-10 transition-colors duration-500">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-bold text-slate-900 dark:text-white text-lg md:text-xl">What if the initial model download is slow?</h4>
+                            <i class="ph-light ph-plus faq-icon text-slate-400 dark:text-white/50 text-2xl transition-transform duration-500"></i>
+                        </div>
+                        <div class="faq-content text-slate-600 dark:text-white/60 text-base md:text-lg leading-relaxed font-medium">
+                            For users in mainland China, the client is pre-configured with high-speed dedicated mirror sources for silent, automated pulling of the SOTA audio separation networks, bypassing slow overseas connections.
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal-x-left delay-300 faq-item bg-white/40 dark:bg-white/5 p-1 rounded-[1.5rem] ring-1 ring-slate-200 dark:ring-white/10 cursor-pointer hover:bg-slate-50/40 dark:hover:bg-white/[0.08] transition-colors shadow-sm dark:shadow-none">
+                    <div class="inner-core bg-white/60 dark:bg-black/60 backdrop-blur-xl rounded-[calc(1.5rem-0.25rem)] p-8 md:p-10 transition-colors duration-500">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-bold text-slate-900 dark:text-white text-lg md:text-xl">What GPU specs are required?</h4>
+                            <i class="ph-light ph-plus faq-icon text-slate-400 dark:text-white/50 text-2xl transition-transform duration-500"></i>
+                        </div>
+                        <div class="faq-content text-slate-600 dark:text-white/60 text-base md:text-lg leading-relaxed font-medium">
+                            Possessing an NVIDIA dedicated GPU (>6GB VRAM recommended) automatically enables CUDA acceleration. If no dedicated GPU is found, the program gracefully degrades to multi-threaded CPU inference optimization, ensuring full functionality.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+
+    <section id="download" class="section-panel py-32 px-4 min-h-[100dvh] flex flex-col items-center justify-center relative z-10 text-center w-full overflow-hidden">
+        <!-- Download Background Parallax Image -->
+        <div class="section-bg-parallax">
+            <img src="photos/download_bg.png" alt="Download Background">
+        </div>
+
+        <div class="max-w-5xl w-full relative z-10">
+            <h2 class="reveal-y text-6xl md:text-[5.5rem] lg:text-[7rem] font-extrabold tracking-tighter text-slate-900 dark:text-white mb-16 leading-[1.05]">
+                Experience the<br/>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500 dark:from-purple-400 dark:to-emerald-400 font-light tracking-tight">Paradigm Shift</span>
+            </h2>
+            
+            <div class="flex flex-col sm:flex-row gap-8 justify-center items-center mb-32">
+                <a href="https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.1.2/VocalMap_3.1.2_x64-setup.exe" class="reveal-x-left delay-100 group relative flex items-center pl-10 pr-3 py-4 rounded-full bg-slate-900 dark:bg-white text-white dark:text-black font-semibold transition-all duration-700 ease-fluid active:scale-[0.98] shadow-2xl dark:shadow-[0_0_40px_rgba(255,255,255,0.2)] w-full sm:w-auto text-lg">
+                    <span class="mr-6">High-Speed Mirror Download (.exe)</span>
+                    <div class="w-12 h-12 rounded-full bg-white/20 dark:bg-black/5 flex items-center justify-center transition-transform duration-700 ease-fluid group-hover:translate-x-1 group-hover:-translate-y-[1px] group-hover:scale-105">
+                        <i class="ph-light ph-rocket-launch text-2xl text-white dark:text-black"></i>
+                    </div>
+                </a>
+                <a href="https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.1.2/VocalMap_3.1.2_x64-setup.exe" class="reveal-x-right delay-200 group relative flex items-center pl-10 pr-3 py-4 rounded-full bg-white dark:bg-white/5 text-slate-900 dark:text-white ring-1 ring-slate-300 dark:ring-white/20 font-semibold transition-all duration-700 ease-fluid active:scale-[0.98] hover:bg-slate-50 dark:hover:bg-white/10 w-full sm:w-auto text-lg shadow-lg dark:shadow-none">
+                    <span class="mr-6">GitHub Direct Release</span>
+                    <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center transition-transform duration-700 ease-fluid group-hover:translate-x-1 group-hover:-translate-y-[1px] group-hover:scale-105">
+                        <i class="ph-light ph-github-logo text-2xl text-slate-900 dark:text-white"></i>
+                    </div>
+                </a>
+            </div>
+
+            <div class="reveal-y delay-300 bg-white/40 dark:bg-white/5 ring-1 ring-slate-200 dark:ring-white/10 rounded-[2.5rem] p-2 text-left shadow-2xl w-full">
+                <div class="inner-core bg-white/60 dark:bg-black/60 backdrop-blur-xl rounded-[calc(2.5rem-0.5rem)] p-12 md:p-16 transition-colors duration-500">
+                    <h4 class="text-slate-800 dark:text-white/60 font-bold mb-8 flex items-center gap-3 text-xl md:text-2xl"><i class="ph-light ph-warning-circle text-3xl text-yellow-600 dark:text-yellow-500/80"></i> Commercial & Compliance Statement</h4>
+                    <div class="text-slate-600 dark:text-white/50 text-base md:text-lg leading-relaxed space-y-6 font-medium">
+                        <p>This project is licensed under the <strong>PolyForm Noncommercial License 1.0.0</strong>. No organization or individual may use this project, its code, or compilation products for any commercial purpose without written commercial authorization.</p>
+                        <p>The built-in security verifications (dynamic API tokens, random port bindings, etc.) constitute legal "technological protection measures." Any attempt to circumvent, destroy these measures, or redistribute cracked versions is illegal. We reserve all rights to enforce DMCA takedowns and pursue civil and criminal liabilities.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="reveal-y delay-450 mt-40 w-full max-w-[1400px] px-8 flex flex-col md:flex-row items-center justify-between text-sm md:text-base text-slate-500 dark:text-white/40 font-medium pb-12 relative z-10">
+            <div class="flex items-center gap-4 mb-6 md:mb-0">
+                <img src="icon.png" alt="Logo" class="w-8 h-8 rounded-full grayscale opacity-60 dark:opacity-40">
+                <span>&copy; 2026 VocalMap Official Workstation.</span>
+            </div>
+            <div class="flex gap-8">
+                <a href="https://github.com/DX-Protst/VocalMap-Release/blob/main/docs/README_CORE.md" target="_blank" class="hover:text-slate-900 dark:hover:text-white transition-colors">Developer Docs</a>
+                <a href="https://github.com/DX-Protst/VocalMap-Release" target="_blank" class="hover:text-slate-900 dark:hover:text-white transition-colors">GitHub Repo</a>
+            </div>
+        </footer>
+    </section>
+
+    <!-- External JS Logic -->
+    <script src="js/main.js"></script>
+</body>
+</html>

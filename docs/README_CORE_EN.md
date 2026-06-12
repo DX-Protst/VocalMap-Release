@@ -15,6 +15,7 @@ The application employs a hybrid **Tauri (Rust) + FastAPI (Python)** architectur
 - [✨ Features & Tech](#-features--tech)
 - [🏗️ Architecture](#️-architecture)
 - [📁 Codebase Guide](#-codebase-guide)
+- [🌍 i18n & Localization Guide](#-i18n--localization-guide)
 - [⚙️ Installation & Usage](#️-installation-and-usage)
 - [🛠️ Development](#️-development)
 - [📦 Recent Updates](#-recent-updates)
@@ -86,6 +87,22 @@ graph TD
 | `frontend/js/separation.js` | UI logic for separation panels. Manages model selection and polls task states. |
 | `frontend/js/audio_engine.js` | Audio capturing module. Wraps Web Audio API, adds DynamicsCompressorNode, and pushes binary PCM to WebSocket. |
 | `frontend/js/realtime_monitor.js` | Heavy canvas rendering. Plots real-time Bezier audio paths and manages performance dashboards. |
+| `frontend/js/lang.js` | Global localization dictionary center. Contains `LANG_DICTIONARY` for auto static DOM replacement and `JS_DICTIONARY` providing `t()` translation hooks for JS. |
+
+---
+
+## 🌍 i18n & Localization Guide
+
+This project supports bilingual (English and Chinese) interfaces, globally managed by `frontend/js/lang.js`. When developing new features or modifying UI texts, you must follow these i18n guidelines:
+
+1. **Static DOM Text Translation (`LANG_DICTIONARY`)**:
+   - For static text hardcoded in HTML (like `frontend/src/components/*.html`), add its corresponding CSS selector (e.g., `#btnViewLicense`) and the translated HTML string into the `zh` and `en` dictionaries of `LANG_DICTIONARY` inside `lang.js`.
+   - The system automatically scans the DOM and replaces the HTML using the selector when language switches. Ensure that the translated element is assigned a globally unique `id` or a specific class.
+
+2. **Dynamic JS Text Translation (`JS_DICTIONARY` and `t()` function)**:
+   - For strings dynamically generated via JS logic (e.g., Toast alerts, status splicing, chart labels), **strictly avoid** hardcoding Chinese/English strings.
+   - Register a unique key for the string (e.g., `pay.license_status_activated`) inside both the `zh` and `en` blocks of `JS_DICTIONARY` in `lang.js`.
+   - Call `t(key, defaultValue)` in your JS code to retrieve the translated text. For example: `t('pay.license_status_activated', 'Activated: ')`.
 
 ---
 

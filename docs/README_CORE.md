@@ -16,6 +16,7 @@ VocalMap 是一款面向专业声乐教学、声音诊断与音频后期制作�
 - [✨ 核心特性与技术实现 (Features & Tech)](#-核心特性与技术实现-features--tech)
 - [🏗️ 系统架构图 (Architecture)](#️-系统架构图-architecture)
 - [📁 代码库核心导航 (Codebase Guide)](#-代码库核心导航-codebase-guide)
+- [🌍 多语言与国际化开发规范 (i18n & Localization)](#-多语言与国际化开发规范-i18n--localization)
 - [⚙️ 安装与运行 (Installation & Usage)](#️-安装与运行-installation--usage)
 - [🛠️ 开发与构建 (Development)](#️-开发与构建-development)
 - [📦 最近更新 (Recent Updates)](#-最近更新-recent-updates)
@@ -89,6 +90,22 @@ graph TD
 | `frontend/js/separation.js` | 负责音轨分离功能的前端面板逻辑，包括轮询后端处理状态、渲染分离进度动画及根据不同模型正确映射下载轨道。 |
 | `frontend/js/audio_engine.js` | Web Audio API 核心封装层，实现麦克风物理硬件录音、PCM 波形捕获、加入 DynamicsCompressorNode 动态压限器处理并推流给后端的 WebSocket 通道。 |
 | `frontend/js/realtime_monitor.js` | 负责演唱界面的重型 UI 渲染，基于 HTML5 Canvas 实现波形实时渲染与滚动引擎，绘制丝滑的音高反馈曲线与多维动态计分盘。 |
+| `frontend/js/lang.js` | 全局语言字典中心，包含用于自动静态 DOM 替换的 `LANG_DICTIONARY` 以及为 JS 动态文本提供 `t()` 翻译函数的 `JS_DICTIONARY`。 |
+
+---
+
+## 🌍 多语言与国际化开发规范 (i18n & Localization)
+
+本项目支持中英双语，统一由 `frontend/js/lang.js` 管理。在开发新功能或修改 UI 文本时，必须遵循以下国际化规范：
+
+1. **静态 DOM 文本翻译 (`LANG_DICTIONARY`)**:
+   - 对于写死在 HTML (如 `frontend/src/components/*.html`) 中的静态文本，请在 `lang.js` 的 `LANG_DICTIONARY` 的 `zh` 和 `en` 字典中添加对应的 CSS 选择器（如 `#btnViewLicense`）和翻译后的 HTML 字符串。
+   - 系统会在语言切换时自动扫描 DOM 并利用选择器替换文本。请确保给需要翻译的元素分配全局唯一的 `id` 或特定的层级选择器。
+
+2. **JS 动态文本翻译 (`JS_DICTIONARY` 与 `t()` 函数)**:
+   - 对于 JS 逻辑中动态生成的字符串（如 Toast 提示、状态拼接、图表标签等），**严禁**直接硬编码中文字符串。
+   - 请在 `lang.js` 的 `JS_DICTIONARY` 的 `zh` 和 `en` 节点中注册该字符串对应的 key（如 `pay.license_status_activated`）。
+   - 在 JS 代码中使用 `t(key, defaultValue)` 获取翻译。例如：`t('pay.license_status_activated', '已激活: ')`。
 
 ---
 
