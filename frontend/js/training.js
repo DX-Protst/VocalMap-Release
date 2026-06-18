@@ -8,6 +8,9 @@ let currentSelectedLevel = null;
 let customLowestMidi = 48; // Default C3
 let customHighestMidi = 72; // Default C5
 
+window.customTrainingAudio = new Audio();
+window.customTmapTimeline = [];
+
 const RANGE_BASES = {
     'soprano': 60, // C4
     'mezzo': 57,   // A3
@@ -42,7 +45,8 @@ const LEVEL_NAMES = {
     3: '转音练习',
     4: '音准精修',
     5: '三类共鸣',
-    6: '综合挑战'
+    6: '综合挑战',
+    'custom': '自定义靶向特训'
 };
 
 function selectTrainingRange(rangeId) {
@@ -539,7 +543,15 @@ function startTraining() {
     }
     
     // Generate sequence
-    trainingTargetList = generateTrainingSequence(currentSelectedLevel, trainingBaseMidi);
+    if (currentSelectedLevel === 'custom') {
+        trainingTargetList = window.customTmapTimeline || [];
+        if (trainingTargetList.length > 0) {
+            trainingBaseMidi = trainingTargetList[0].midi;
+        }
+    } else {
+        trainingTargetList = generateTrainingSequence(currentSelectedLevel, trainingBaseMidi);
+    }
+    
     activeTrainingSequence = currentSelectedLevel;
     currentTrainingScore = 0;
     trainingCurrentTargetIndex = 0;
@@ -576,6 +588,11 @@ function startTraining() {
     targetCenterMidi = viewCenterMidi;
     
     trainingStartTime = performance.now();
+    
+    if (currentSelectedLevel === 'custom' && window.customTrainingAudio) {
+        window.customTrainingAudio.currentTime = 0;
+        window.customTrainingAudio.play().catch(e => console.error("Audio play failed:", e));
+    }
     
     // Audio scheduling is now handled dynamically in realtime_monitor.js to perfectly sync with visual blocks and prevent setTimeout overlapping drift
 
@@ -653,6 +670,10 @@ function stopTraining() {
     trainingTargetList = [];
     currentTrainingScore = 0;
     isTrainingModalShowing = false;
+    
+    if (window.customTrainingAudio) {
+        window.customTrainingAudio.pause();
+    }
     
     // Clear the robust timer if active
     if (window.trainingEndTimer) {
@@ -756,6 +777,60 @@ window.addEventListener('languagechanged', (e) => {
     }
 });
 
+window.importCustomTmap = async function() {
+    const dialog = window.__TAURI__ ? window.__TAURI__.dialog : null;
+    const fs = window.__TAURI__ ? window.__TAURI__.fs : null;
+    
+    if (!dialog || !fs) {
+        alert(t('diag.not_desktop', "非桌面端环境，无法使用原生导入"));
+        return;
+    }
+    
+    try {
+        const filePath = await dialog.open({
+            multiple: false,
+            filters: [{ name: 'VocalMap Custom Target Map', extensions: ['tmap'] }]
+        });
+        
+        if (filePath) {
+            const content = await fs.readTextFile(filePath);
+            let parsed = JSON.parse(content);
+            if (parsed && parsed.blocks) {
+                window.customTmapTimeline = parsed.blocks;
+            } else if (parsed && parsed.data && parsed.data.blocks) {
+                window.customTmapTimeline = parsed.data.blocks;
+            } else {
+                window.customTmapTimeline = parsed;
+            }
+            
+            const webmPath = filePath.replace(/\.tmap$/, '') + '.webm';
+            try {
+                const uint8Array = await fs.readFile(webmPath);
+                const blob = new Blob([uint8Array], { type: 'audio/webm' });
+                window.customTrainingAudio.src = URL.createObjectURL(blob);
+            } catch(e) { console.warn("No webm found for tmap", e); }
+            
+            // Set level and start!
+            currentSelectedLevel = 'custom';
+            // Update UI
+            document.querySelectorAll('.level-card').forEach(card => {
+                if (card.dataset.level === 'custom') {
+                    card.style.borderColor = '#FFD700';
+                    card.style.background = 'rgba(255, 215, 0, 0.1)';
+                } else {
+                    card.style.borderColor = 'transparent';
+                    card.style.background = 'rgba(255, 255, 255, 0.05)';
+                }
+            });
+            
+            setTimeout(() => {
+                startTraining();
+            }, 150);
+        }
+    } catch (err) {
+        alert(t('monitor.import_failed', "导入失败或缺少音频文件: ") + err);
+    }
+};
 window.addEventListener('DOMContentLoaded', () => { 
     initCustomRangeDropdowns(); 
     

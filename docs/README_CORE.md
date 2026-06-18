@@ -32,12 +32,13 @@ VocalMap 是一款面向专业声乐教学、声音诊断与音频后期制作�
 * **一键导出高清长图报告**：利用 `frontend/js/dom-to-image.min.js`，无缝绕开 Tauri 沙盒限制，一键将诊断 DOM 节点转换为无损长截图。
 
 ### 🚀 靶向发声训练营 (Vocal Training Camp, `frontend/js/training.js`)
-* **6 大渐进式关卡**：引擎动态生成关卡（绝对音准、喉位敏捷、强悍胸声、穿透头声、靶向混声魔鬼摩擦、全音域制霸大琶音）。
+* **6 大渐进式关卡与自定义靶向特训**：引擎不仅能动态生成 6 大基础关卡，还最新重构了基于 `.tmap` 的【自定义靶向特训】入口。通过 `training.js` 中的 `importCustomTmap`，支持将用户导入的离散块状音高序列映射为自定义靶向方块，并精准同步底层 WebM/WAV 伴奏。
 * **动态预判运镜 (Look-ahead Camera)**：在 `training.js` 中重构的相机追踪算法，智能平滑跟随即将出现的靶向方块，解决大跨度高音（如 Level 6）目标飞出屏幕的痛点。
 
 ### 🎸 专业级 AI 音轨分离 (Stem Separation, `logic_bsroformer/inference.py`)
 * **多模型支持**：内置 **6-stem 全能乐器分离模型 (`logic_roformer_6s`)** 和 **BS-RoFormer Karaoke 伴奏分离模型 (`bs_roformer_karaoke`)**。由 `backend/separation.py` 调度。
 * **抗锯齿与重采样优化**：在 `inference.py` 中采用 `librosa.load(..., res_type='soxr_qq')`，实现极速高质量的 CPU 音频加载。
+* **双模态数据提取引擎**：`backend/app.py` 中新增 `/export_vmap`（用于连续音高重绘复盘）与 `/export_tmap`（调用 `analyzer.py` 中新增的 `generate_quantized_pitch_track` 提取离散的音阶块）双路由，实现从音轨分离到靶向特训的数据闭环。
 * **智能残差剥离防覆盖**：专门针对预测 Instrumental 伴奏的模型，优化了 `inference.py` 的减法剥离逻辑，防止导出纯人声时在 Windows 上被大小写不敏感的文件系统覆写。
 
 ### 🎛️ 底层声学引擎优化 (`backend/acoustic_engine/analyzer.py`)

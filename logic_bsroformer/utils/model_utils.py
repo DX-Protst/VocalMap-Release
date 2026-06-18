@@ -18,7 +18,8 @@ def demix(
         mix: torch.Tensor,
         device: torch.device,
         model_type: str,
-        pbar: bool = False
+        pbar: bool = False,
+        progress_callback=None
 ) -> Tuple[List[Dict[str, np.ndarray]], np.ndarray]:
     """
     Unified function for audio source separation with support for multiple processing modes.
@@ -92,7 +93,7 @@ def demix(
             batch_data = []
             batch_locations = []
             progress_bar = tqdm(
-                total=mix.shape[1], desc="Processing audio chunks", leave=False
+                total=mix.shape[1], desc="Processing audio chunks", leave=False, disable=False
             ) if pbar else None
 
             while i < mix.shape[1]:
@@ -134,6 +135,11 @@ def demix(
 
                 if progress_bar:
                     progress_bar.update(step)
+                if progress_callback:
+                    try:
+                        progress_callback(min(i, mix.shape[1]), mix.shape[1])
+                    except Exception:
+                        pass
 
             if progress_bar:
                 progress_bar.close()

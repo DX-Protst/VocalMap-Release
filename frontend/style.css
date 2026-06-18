@@ -195,6 +195,41 @@ body::before {
     transition: background-image 0.8s ease;
 }
 
+body[data-bg-type="black"]::before,
+body[data-bg-type="blue_dark"]::before,
+body[data-bg-type="green_dark"]::before,
+body[data-bg-type="white"]::before,
+body[data-bg-type="blue_light"]::before,
+body[data-bg-type="green_light"]::before,
+body[data-bg-type="color"]::before,
+body[data-bg-type="image"]::before {
+    display: none !important;
+}
+
+body[data-bg-type="black"] {
+    background: #030305 !important;
+}
+
+body[data-bg-type="blue_dark"] {
+    background: radial-gradient(circle at 50% 50%, #0e1e38, #050b14) !important;
+}
+
+body[data-bg-type="green_dark"] {
+    background: radial-gradient(circle at 50% 50%, #0d231a, #040b08) !important;
+}
+
+body[data-bg-type="white"] {
+    background: #ffffff !important;
+}
+
+body[data-bg-type="blue_light"] {
+    background: radial-gradient(circle at 50% 50%, #f0f9ff, #e0f2fe) !important;
+}
+
+body[data-bg-type="green_light"] {
+    background: radial-gradient(circle at 50% 50%, #f0fdf4, #dcfce7) !important;
+}
+
 @keyframes colorShift {
     0% { filter: hue-rotate(0deg); }
     100% { filter: hue-rotate(360deg); }
@@ -372,10 +407,10 @@ button:active { transform: scale(0.96); }
     gap: 16px;
     margin-bottom: 32px;
 }
-.level-card[data-level="1"], .level-card[data-level="6"] {
+.level-card[data-level="1"] {
     grid-column: span 2;
 }
-.level-card:not([data-level="1"]):not([data-level="6"]) {
+.level-card:not([data-level="1"]) {
     grid-column: span 1;
 }
 
@@ -617,9 +652,11 @@ button:active { transform: scale(0.96); }
 .custom-select:hover { border-color: var(--primary-cyan); }
 .custom-select:focus { border-color: var(--primary-cyan); box-shadow: 0 0 10px var(--cyan-shadow); }
 .custom-select option { background: #1a1a2e; color: #fff; }
+.custom-select option:disabled { color: rgba(255, 255, 255, 0.3) !important; }
 
 :root[data-theme="light"] .custom-select { background: rgba(0,0,0,0.02); }
 :root[data-theme="light"] .custom-select option { background: #fff; color: #333; }
+:root[data-theme="light"] .custom-select option:disabled { color: rgba(0, 0, 0, 0.3) !important; }
 
 input[type=range] {
     -webkit-appearance: none; width: 100%; background: transparent; margin: 8px 0;

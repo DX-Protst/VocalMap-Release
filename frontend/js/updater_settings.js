@@ -239,6 +239,30 @@ window.openSettings = function() {
     if (selectLanguage) {
         selectLanguage.value = localStorage.getItem('vmap_set_lang') || 'zh';
     }
+    
+    // Sync custom background controls and disable invalid ones based on theme
+    if (typeof window.syncBackgroundOptions === 'function') {
+        window.syncBackgroundOptions();
+    }
+    
+    const bgType = localStorage.getItem('vmap_set_bg_type') || (isLightMode ? 'default_light' : 'default_dark');
+    
+    const colorContainer = document.getElementById('customColorContainer');
+    const imageContainer = document.getElementById('customImageContainer');
+    if (colorContainer) colorContainer.style.display = (bgType === 'color') ? 'flex' : 'none';
+    if (imageContainer) imageContainer.style.display = (bgType === 'image') ? 'flex' : 'none';
+    
+    const inputColor = document.getElementById('inputCustomColor');
+    if (inputColor) {
+        inputColor.value = localStorage.getItem('vmap_set_bg_color') || '#050508';
+    }
+    
+    const statusText = document.getElementById('textImageStatus');
+    if (statusText) {
+        const hasImg = !!localStorage.getItem('vmap_set_bg_image_data');
+        statusText.innerText = hasImg ? window.t('bg.load_success', '背景图片已应用并保存') : window.t('bg.no_image', '未选择任何图片');
+    }
+    
     if (settingsModal) settingsModal.classList.add('active');
 };
 
@@ -319,6 +343,21 @@ window.resetSettings = function() {
         localStorage.setItem('vocalmap_perf', 'true');
     }
     
+    // Reset custom background elements
+    const selectBg = document.getElementById('selectBackground');
+    if (selectBg) selectBg.value = isLightMode ? 'default_light' : 'default_dark';
+    const colorContainer = document.getElementById('customColorContainer');
+    const imageContainer = document.getElementById('customImageContainer');
+    if (colorContainer) colorContainer.style.display = 'none';
+    if (imageContainer) imageContainer.style.display = 'none';
+    
+    localStorage.removeItem('vmap_set_bg_type');
+    localStorage.removeItem('vmap_set_bg_color');
+    localStorage.removeItem('vmap_set_bg_image_data');
+    if (typeof window.syncBackgroundOptions === 'function') {
+        window.syncBackgroundOptions();
+    }
+    
     localStorage.removeItem('vmap_set_loudness');
     localStorage.removeItem('vmap_set_clarity');
     localStorage.removeItem('vmap_set_noise');
@@ -339,15 +378,29 @@ window.resetSettings = function() {
 };
 
 // Liquid Glass Mouse Tracking
-document.addEventListener('mousemove', (e) => {
+let lastClientX = -500;
+let lastClientY = -500;
+
+function updateGlassPanels(clientX, clientY) {
     document.querySelectorAll('.glass-panel').forEach((panel) => {
         const rect = panel.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
         panel.style.setProperty('--mouse-x', x + 'px');
         panel.style.setProperty('--mouse-y', y + 'px');
     });
+}
+
+document.addEventListener('mousemove', (e) => {
+    lastClientX = e.clientX;
+    lastClientY = e.clientY;
+    updateGlassPanels(lastClientX, lastClientY);
 });
+
+document.addEventListener('scroll', () => {
+    updateGlassPanels(lastClientX, lastClientY);
+}, { passive: true, capture: true });
+
 
 // 使用说明与帮助 Modal 控制
 const helpModal = document.getElementById('helpModal');
@@ -386,3 +439,173 @@ window.submitBug = function() {
         window.open("https://github.com/DX-Protst/VocalMap-Release/issues/new", "_blank");
     }
 };
+
+window.openOfficialWebsite = function() {
+    if (typeof open === 'function') {
+        open("https://vocalmap.cc.cd");
+    } else {
+        window.open("https://vocalmap.cc.cd", "_blank");
+    }
+};
+
+// ==========================================
+// Custom Background Logic
+// ==========================================
+window.applyBackground = function(type, color, imageDataUrl) {
+    if (!type || type === 'default') {
+        type = isLightMode ? 'default_light' : 'default_dark';
+    }
+    
+    document.body.setAttribute('data-bg-type', type);
+    document.body.style.background = '';
+    
+    if (type === 'color') {
+        const customColor = color || localStorage.getItem('vmap_set_bg_color') || '#050508';
+        document.body.style.setProperty('background', customColor, 'important');
+    } else if (type === 'image') {
+        const dataUrl = imageDataUrl || localStorage.getItem('vmap_set_bg_image_data');
+        if (dataUrl) {
+            document.body.style.setProperty('background', `url(${dataUrl}) center/cover no-repeat fixed`, 'important');
+        } else {
+            document.body.setAttribute('data-bg-type', isLightMode ? 'default_light' : 'default_dark');
+        }
+    }
+};
+
+window.syncBackgroundOptions = function() {
+    const selectBg = document.getElementById('selectBackground');
+    if (!selectBg) return;
+    
+    const darkOpts = ['default_dark', 'black', 'blue_dark', 'green_dark'];
+    const lightOpts = ['default_light', 'white', 'blue_light', 'green_light'];
+    
+    let currentType = localStorage.getItem('vmap_set_bg_type');
+    
+    if (!currentType || currentType === 'default') {
+        currentType = isLightMode ? 'default_light' : 'default_dark';
+    }
+    
+    // Disable/Enable options based on current theme mode
+    Array.from(selectBg.options).forEach(opt => {
+        if (isLightMode) {
+            if (darkOpts.includes(opt.value)) {
+                opt.disabled = true;
+            } else {
+                opt.disabled = false;
+            }
+        } else {
+            if (lightOpts.includes(opt.value)) {
+                opt.disabled = true;
+            } else {
+                opt.disabled = false;
+            }
+        }
+    });
+    
+    // Handle fallback if current selection is invalid for the active theme mode
+    if (isLightMode && darkOpts.includes(currentType)) {
+        currentType = 'default_light';
+        localStorage.setItem('vmap_set_bg_type', currentType);
+    } else if (!isLightMode && lightOpts.includes(currentType)) {
+        currentType = 'default_dark';
+        localStorage.setItem('vmap_set_bg_type', currentType);
+    }
+    
+    selectBg.value = currentType;
+    
+    const color = localStorage.getItem('vmap_set_bg_color') || '#050508';
+    const imageDataUrl = localStorage.getItem('vmap_set_bg_image_data');
+    window.applyBackground(currentType, color, imageDataUrl);
+};
+
+window.changeBackgroundStyle = function(type) {
+    const colorContainer = document.getElementById('customColorContainer');
+    const imageContainer = document.getElementById('customImageContainer');
+    
+    if (colorContainer) colorContainer.style.display = (type === 'color') ? 'flex' : 'none';
+    if (imageContainer) imageContainer.style.display = (type === 'image') ? 'flex' : 'none';
+    
+    localStorage.setItem('vmap_set_bg_type', type);
+    
+    if (type === 'color') {
+        const color = document.getElementById('inputCustomColor').value;
+        window.applyBackground('color', color);
+    } else if (type === 'image') {
+        const dataUrl = localStorage.getItem('vmap_set_bg_image_data');
+        window.applyBackground('image', null, dataUrl);
+    } else {
+        window.applyBackground(type);
+    }
+};
+
+window.applyCustomColor = function(color) {
+    localStorage.setItem('vmap_set_bg_color', color);
+    window.applyBackground('color', color);
+};
+
+window.handleImageUpload = function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        if (!file.type.startsWith('image/')) {
+            const statusText = document.getElementById('textImageStatus');
+            if (statusText) statusText.innerText = window.t('bg.invalid_file', '请选择有效的图片文件');
+            return;
+        }
+        window.compressAndSaveBgImage(file);
+    }
+};
+
+window.compressAndSaveBgImage = function(file) {
+    const statusText = document.getElementById('textImageStatus');
+    if (statusText) statusText.innerText = window.t('bg.loading', '正在加载并压缩图片...');
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const MAX_WIDTH = 1920;
+            const MAX_HEIGHT = 1080;
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+            }
+            if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+            }
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+            
+            try {
+                localStorage.setItem('vmap_set_bg_image_data', compressedDataUrl);
+                window.applyBackground('image', null, compressedDataUrl);
+                if (statusText) statusText.innerText = window.t('bg.load_success', '背景图片已应用并保存');
+            } catch (err) {
+                console.error("Failed to save background image", err);
+                if (statusText) statusText.innerText = window.t('bg.load_failed', '图片太大或存储失败，请重试');
+            }
+        };
+        img.onerror = function() {
+            if (statusText) statusText.innerText = window.t('bg.load_failed', '图片加载失败，请重试');
+        };
+        img.src = e.target.result;
+    };
+    reader.onerror = function() {
+        if (statusText) statusText.innerText = window.t('bg.load_failed', '图片加载失败，请重试');
+    };
+    reader.readAsDataURL(file);
+};
+
+// Initialize and sync background options on startup
+if (typeof window.syncBackgroundOptions === 'function') {
+    window.syncBackgroundOptions();
+}

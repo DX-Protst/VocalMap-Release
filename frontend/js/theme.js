@@ -25,6 +25,11 @@ function setTheme(theme) {
         document.documentElement.removeAttribute('data-theme');
     }
     
+    // Sync background options with the new color mode
+    if (typeof window.syncBackgroundOptions === 'function') {
+        window.syncBackgroundOptions();
+    }
+    
     if (typeof pitchCtx !== 'undefined' && pitchCtx !== null) {
         if (typeof drawPitchBackground === 'function') {
             drawPitchBackground();

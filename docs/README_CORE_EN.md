@@ -31,12 +31,13 @@ The application employs a hybrid **Tauri (Rust) + FastAPI (Python)** architectur
 * **HD Long Image Export**: Employs `frontend/js/dom-to-image.min.js` to bypass Tauri sandbox limits, rendering high-resolution无损 screenshots of diagnostic reports.
 
 ### 🚀 Targeted Vocal Training Camp (`frontend/js/training.js`)
-* **6 Progressive Levels**: Dynamically generates vocal training targets (Pitch Accuracy, Laryngeal Agility, Chest Power, Head Penetration, Mixed Voice Control, and Full Range Arpeggio).
+* **6 Progressive Levels & Custom Training**: Dynamically generates 6 fundamental vocal training targets. Recently refactored to support `.tmap` custom target training: `importCustomTmap` in `training.js` maps discrete block-based pitch sequences imported by users into custom target blocks, perfectly syncing with underlying WebM/WAV backing tracks.
 * **Look-ahead Camera**: A custom tracking algorithm in `training.js` smooths the camera viewport transition ahead of upcoming target boxes, solving the issue of targets jumping out of view.
 
 ### 🎸 AI Stem Separation (`logic_bsroformer/inference.py`)
 * **Multi-Model Support**: Integrates the **6-stem instrument separation model (`logic_roformer_6s`)** and **BS-RoFormer Karaoke model (`bs_roformer_karaoke`)** coordinated by `backend/separation.py`.
 * **Resampling Optimization**: Leverages `librosa.load(..., res_type='soxr_qq')` in `inference.py` for ultra-fast, high-quality CPU audio loading.
+* **Dual-Modal Data Extraction Engine**: Added dual routing in `backend/app.py`: `/export_vmap` (for continuous pitch re-rendering) and `/export_tmap` (invokes the newly added `generate_quantized_pitch_track` in `analyzer.py` to extract discrete pitch blocks). This bridges the ecosystem gap between stem separation and targeted training.
 * **Residual Extraction & File Safety**: Features an optimized subtraction logic in `inference.py` that separates vocals cleanly and avoids case-insensitive filename overwriting on Windows systems.
 
 ### 🎛️ Acoustic Engine & JIT (`backend/acoustic_engine/analyzer.py`)

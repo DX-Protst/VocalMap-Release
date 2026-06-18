@@ -13,6 +13,7 @@ Ditch aimless singing! The system dynamically generates **6 progressive acoustic
 *   **3-Second Look-ahead Camera**: Smoothly tracks and predicts upcoming vocal targets, resolving the visual blind spot caused by large vocal jumps (e.g., chest voice to head voice).
 *   **100ms Latency Compensation Algorithm**: Complete overhaul of the audio-visual sync logic. Piano prompts play on time while target boxes are offset by 100ms to offset microphone capture and processing latency.
 *   **Studio-Grade Dual-Track Dynamics Compressor**: Built-in Web Audio dynamics compressor maximizes piano prompting volume while keeping it warm and round, avoiding hard clipping.
+*   **Custom Target Training Mode (New!)**: A complete ecosystem loop from separation to training! Import dedicated `.tmap` custom stage files exported by the AI Stem Separation engine to tackle and conquer your favorite challenging song segments.
 
 ### 2. Real-Time Multi-Dimensional Acoustic Diagnosis Engine
 Leveraging zero-latency signal analysis algorithms (YIN pitch tracking variant + H1-H2 harmonic resonance assessment), VocalMap captures and analyzes vocal characteristics in real time via your microphone.
@@ -25,6 +26,7 @@ Leveraging zero-latency signal analysis algorithms (YIN pitch tracking variant +
 Equipped with SOTA **BS-RoFormer** and **Logic-RoFormer** deep learning separation models.
 *   **Karaoke Vocals/Instrumental Separation**: Remove vocals to get clean accompaniment and backing vocals.
 *   **All-Rounder 6-Stem Instrument Separation**: Extract Vocals, Piano, Guitar, Bass, Drums, and Other.
+*   **Dual-Core Training Pack Export (New!)**: After separation, the system can not only export standard `.vmap` review packs but also automatically extract discrete pitch block sequences from the dry vocals to generate `.tmap` targeted training stages.
 *   **Absolute Data Privacy**: 100% local GPU/CPU inference. No data is ever uploaded to servers.
 
 ### 4. Next-Gen Geek-Style User Experience

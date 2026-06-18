@@ -67,3 +67,7 @@ python_runtime/
 my-website/
 website.zip
 *.zip
+
+# AI Agent Configs
+.agents/
+.gemini/

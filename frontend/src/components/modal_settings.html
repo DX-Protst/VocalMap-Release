@@ -14,6 +14,41 @@
                     <div id="descLanguage" class="setting-desc" style="margin-top: 4px;">切换界面的显示语言。/ Switch the display language of the interface.</div>
                 </div>
 
+                <div class="setting-group" style="padding-bottom: 16px; border-bottom: 1px solid var(--glass-border); margin-bottom: 16px;">
+                    <div class="setting-header">
+                        <span id="labelBackground" class="setting-label" style="color: var(--text-main); font-weight: 600;"><i data-lucide="image" class="lucide-icon" style="width: 16px; height: 16px; margin-right: 6px; display: inline-block; vertical-align: middle;"></i>自定义背景 (Background)</span>
+                        <select id="selectBackground" class="custom-select" style="margin-top: 8px;" onchange="changeBackgroundStyle(this.value)">
+                            <option value="default_dark">默认星空深紫 (Default Space Dark)</option>
+                            <option value="black">极简极客纯黑 (Jet Black)</option>
+                            <option value="blue_dark">深邃皇家海蓝 (Deep Royal Blue)</option>
+                            <option value="green_dark">幽静森林暗绿 (Forest Green)</option>
+                            <option value="default_light">默认明亮灰白 (Default Light Slate)</option>
+                            <option value="white">极简净亮纯白 (Pure White)</option>
+                            <option value="blue_light">柔和温馨天蓝 (Soft Sky Blue)</option>
+                            <option value="green_light">清爽恬静薄荷 (Soft Mint Green)</option>
+                            <option value="color">自定义纯色 (Custom Solid Color)</option>
+                            <option value="image">自定义背景图 (Custom Image)</option>
+                        </select>
+                    </div>
+                    <div id="descBackground" class="setting-desc" style="margin-top: 4px;">选择应用的背景样式。/ Select the background style of the application.</div>
+                    
+                    <div id="customColorContainer" style="display: none; margin-top: 12px; align-items: center; gap: 8px;">
+                        <span id="labelCustomColor" style="font-size: 13px; color: var(--text-muted);">选择颜色：</span>
+                        <input type="color" id="inputCustomColor" value="#050508" style="cursor: pointer; border: none; background: transparent; width: 40px; height: 30px;" onchange="applyCustomColor(this.value)">
+                    </div>
+                    
+                    <div id="customImageContainer" style="display: none; margin-top: 12px; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <button id="btnSelectBgImage" class="btn-cyan" style="padding: 6px 12px; font-size: 13px; display: flex; align-items: center; gap: 6px;" onclick="document.getElementById('inputCustomImage').click()">
+                                <i data-lucide="upload" class="lucide-icon" style="width: 14px; height: 14px;"></i>
+                                <span id="textUploadImage">选择图片</span>
+                            </button>
+                            <span id="textImageStatus" style="font-size: 12px; color: var(--text-muted); word-break: break-all;">未选择任何图片</span>
+                            <input type="file" id="inputCustomImage" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="setting-group">
                     <div class="setting-header">
                         <span id="labelMicrophone" class="setting-label" style="color: var(--text-main); font-weight: 600;">麦克风输入设备 (Microphone)</span>

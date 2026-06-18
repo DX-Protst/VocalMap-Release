@@ -59,69 +59,96 @@
             <!-- 音轨分离组件 -->
             <div id="sepPanelsContainer" style="flex: 1; display: flex; gap: 24px; overflow: hidden;">
                 <!-- 左半部分: 6-Stem 乐器分离 -->
-                <div class="glass-panel custom-scrollbar" style="flex: 1; display: flex; flex-direction: column; padding: 24px; overflow-y: auto;">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                        <i data-lucide="drum" class="lucide-icon" style="color: var(--primary-cyan); width: 22px; height: 22px; stroke-width: 2.2px;"></i>
-                        <span style="color: var(--text-main); font-weight: 800; font-size: 16px; letter-spacing: 0.5px;">6-Stem 乐器分离</span>
+                <div class="glass-panel" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                    <div class="custom-scrollbar" style="flex: 1; display: flex; flex-direction: column; padding: 24px; overflow-y: auto;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <i data-lucide="drum" class="lucide-icon" style="color: var(--primary-cyan); width: 22px; height: 22px; stroke-width: 2.2px;"></i>
+                            <span style="color: var(--text-main); font-weight: 800; font-size: 16px; letter-spacing: 0.5px;">6-Stem 乐器分离</span>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 12px; margin: 0 0 20px 0;">Logic-RoFormer 专业级乐器与声部离线分离</p>
+                        
+                        <!-- 上传区 -->
+                        <div id="sepInstUploadZone" class="sep-upload-zone">
+                            <i data-lucide="folder-open" style="width: 36px; height: 36px; stroke-width: 1.5px; margin: 0 auto 10px; color: var(--primary-cyan); display: block;"></i>
+                            <p style="color: var(--text-main); margin: 4px 0; font-size: 14px; font-weight: 600;">选择本地音频文件</p>
+                            <p style="color: var(--text-muted); opacity: 0.7; font-size: 12px;">WAV / MP3 / FLAC</p>
+                            <input type="file" id="sepInstFileInput" accept=".wav,.mp3,.flac,audio/wav,audio/mpeg,audio/flac" style="display: none;">
+                        </div>
+                        
+                        <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">Model: <span id="sepInstModelName" style="color: var(--primary-cyan);">Logic-RoFormer INT8</span></div>
+                        <button id="btnStartSepInst" class="btn-cyan" style="display: none; width: 100%; padding: 14px;">
+                            <i data-lucide="zap" class="lucide-icon"></i> 启动乐器分离
+                        </button>
+                        
+                        <div id="sepInstProcessing" style="display: none; text-align: center; padding: 30px;">
+                            <div style="width: 36px; height: 36px; border: 3px solid var(--glass-border); border-top-color: var(--primary-cyan); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; box-shadow: 0 0 15px var(--cyan-shadow);"></div>
+                            <p style="color: var(--primary-cyan); font-size: 14px; font-weight: 600; margin: 8px 0;">乐器声部离线分离中...</p>
+                            <p style="color: var(--text-muted); font-size: 12px;" id="sepInstProgress">算法正在进行高速傅里叶变换，请耐心等待...</p>
+                        </div>
+                        <div id="sepInstResults" style="display: none; flex: 1;">
+                            <h3 style="color: #00E676; text-align: center; font-size: 15px; margin: 15px 0;"><i data-lucide="check" class="lucide-icon"></i> 乐器分离完成</h3>
+                            <div id="sepInstStemsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                        </div>
+                        <button id="btnResetSepInst" class="btn-ghost" style="display: none; margin-top: 16px; width: 100%;">重置分离控制台</button>
                     </div>
-                    <p style="color: var(--text-muted); font-size: 12px; margin: 0 0 20px 0;">Logic-RoFormer 专业级乐器与声部离线分离</p>
-                    
-                    <!-- 上传区 -->
-                    <div id="sepInstUploadZone" class="sep-upload-zone">
-                        <i data-lucide="folder-open" style="width: 36px; height: 36px; stroke-width: 1.5px; margin: 0 auto 10px; color: var(--primary-cyan); display: block;"></i>
-                        <p style="color: var(--text-main); margin: 4px 0; font-size: 14px; font-weight: 600;">选择本地音频文件</p>
-                        <p style="color: var(--text-muted); opacity: 0.7; font-size: 12px;">WAV / MP3 / FLAC</p>
-                        <input type="file" id="sepInstFileInput" accept=".wav,.mp3,.flac,audio/wav,audio/mpeg,audio/flac" style="display: none;">
-                    </div>
-                    
-                    <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">Model: <span id="sepInstModelName" style="color: var(--primary-cyan);">Logic-RoFormer INT8</span></div>
-                    <button id="btnStartSepInst" class="btn-cyan" style="display: none; width: 100%; padding: 14px;">
-                        <i data-lucide="zap" class="lucide-icon"></i> 启动乐器分离
-                    </button>
-                    
-                    <div id="sepInstProcessing" style="display: none; text-align: center; padding: 30px;">
-                        <div style="width: 36px; height: 36px; border: 3px solid var(--glass-border); border-top-color: var(--primary-cyan); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; box-shadow: 0 0 15px var(--cyan-shadow);"></div>
-                        <p style="color: var(--primary-cyan); font-size: 14px; font-weight: 600; margin: 8px 0;">乐器声部离线分离中...</p>
-                        <p style="color: var(--text-muted); font-size: 12px;" id="sepInstProgress">算法正在进行高速傅里叶变换，请耐心等待...</p>
-                    </div>
-                    <div id="sepInstResults" style="display: none; flex: 1;">
-                        <h3 style="color: #00E676; text-align: center; font-size: 15px; margin: 15px 0;"><i data-lucide="check" class="lucide-icon"></i> 乐器分离完成</h3>
-                        <div id="sepInstStemsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
-                    </div>
-                    <button id="btnResetSepInst" class="btn-ghost" style="display: none; margin-top: 16px; width: 100%;">重置分离控制台</button>
                 </div>
 
                 <!-- 右半部分: 主唱与和声分离 -->
-                <div class="glass-panel custom-scrollbar" style="flex: 1; display: flex; flex-direction: column; padding: 24px; overflow-y: auto;">
+                <div class="glass-panel" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                    <div class="custom-scrollbar" style="flex: 1; display: flex; flex-direction: column; padding: 24px; overflow-y: auto;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <i data-lucide="mic" class="lucide-icon" style="color: var(--primary-purple); width: 22px; height: 22px; stroke-width: 2.2px;"></i>
+                            <span style="color: var(--text-main); font-weight: 800; font-size: 16px; letter-spacing: 0.5px;">主唱与和声分离</span>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 12px; margin: 0 0 20px 0;">BS-RoFormer 高维卷积神经网络人声提取</p>
+                        
+                        <!-- 上传区 -->
+                        <div id="sepVocUploadZone" class="sep-upload-zone">
+                            <i data-lucide="music" style="width: 36px; height: 36px; stroke-width: 1.5px; margin: 0 auto 10px; color: var(--primary-purple); display: block;"></i>
+                            <p style="color: var(--text-main); margin: 4px 0; font-size: 14px; font-weight: 600;">选择本地音频文件</p>
+                            <p style="color: var(--text-muted); opacity: 0.7; font-size: 12px;">WAV / MP3 / FLAC</p>
+                            <input type="file" id="sepVocFileInput" accept=".wav,.mp3,.flac,audio/wav,audio/mpeg,audio/flac" style="display: none;">
+                        </div>
+                        
+                        <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">Model: <span id="sepVocModelName" style="color: var(--primary-purple);">BS-RoFormer Karaoke</span></div>
+                        <button id="btnStartSepVoc" class="btn-primary" style="display: none; width: 100%; padding: 14px; background: linear-gradient(135deg, #a855f7, #c084fc); box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);">
+                            <i data-lucide="mic" class="lucide-icon"></i> 启动人声分离
+                        </button>
+                        
+                        <div id="sepVocProcessing" style="display: none; text-align: center; padding: 30px;">
+                            <div style="width: 36px; height: 36px; border: 3px solid var(--glass-border); border-top-color: var(--primary-purple); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; box-shadow: 0 0 15px var(--purple-bg-hover);"></div>
+                            <p style="color: var(--primary-purple); font-size: 14px; font-weight: 600; margin: 8px 0;">主唱/背景和声离线分离中...</p>
+                            <p style="color: var(--text-muted); font-size: 12px;" id="sepVocProgress">深度学习推理进行中，请耐心等待...</p>
+                        </div>
+                        <div id="sepVocResults" style="display: none; flex: 1;">
+                            <h3 style="color: #00E676; text-align: center; font-size: 15px; margin: 15px 0;"><i data-lucide="check" class="lucide-icon"></i> 分离完成</h3>
+                            <div id="sepVocStemsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                        </div>
+                        <button id="btnResetSepVoc" class="btn-ghost" style="display: none; margin-top: 16px; width: 100%;">重置分离控制台</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 格式转换舱 (Format Converter) -->
+            <div class="glass-panel" style="margin-top: 24px; padding: 20px; display: flex; flex-direction: row; gap: 24px; align-items: center; flex-shrink: 0;">
+                <div style="flex: 1;">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                        <i data-lucide="mic" class="lucide-icon" style="color: var(--primary-purple); width: 22px; height: 22px; stroke-width: 2.2px;"></i>
-                        <span style="color: var(--text-main); font-weight: 800; font-size: 16px; letter-spacing: 0.5px;">主唱与和声分离</span>
+                        <i data-lucide="refresh-cw" class="lucide-icon" style="color: #FFD700; width: 20px; height: 20px;"></i>
+                        <span id="fcTitle" style="color: var(--text-main); font-weight: 800; font-size: 15px;">格式转换舱 (Format Converter)</span>
                     </div>
-                    <p style="color: var(--text-muted); font-size: 12px; margin: 0 0 20px 0;">BS-RoFormer 高维卷积神经网络人声提取</p>
-                    
-                    <!-- 上传区 -->
-                    <div id="sepVocUploadZone" class="sep-upload-zone">
-                        <i data-lucide="music" style="width: 36px; height: 36px; stroke-width: 1.5px; margin: 0 auto 10px; color: var(--primary-purple); display: block;"></i>
-                        <p style="color: var(--text-main); margin: 4px 0; font-size: 14px; font-weight: 600;">选择本地音频文件</p>
-                        <p style="color: var(--text-muted); opacity: 0.7; font-size: 12px;">WAV / MP3 / FLAC</p>
-                        <input type="file" id="sepVocFileInput" accept=".wav,.mp3,.flac,audio/wav,audio/mpeg,audio/flac" style="display: none;">
-                    </div>
-                    
-                    <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;">Model: <span id="sepVocModelName" style="color: var(--primary-purple);">BS-RoFormer Karaoke</span></div>
-                    <button id="btnStartSepVoc" class="btn-primary" style="display: none; width: 100%; padding: 14px; background: linear-gradient(135deg, #a855f7, #c084fc); box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);">
-                        <i data-lucide="mic" class="lucide-icon"></i> 启动人声分离
-                    </button>
-                    
-                    <div id="sepVocProcessing" style="display: none; text-align: center; padding: 30px;">
-                        <div style="width: 36px; height: 36px; border: 3px solid var(--glass-border); border-top-color: var(--primary-purple); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; box-shadow: 0 0 15px var(--purple-bg-hover);"></div>
-                        <p style="color: var(--primary-purple); font-size: 14px; font-weight: 600; margin: 8px 0;">主唱/背景和声离线分离中...</p>
-                        <p style="color: var(--text-muted); font-size: 12px;" id="sepVocProgress">深度学习推理进行中，请耐心等待...</p>
-                    </div>
-                    <div id="sepVocResults" style="display: none; flex: 1;">
-                        <h3 style="color: #00E676; text-align: center; font-size: 15px; margin: 15px 0;"><i data-lucide="check" class="lucide-icon"></i> 分离完成</h3>
-                        <div id="sepVocStemsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
-                    </div>
-                    <button id="btnResetSepVoc" class="btn-ghost" style="display: none; margin-top: 16px; width: 100%;">重置分离控制台</button>
+                    <p id="fcDesc" style="color: var(--text-muted); font-size: 12px; margin: 0;">支持 .vmap / .tmap / .wav 互相转换与提取</p>
+                </div>
+                
+                <div id="fcDropZone" style="flex: 2; border: 2px dashed var(--glass-border); border-radius: 8px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(255, 255, 255, 0.02);">
+                    <i data-lucide="file-up" style="color: var(--text-muted); margin-bottom: 8px;" id="fcIcon"></i>
+                    <div id="fcText" style="color: var(--text-main); font-size: 13px; font-weight: bold;">点击或拖拽文件到此处</div>
+                    <div id="fcSubText" style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">支持 .wav | .vmap | .tmap (可连选 .webm)</div>
+                    <input type="file" id="fcInput" accept=".vmap,.tmap,.wav,audio/wav,.webm,video/webm" multiple style="display: none;">
+                </div>
+                
+                <div id="fcActions" style="flex: 1.5; display: flex; flex-direction: column; gap: 8px; opacity: 0.5; pointer-events: none; transition: all 0.2s;">
+                    <button id="btnFcTmap" class="btn-ghost" style="padding: 8px; font-size: 12px; color: #FFD700; border-color: rgba(255, 215, 0, 0.3);">转换为 .tmap (靶向特训块)</button>
+                    <button id="btnFcVmap" class="btn-ghost" style="padding: 8px; font-size: 12px; color: #00FFF5; border-color: rgba(0, 255, 245, 0.3);">转换为 .vmap (连续复盘线)</button>
                 </div>
             </div>
         </div>
@@ -217,6 +244,11 @@
                         <i data-lucide="zap" style="color: #FF5252;"></i>
                         <div class="level-title" style="color: #FF5252;">关卡 6: 综合挑战</div>
                         <div class="level-subtitle">1分钟全维声学音高随机挑战</div>
+                    </div>
+                    <div class="glass-panel level-card level-card-lg" data-level="custom" onclick="window.importCustomTmap()">
+                        <i data-lucide="upload-cloud" style="color: #FFD700;"></i>
+                        <div class="level-title" style="color: #FFD700;">自定义靶向特训</div>
+                        <div class="level-subtitle">导入 AI 分离生成的 .tmap 项目进行实战演唱</div>
                     </div>
                 </div>
             </div>

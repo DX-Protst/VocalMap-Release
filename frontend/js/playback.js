@@ -222,13 +222,21 @@ if (btnImportRecord) {
             
             if (filePath) {
                 const content = await fs.readTextFile(filePath);
-                recordedPitchData = JSON.parse(content);
+                let parsed = JSON.parse(content);
+                if (parsed && parsed.timeline) {
+                    recordedPitchData = parsed.timeline;
+                } else if (parsed && parsed.data && parsed.data.timeline) {
+                    recordedPitchData = parsed.data.timeline;
+                } else {
+                    recordedPitchData = parsed;
+                }
                 
                 const webmPath = filePath.replace(/\.vmap$/, '') + '.webm';
-                const uint8Array = await fs.readFile(webmPath);
-                const blob = new Blob([uint8Array], { type: 'audio/webm' });
-                
-                playbackAudio.src = URL.createObjectURL(blob);
+                try {
+                    const uint8Array = await fs.readFile(webmPath);
+                    const blob = new Blob([uint8Array], { type: 'audio/webm' });
+                    playbackAudio.src = URL.createObjectURL(blob);
+                } catch(e) { console.warn("No webm found for vmap", e); }
                 
                 if (Array.isArray(recordedPitchData) && recordedPitchData.length > 0) {
                     startPlaybackMode();
