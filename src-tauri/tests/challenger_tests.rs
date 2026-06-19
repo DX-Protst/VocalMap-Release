@@ -13,19 +13,7 @@ ZFWLTWhlOVc1eXgy/HzlvnH5dCMqiilRJHgtl8ul5uExA+nGLEv5AgMBAAE=\n\
 -----END RSA PUBLIC KEY-----";
 
 const TEST_PRIVATE_KEY: &str = "-----BEGIN RSA PRIVATE KEY-----\n\
-MIICYQIBAAKBgQCL0Lp1vVOUjvw17BD/P+5cBSoeBOPSkkI+zsIf4ZC5KOy5qH6N\n\
-WF7IKAyFz4P7LrNZH6/L/4EMkXGZx13FbkkQWSRLsQn4SMLjHdkMK68WSrtd5fE9\n\
-vqtZCWRVi01oZTlXNXl4Mvx85b5x+XQjKoopUSR4LZfLpebhMQPpxixL+QIDAQAB\n\
-AoGAUwiGA/CJV5vHKxrkSUKlg17J0YQj7OVRlE1kOlzSfzRPyj7H0Zeeyo4GSd2g\n\
-yybD+nT4CVXXRSiHZ8VfgyL8+fmgt8ykNb0kmc+hE9PaY3kNsqK3G/yqFGmiGvIl\n\
-QxBZOgCuPjWfnMFvME5LkoRSKuHioP9kyicSpQzCX5jtkoECRQCtc+o5ZNoDk+Wy\n\
-38UY2JI3bf3xjR8r4uNiPE23DhgUXACuPzKcBMbXt7ryxWczKr9rm2grTima9PCq\n\
-q3IajXMTdcZCaQI9AM5asu0NBf1K2i8XrnsemWcRrQNqj+eizHdIHkazcVASSqMI\n\
-xI2dtb7SOYXomF6hndQF0jDDuPPpHEBrEQJFAJJ3uIjgpcyxnhyvIvN5JfdSlUbd\n\
-QT5A6Hvyqjly2FiQ3C5HxYfD7NkKF/6bPSsS5POMFqnC5hUo0vV7su3DFjKPmGxJ\n\
-Aj0Al0vy0lFxKcSe8lZHrKfDy8ku9ElGV4yKo45x/F6G3zF6Hc1I55hRcCaM3Hys\n\
-cv3GTXUzJmPqkJNDDowxAkRcslYZSk58xhrU4ZIxQ5cDsw3Q/sIb21aEjCima556\n\
-2GJZsFjnqgOfc8yAGjCmrElWtd0MPlWCGTexZGiKXshmTYwUzg==\n\
+[COMPROMISED KEY REMOVED]\n\
 -----END RSA PRIVATE KEY-----";
 
 fn sign_payload(payload_str: &str, priv_key_pem: &str) -> String {
