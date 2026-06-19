@@ -171,14 +171,14 @@ pub async fn start_download(app: AppHandle) -> Result<serde_json::Value, String>
 
         // Step 2: Download models
         if !model1.exists() {
-            download_file(&client, &app, "https://ghproxy.net/https://github.com/ChanTrail/BS-RoFormer/resolve/main/logic_bs_roformer.ckpt", &model1, "正在下载 6轨道模型 (699MB)...", 70.0, 0.15)?;
+            download_file(&client, &app, "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v0.0.1/logic_roformer.ckpt", &model1, "正在下载 6轨道模型 (699MB)...", 70.0, 0.15)?;
         } else {
             emit_progress(&app, "检测到本地已有 6轨道模型，跳过下载...", 70.0);
             emit_console(&app, "检测到本地已有模型1，跳过下载...");
         }
         
         if !model2.exists() {
-            download_file(&client, &app, "https://ghproxy.net/https://github.com/becruily/bs-roformer-karaoke/resolve/main/bs_roformer_karaoke_frazer_becruily.ckpt", &model2, "正在下载 卡拉OK模型 (204MB)...", 85.0, 0.15)?;
+            download_file(&client, &app, "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v0.0.1/bs_roformer_karaoke_frazer_becruily.ckpt", &model2, "正在下载 卡拉OK模型 (204MB)...", 85.0, 0.15)?;
         } else {
             emit_progress(&app, "检测到本地已有 卡拉OK模型，跳过下载...", 85.0);
             emit_console(&app, "检测到本地已有模型2，跳过下载...");
