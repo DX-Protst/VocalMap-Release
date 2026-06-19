@@ -1,12 +1,13 @@
 # VocalMap 🎙️
 
-English | [简体中文版](README_CORE.md)
+English Version | [简体中文](../README.md)
 
 > Professional Vocal Diagnosis & Stem Separation System
 
-VocalMap is a desktop application designed for professional vocal pedagogy, voice analysis, and audio post-production. It combines **real-time acoustic visualization** with professional **BS-RoFormer-based** stem/instrument separation to provide a comprehensive acoustic analysis suite.
 
-The application employs a hybrid **Tauri (Rust) + FastAPI (Python)** architecture, with Numba JIT compiling core acoustic algorithms and automatic vibrato detection.
+VocalMap is a modern desktop application designed for professional vocal teaching, voice diagnosis, and audio post-production. It perfectly integrates **real-time acoustic diagnostic visualization** with professional-grade high-precision stem/instrument separation based on the **BS-RoFormer model**, providing a one-stop acoustic analysis solution for singers, vocal coaches, and music producers.
+
+This project has completed a grand leap from a hybrid architecture to a **Full-Domain Pure Rust IPC Driven** ecosystem, utilizing a geeky dark-mode architecture of **Tauri v2 + Native Rust DSP Engine**.
 
 ---
 
@@ -15,147 +16,84 @@ The application employs a hybrid **Tauri (Rust) + FastAPI (Python)** architectur
 - [✨ Features & Tech](#-features--tech)
 - [🏗️ Architecture](#️-architecture)
 - [📁 Codebase Guide](#-codebase-guide)
-- [🌍 i18n & Localization Guide](#-i18n--localization-guide)
-- [⚙️ Installation & Usage](#️-installation-and-usage)
+- [⚙️ Installation & Usage](#️-installation--usage)
 - [🛠️ Development](#️-development)
-- [📦 Recent Updates](#-recent-updates)
-- [📄 License](#-license)
 
 ---
 
 ## ✨ Features & Tech
 
-### 🎧 Acoustic Diagnosis & Playback (`frontend/js/playback.js`, `frontend/js/realtime_monitor.js`)
-* **Real-time Recording & Playback**: Captures PCM streams via Web Audio API, binds it to pitch tracks, and packs them into `.vmap` project files. During playback, `realtime_monitor.js` renders a Bezier curve on HTML5 Canvas and locks the viewport center to the vocal pitch.
-* **Pro Offline Analysis**: Powered by `backend/services/reporter.py`, this processes local audio files instantly to output comprehensive 6-dimensional reports without real-time playback.
-* **HD Long Image Export**: Employs `frontend/js/dom-to-image.min.js` to bypass Tauri sandbox limits, rendering high-resolution无损 screenshots of diagnostic reports.
+### 🎧 Omnidirectional Acoustic Diagnosis & Playback (`frontend/js/playback.js`, `frontend/js/realtime_monitor.js`)
+* **Real-time Singing Recording & Playback**: Captures PCM audio streams based on the Web Audio API, tightly binding it with pitch data emitted from the underlying Rust DSP, and saving it as an exclusive `.vmap` project file. During playback, `realtime_monitor.js` draws Bezier curves via Canvas and automatically locks onto the center pitch.
+* **Native Rust DSP Engine**: Bypasses browser playback restrictions, utilizing lightning-fast Rust algorithms to conduct full-scale deep diagnosis on audio files.
 
-### 🚀 Targeted Vocal Training Camp (`frontend/js/training.js`)
-* **6 Progressive Levels & Custom Training**: Dynamically generates 6 fundamental vocal training targets. Recently refactored to support `.tmap` custom target training: `importCustomTmap` in `training.js` maps discrete block-based pitch sequences imported by users into custom target blocks, perfectly syncing with underlying WebM/WAV backing tracks.
-* **Look-ahead Camera**: A custom tracking algorithm in `training.js` smooths the camera viewport transition ahead of upcoming target boxes, solving the issue of targets jumping out of view.
+### 🚀 Target Vocal Training Camp (`frontend/js/training.js`)
+* **6 Progressive Levels & Custom Target Training**: The engine not only dynamically generates 6 basic levels but also supports importing discrete block-like pitch sequences mapped into custom target blocks, perfectly syncing with underlying WebM/WAV accompaniments.
+* **Look-ahead Camera**: The rebuilt camera tracking algorithm in `training.js` intelligently and smoothly follows upcoming target blocks, solving the pain point of targets flying off-screen during large pitch jumps (e.g., Level 6).
 
-### 🎸 AI Stem Separation (`logic_bsroformer/inference.py`)
-* **Multi-Model Support**: Integrates the **6-stem instrument separation model (`logic_roformer_6s`)** and **BS-RoFormer Karaoke model (`bs_roformer_karaoke`)** coordinated by `backend/separation.py`.
-* **Resampling Optimization**: Leverages `librosa.load(..., res_type='soxr_qq')` in `inference.py` for ultra-fast, high-quality CPU audio loading.
-* **Dual-Modal Data Extraction Engine**: Added dual routing in `backend/app.py`: `/export_vmap` (for continuous pitch re-rendering) and `/export_tmap` (invokes the newly added `generate_quantized_pitch_track` in `analyzer.py` to extract discrete pitch blocks). This bridges the ecosystem gap between stem separation and targeted training.
-* **Residual Extraction & File Safety**: Features an optimized subtraction logic in `inference.py` that separates vocals cleanly and avoids case-insensitive filename overwriting on Windows systems.
+### 🎸 Professional AI Stem Separation (`logic_bsroformer/inference.py`)
+* **Completely Independent Subprocess Mounting**: No longer tightly binds the heavy Python engine with the local backbone. Instead, it dynamically downloads a pure runtime library (`python_runtime`) from the cloud, and Rust then unshells and awakens the standalone `inference.py` script via `std::process::Command`, achieving complete decoupling.
+* **Dual-Modal Data Extraction Engine**: Added dual-format export for `.vmap` (for continuous pitch review) and `.tmap` (discrete scale blocks), creating a data loop from stem separation to target training.
 
-### 🎛️ Acoustic Engine & JIT (`backend/acoustic_engine/analyzer.py`)
-* **Numba JIT Acceleration**: Uses `@jit(nopython=True)` to compile the CPU-bound YIN difference loops into C-level machine code, eliminating audio latency and UI stutters.
-* **Harmonic & Vibrato Analysis**: CMNDF confidence validation filters out octave errors; calculates zero-crossing rates over a 2-second pitch buffer to score vocal vibratos.
-
-### 🔒 Security & Privacy Protection (Local Security Gateway)
-To protect user privacy (microphone data and local audio assets) and shield local GPU/CPU hardware resources from unauthorized third-party apps:
-* **Dynamic Port Allocation**:
-  - Implementation: [lib.rs](file:///c:/Users/10431/Desktop/vocal%20map/src-tauri/src/lib.rs) (`get_available_port`)
-  - Tech Details: Binds to port `0` on startup to let the OS assign a random idle port. This passes it as a command line arg to FastAPI, preventing port collisions and blocking local sniffing/hijacking of the WebSocket audio stream.
-* **Internal API Token Validation**:
-  - Implementation: [lib.rs](file:///c:/Users/10431/Desktop/vocal%20map/src-tauri/src/lib.rs) (`generate_token`), [app.py](file:///c:/Users/10431/Desktop/vocal%20map/backend/app.py) (`check_api_token`)
-  - Tech Details: Tauri generates a 32-character random string, passing it as `VOCALMAP_INTERNAL_TOKEN`. FastAPI middleware checks the `X-VocalMap-Token` header on all API/WS calls. Unauthorized processes are rejected (401 Unauthorized), protecting GPU/CPU/power resources from hijacking.
-* **Anti-Clock Tampering & Obfuscation**:
-  - Implementation: [analyzer.py](file:///c:/Users/10431/Desktop/vocal%20map/backend/acoustic_engine/analyzer.py) (`check_clock_tampering`, `get_public_key`)
-  - Tech Details: Writes time state into `.sys_state` using XOR obfuscation. If system time rolls back, a `LicenseError` blocks execution, protecting runtime consistency. Public keys are also XOR-encoded to prevent static analysis replacement.
+### 🔒 Native Machine Code Security Shield
+The original Python FastAPI was highly vulnerable to decompilation and reverse engineering. It has now been entirely ported to native Rust machine code:
+* **Anti-Clock Rollback Defense**: The `.sys_state` timestamp fingerprint is stored natively encrypted, preventing illegal clock tampering.
+* **Hardcore Authorization Encryption**: RSA private key obfuscation and public key verification are all built into the compiled Rust artifacts.
 
 ---
 
 ## 🏗️ Architecture
 
-VocalMap adopts a secure, high-performance desktop architecture decoupling front and back ends:
+VocalMap now utilizes an **All-Native Ultra-Fast Dual-End IPC Communication Architecture**:
 
 ```mermaid
 graph TD
-    A[Tauri Main Process src-tauri/src/main.rs] -->|Spawn with CREATE_NO_WINDOW| B[FastAPI Backend backend/app.py]
-    A -->|IPC Invocation| C[Webview Frontend frontend/index.html]
-    A -->|Rust Async Download| E[src-tauri/src/downloader.rs]
-    C -->|WebSocket Binary Audio Stream| B
-    C -->|HTTP API Requests| B
-    B -->|PyTorch/CUDA/MPS Inference| D[BS-RoFormer Models]
+    A[Tauri Main Process src-tauri/src/main.rs] -->|Native Memory IPC| C[Webview Frontend frontend/index.html]
+    A -->|Smart Cloud Downloader downloader.rs| E[Dynamically Extract & Download Env/Models]
+    C -->|Rust Native DSP commands.rs| A
+    E -->|Awaken via std::process| D[Standalone logic_bsroformer/inference.py Script]
 ```
 
 ---
 
 ## 📁 Codebase Guide
 
-| File / Folder | Architecture & Responsibility |
+For easier maintenance and collaboration, below is the core code structure and corresponding responsibilities:
+
+| Directory/File | Core Architecture & Responsibility |
 | --- | --- |
-| `src-tauri/src/main.rs` | Main Rust entry point. Fetches hardware machine IDs, creates the UI window, and spawns/kills the FastAPI child process tree. |
-| `src-tauri/src/downloader.rs` | Manages runtime downloading of massive AI model checkpoints to keep the installer lightweight. |
-| `backend/app.py` | FastAPI app gateway. Initializes app lifecycles, and routes HTTP/WebSocket endpoints for audio analysis. |
-| `backend/separation.py` | AI Separation middleware. Coordinates background subprocess jobs and maps console progress percentages to the frontend. |
-| `backend/acoustic_engine/analyzer.py` | Core acoustic engine brain. Compiles YIN pitch tracking, filters noise, and computes harmonics. |
-| `backend/services/reporter.py` | Computes comprehensive voice reports and aggregates five-dimensional metrics. |
-| `logic_bsroformer/inference.py` | Deep learning execution core. Loads PyTorch weights, chunking audio, OLA overlapping, and performing TTA. |
-| `frontend/js/separation.js` | UI logic for separation panels. Manages model selection and polls task states. |
-| `frontend/js/audio_engine.js` | Audio capturing module. Wraps Web Audio API, adds DynamicsCompressorNode, and pushes binary PCM to WebSocket. |
-| `frontend/js/realtime_monitor.js` | Heavy canvas rendering. Plots real-time Bezier audio paths and manages performance dashboards. |
-| `frontend/js/lang.js` | Global localization dictionary center. Contains `LANG_DICTIONARY` for auto static DOM replacement and `JS_DICTIONARY` providing `t()` translation hooks for JS. |
-
----
-
-## 🌍 i18n & Localization Guide
-
-This project supports bilingual (English and Chinese) interfaces, globally managed by `frontend/js/lang.js`. When developing new features or modifying UI texts, you must follow these i18n guidelines:
-
-1. **Static DOM Text Translation (`LANG_DICTIONARY`)**:
-   - For static text hardcoded in HTML (like `frontend/src/components/*.html`), add its corresponding CSS selector (e.g., `#btnViewLicense`) and the translated HTML string into the `zh` and `en` dictionaries of `LANG_DICTIONARY` inside `lang.js`.
-   - The system automatically scans the DOM and replaces the HTML using the selector when language switches. Ensure that the translated element is assigned a globally unique `id` or a specific class.
-
-2. **Dynamic JS Text Translation (`JS_DICTIONARY` and `t()` function)**:
-   - For strings dynamically generated via JS logic (e.g., Toast alerts, status splicing, chart labels), **strictly avoid** hardcoding Chinese/English strings.
-   - Register a unique key for the string (e.g., `pay.license_status_activated`) inside both the `zh` and `en` blocks of `JS_DICTIONARY` in `lang.js`.
-   - Call `t(key, defaultValue)` in your JS code to retrieve the translated text. For example: `t('pay.license_status_activated', 'Activated: ')`.
+| `src-tauri/src/main.rs` | The Rust shell entry point, responsible for generating hardware device codes and registering various IPC routes. |
+| `src-tauri/src/commands.rs` | The hardcore acoustic algorithm brain, natively accelerated by Rust, including YIN pitch detection, CMNDF calculations, and auth encryption interception. |
+| `src-tauri/src/downloader.rs` | The Rust dynamic download manager and extraction pipeline. Completely solves the limit-exceeding problem of packaging AI models (GBs) into the installer, and intelligently skips existing local packages. |
+| `logic_bsroformer/inference.py` | The BS-RoFormer neural network inference execution script, awakened solely as an independent subprocess by Tauri. |
+| `frontend/js/separation.js` | Frontend panel logic for stem separation, handling underlying Rust event polling and progress animation rendering. |
+| `frontend/js/audio_engine.js` | Web Audio API core wrapper, capturing physical mic recording and PCM waveforms, processed via DynamicsCompressorNode. |
 
 ---
 
 ## ⚙️ Installation & Usage
 
-### Requirements
+### Environment Requirements
 * **Node.js** (LTS recommended)
-* **Rust compiler**
-* **Windows OS** (due to embedded portable Python bundle)
+* **Rust** Build Environment
 
 ### Quick Start
-1. **Install Node.js dependencies**:
+1. **Install Frontend Dependencies**:
    ```bash
    npm install
    ```
-2. **Setup Portable Python environment**:
-   ```powershell
-   .\scripts\setup_portable_python.ps1
-   ```
-   *(Initializes a self-contained Python runtime with numba, librosa, and PyTorch)*
-3. **Run Dev server**:
+2. **Start Tauri Dev Environment**:
    ```bash
    npm run dev
    ```
-   *(Tauri will automatically boot up the FastAPI backend on a secure random port)*
 
 ---
 
 ## 🛠️ Development
 
-Run the automation build script to bundle the production release:
+Run the automated compilation script to package the production release (10MB level):
 
-```powershell
+```bash
 .\scripts\build_tauri.ps1
 ```
-* **No-Window Mode**: Configures Python backend to spawn with `CREATE_NO_WINDOW` flags on Windows to prevent console flashing.
-* **Dynamic Dependency Linking**: Prevents heavy PyTorch libraries from crashing the NSIS installer compiler by resolving dependency layouts at runtime.
-
----
-
-## 📦 Recent Updates
-
-* **[Security]** **Local Communication Gateway**: Re-engineered backend networking. Replaced fixed port `5050` with dynamic OS binding, introduced local token handshakes (`VOCALMAP_INTERNAL_TOKEN`), and added time rollback verification to protect user voice privacy and GPU/CPU power resources.
-* **[I18n]** **Bilingual Help Manual**: Restructured elements in `modal_help.html` and added translation records in `frontend/js/lang.js` for full English/Chinese manuals.
-* **[I18n]** **System Language Detection**: Detects client OS language on first launch and caches preferences in `localStorage`.
-* **[OTA Update]** **Toast-style Alerts**: Replaced hardcoded update labels with dynamic `showToast()` alerts for update check, download percentage, and restart guides.
-* **[Fix]** **Vocal Timer Bug**: Fixed reference loss on `#recordTimer` when toggling languages.
-* **[Fix]** **Analysis Crash Recovery**: Added robust try-except loops to offline reporters to return structured multi-lingual alerts when voice length is insufficient.
-
----
-
-## 📄 License
-
-VocalMap uses core algorithms based on open-source projects like [BS-RoFormer](https://github.com/ZFTurbo/Music-Source-Separation-Training).
-Source code is available but commercial reuse and sub-licensing are restricted. See [LICENSE.md](LICENSE.md) for details.
+* **One-Click Compilation**: Automatically configures the Tauri Updater signature environment and calls `npx tauri build` to output a lightweight installer directly.

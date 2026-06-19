@@ -61,77 +61,75 @@ async function startEngine() {
     if (!envOk) return;
 
     try {
-        const wsUrl = LOCAL_API_BASE.replace('http://', 'ws://') + '/ws?token=' + encodeURIComponent(window.internalApiToken || '');
-        ws = new WebSocket(wsUrl);
-        
-        ws.onopen = async () => {
-            wsStatus.innerText = t('audio.backend_connected', "连接状态: 已连接"); wsStatus.style.color = "#00ADB5";
-            try {
-                let baseConstraints = {
-                    echoCancellation: false,
-                    noiseSuppression: false,
-                    autoGainControl: false
-                };
-                let audioConstraints = { ...baseConstraints };
-                const savedDeviceId = localStorage.getItem('vocalmap_microphone');
-                if (savedDeviceId && savedDeviceId !== 'default') {
-                    audioConstraints.deviceId = { exact: savedDeviceId };
-                }
-                
-                let stream;
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
-                } catch (err) {
-                    console.warn("使用指定麦克风失败，回退到默认设备", err);
-                    stream = await navigator.mediaDevices.getUserMedia({ audio: baseConstraints, video: false });
-                }
-                
-                initMicrophoneSelect(); // Update labels after permission granted
-                
-                audioContext = new (window.AudioContext || window.webkitAudioContext)({sampleRate: 44100});
-                microphone = audioContext.createMediaStreamSource(stream);
-                processor = audioContext.createScriptProcessor(2048, 1, 1);
-                processor.onaudioprocess = (e) => {
-                    if (!isRunning || ws.readyState !== WebSocket.OPEN) return;
-                    let float32Array = e.inputBuffer.getChannelData(0);
-                    let int16Array = new Int16Array(float32Array.length);
-                    for (let i = 0; i < float32Array.length; i++) {
-                        let s = Math.max(-1, Math.min(1, float32Array[i]));
-                        int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-                    }
-                    ws.send(int16Array.buffer);
-                };
-                microphone.connect(processor);
-                processor.connect(audioContext.destination);
-                isRunning = true;
-                if (typeof renderLoop === 'function' && !isRenderLoopRunning) {
-                    isRenderLoopRunning = true;
-                    renderLoop();
-                }
-                if (typeof sendSettings === 'function') sendSettings();
-                startBtn.innerHTML = t('audio.stop_engine', '<i data-lucide="square" class="lucide-icon"></i> 停止引擎 / Stop');
-                lucide.createIcons();
-                startBtn.className = "btn-danger";
-                startBtn.style.backgroundColor = ""; // Clear any lingering inline styles
-            } catch (err) {
-                console.error('麦克风访问失败:', err);
-                if (typeof showToast === 'function') {
-                    showToast(t('audio.mic_access_failed_title', "麦克风访问失败"), t('audio.mic_access_failed_msg', "无法访问您的音频输入设备: ") + err.name + "。请确认 Windows 麦克风隐私授权已开启！", "error");
-                } else {
-                    alert(t('audio.mic_access_failed_alert', "无法访问麦克风: ") + err.name + " - " + err.message);
-                }
-                ws.close();
+        ws = {
+            readyState: 1, // OPEN
+            close: () => {
+                if (ws.readyState === 3) return;
+                ws.readyState = 3; // CLOSED
+                stopEngine();
             }
         };
-        
-        ws.onmessage = (event) => {
-            handleBackendData(JSON.parse(event.data));
-        };
-        
-        ws.onclose = () => {
-            stopEngine();
-        };
-        
+        wsStatus.innerText = t('audio.backend_connected', "连接状态: 已连接"); wsStatus.style.color = "#00ADB5";
+        try {
+            let baseConstraints = {
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false
+            };
+            let audioConstraints = { ...baseConstraints };
+            const savedDeviceId = localStorage.getItem('vocalmap_microphone');
+            if (savedDeviceId && savedDeviceId !== 'default') {
+                audioConstraints.deviceId = { exact: savedDeviceId };
+            }
+            
+            let stream;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
+            } catch (err) {
+                console.warn("使用指定麦克风失败，回退到默认设备", err);
+                stream = await navigator.mediaDevices.getUserMedia({ audio: baseConstraints, video: false });
+            }
+            
+            initMicrophoneSelect(); // Update labels after permission granted
+            
+            audioContext = new (window.AudioContext || window.webkitAudioContext)({sampleRate: 44100});
+            microphone = audioContext.createMediaStreamSource(stream);
+            processor = audioContext.createScriptProcessor(2048, 1, 1);
+            processor.onaudioprocess = (e) => {
+                if (!isRunning) return;
+                let float32Array = e.inputBuffer.getChannelData(0);
+                let int16Array = new Int16Array(float32Array.length);
+                for (let i = 0; i < float32Array.length; i++) {
+                    let s = Math.max(-1, Math.min(1, float32Array[i]));
+                    int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                }
+                invoke('vmap_process_audio_chunk', { chunk: Array.from(int16Array) })
+                    .then(metrics => {
+                        if (metrics) handleBackendData(metrics);
+                    })
+                    .catch(err => console.error("Error processing audio chunk:", err));
+            };
+            microphone.connect(processor);
+            processor.connect(audioContext.destination);
+            isRunning = true;
+            if (typeof renderLoop === 'function' && !isRenderLoopRunning) {
+                isRenderLoopRunning = true;
+                renderLoop();
+            }
+            if (typeof sendSettings === 'function') sendSettings();
+            startBtn.innerHTML = t('audio.stop_engine', '<i data-lucide="square" class="lucide-icon"></i> 停止引擎 / Stop');
+            lucide.createIcons();
+            startBtn.className = "btn-danger";
+            startBtn.style.backgroundColor = ""; // Clear any lingering inline styles
+        } catch (err) {
+            console.error('麦克风访问失败:', err);
+            if (typeof showToast === 'function') {
+                showToast(t('audio.mic_access_failed_title', "麦克风访问失败"), t('audio.mic_access_failed_msg', "无法访问您的音频输入设备: ") + err.name + "。请确认 Windows 麦克风隐私授权已开启！", "error");
+            } else {
+                alert(t('audio.mic_access_failed_alert', "无法访问麦克风: ") + err.name + " - " + err.message);
+            }
+            ws.close();
+        }
     } catch (err) { 
         console.error('引擎启动失败:', err); 
         if (typeof showToast === 'function') {
@@ -154,7 +152,9 @@ function stopEngine() {
 
     if (processor) processor.disconnect();
     if (microphone) microphone.disconnect();
-    if (audioContext) audioContext.close();
+    if (audioContext && audioContext.state !== 'closed') {
+        audioContext.close().catch(e => console.warn("AudioContext close ignored:", e));
+    }
     if (ws) ws.close();
     
     startBtn.innerHTML = t('audio.start_engine', '<i data-lucide="zap" class="lucide-icon"></i> 启动引擎'); 

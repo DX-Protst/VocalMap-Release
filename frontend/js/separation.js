@@ -80,7 +80,8 @@ function showDownloadOverlay() {
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:"Segoe UI",sans-serif; transition: opacity 0.3s;';
         
         overlay.innerHTML = `
-            <div class="modal-content glass-panel" style="padding:40px;width:540px;text-align:center;">
+            <div class="modal-content glass-panel" style="position:relative; padding:40px;width:540px;text-align:center;">
+                <button id="btnHideEnvDl" style="position:absolute;top:15px;right:15px;background:transparent;border:none;color:var(--text-muted);font-size:24px;cursor:pointer;display:none;line-height:1;">&times;</button>
                 <h2 style="margin-top:0;color:var(--primary-cyan);">${t('sep.dl_title', '初始化 AI 分离引擎')}</h2>
                 <p style="color:var(--text-muted);font-size:14px;line-height:1.6;margin-bottom:20px;">
                     ${t('sep.dl_desc', '首次使用音轨分离功能需要下载运行环境及模型权重。<br>这包含 PyTorch、CUDA 加速库以及两个高性能模型（总计约 5GB）。<br>下载时间取决于您的网速，请保持网络畅通。')}
@@ -114,12 +115,17 @@ function showDownloadOverlay() {
             document.getElementById('dlConsole').style.display = 'none';
         };
 
+        document.getElementById('btnHideEnvDl').onclick = () => {
+            overlay.style.display = 'none';
+        };
+
         let progressUnlisten = null;
         let consoleUnlisten = null;
 
         document.getElementById('btnStartEnvDl').onclick = async () => {
             document.getElementById('btnStartEnvDl').style.display = 'none';
             document.getElementById('btnCancelEnvDl').style.display = 'none';
+            document.getElementById('btnHideEnvDl').style.display = 'block';
             document.getElementById('dlProgressContainer').style.display = 'block';
             document.getElementById('dlConsole').style.display = 'block';
             document.getElementById('dlConsole').innerHTML = '';
@@ -191,7 +197,26 @@ window.setDevice = function(device) {
     var resetBtn = document.getElementById('btnResetSepInst');
     if (!zone) return;
 
-    zone.addEventListener('click', function() { input.click(); });
+    zone.addEventListener('click', async function() {
+        if (window.__TAURI__ && window.__TAURI__.dialog) {
+            try {
+                const selected = await window.__TAURI__.dialog.open({
+                    multiple: false,
+                    filters: [{ name: 'Audio', extensions: ['wav', 'mp3', 'm4a', 'flac', 'ogg'] }]
+                });
+                if (selected) {
+                    var name = selected.replace(/^.*[\\\/]/, '');
+                    let size = 0;
+                    try {
+                        size = await window.__TAURI__.core.invoke('vmap_get_file_size', { path: selected });
+                    } catch(e) { console.error(e); }
+                    handleInstFile({ path: selected, name: name, size: size });
+                }
+            } catch(err) { console.error(err); }
+        } else {
+            input.click();
+        }
+    });
     zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.style.borderColor = 'var(--primary-cyan)'; });
     zone.addEventListener('dragleave', function() { zone.style.borderColor = 'var(--glass-border)'; });
     zone.addEventListener('drop', function(e) {
@@ -206,7 +231,7 @@ window.setDevice = function(device) {
 
     function handleInstFile(file) {
         selectedFileInst = file;
-        var sizeMB = (file.size / 1024 / 1024).toFixed(1);
+        var sizeMB = file.size ? (file.size / 1024 / 1024).toFixed(1) : '?';
         zone.innerHTML = '<div>' +
             '<i data-lucide="file-audio" style="width: 32px; height: 32px; color: var(--primary-cyan); margin: 0 auto 8px; display: block;"></i>' +
             '<p style="color: var(--primary-cyan); margin: 3px 0; font-weight: bold; font-size: 14px;">' + file.name + '</p>' +
@@ -244,7 +269,26 @@ function resetInstUI() {
     var resetBtn = document.getElementById('btnResetSepVoc');
     if (!zone) return;
 
-    zone.addEventListener('click', function() { input.click(); });
+    zone.addEventListener('click', async function() {
+        if (window.__TAURI__ && window.__TAURI__.dialog) {
+            try {
+                const selected = await window.__TAURI__.dialog.open({
+                    multiple: false,
+                    filters: [{ name: 'Audio', extensions: ['wav', 'mp3', 'm4a', 'flac', 'ogg'] }]
+                });
+                if (selected) {
+                    var name = selected.replace(/^.*[\\\/]/, '');
+                    let size = 0;
+                    try {
+                        size = await window.__TAURI__.core.invoke('vmap_get_file_size', { path: selected });
+                    } catch(e) { console.error(e); }
+                    handleVocFile({ path: selected, name: name, size: size });
+                }
+            } catch(err) { console.error(err); }
+        } else {
+            input.click();
+        }
+    });
     zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.style.borderColor = 'var(--primary-purple)'; });
     zone.addEventListener('dragleave', function() { zone.style.borderColor = 'var(--glass-border)'; });
     zone.addEventListener('drop', function(e) {
@@ -259,7 +303,7 @@ function resetInstUI() {
 
     function handleVocFile(file) {
         selectedFileVoc = file;
-        var sizeMB = (file.size / 1024 / 1024).toFixed(1);
+        var sizeMB = file.size ? (file.size / 1024 / 1024).toFixed(1) : '?';
         zone.innerHTML = '<div>' +
             '<i data-lucide="file-audio" style="width: 32px; height: 32px; color: var(--primary-purple); margin: 0 auto 8px; display: block;"></i>' +
             '<p style="color: var(--primary-purple); margin: 3px 0; font-weight: bold; font-size: 14px;">' + file.name + '</p>' +
@@ -376,23 +420,12 @@ async function startSeparation(panelType) {
     resetSepProgressUI(panelType);
     document.getElementById(progId).innerText = forceCPU ? t('sep.cpu_processing', 'CPU 处理中...') : t('sep.uploading_processing', '上传并推理中...');
 
-    var formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('model_key', modelKey);
-    formData.append('force_cpu', forceCPU ? 'true' : 'false');
-
     try {
-        var resp = await fetch(SEP_BASE + '/api/separation/separate', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-VocalMap-Token': window.internalApiToken || ''
-            }
+        var data = await invoke('vmap_separate_audio', {
+            filePath: selectedFile.path || '',
+            modelKey: modelKey,
+            forceCpu: forceCPU
         });
-        var data = await resp.json();
-        if (!resp.ok) {
-            throw new Error(data.error || data.detail || ('HTTP ' + resp.status));
-        }
         if (data.error) {
             alert(t('sep.task_error', '分离失败: ') + data.error);
             if (panelType === 'inst') resetInstUI(); else resetVocUI();
@@ -418,7 +451,7 @@ async function startSeparation(panelType) {
         });
         pollSepTask(taskId, panelType);
     } catch (err) {
-        alert(t('sep.request_failed', '请求失败: ') + err.message);
+        alert(t('sep.request_failed', '请求失败: ') + (err.message || err));
         if (panelType === 'inst') resetInstUI(); else resetVocUI();
     }
 }
@@ -427,14 +460,9 @@ async function pollSepTask(taskId, panelType, consecutiveErrors) {
     consecutiveErrors = consecutiveErrors || 0;
     var progId = panelType === 'inst' ? 'sepInstProgress' : 'sepVocProgress';
     try {
-        var resp = await fetch(SEP_BASE + '/api/separation/task/' + taskId, {
-            headers: {
-                'X-VocalMap-Token': window.internalApiToken || ''
-            }
-        });
-        var task = await resp.json();
-        if (!resp.ok || task.error) {
-            throw new Error(task.error || task.detail || ('HTTP ' + resp.status));
+        var task = await invoke('vmap_get_separation_task', { taskId: taskId });
+        if (task.error) {
+            throw new Error(task.error);
         }
         consecutiveErrors = 0;
         if (task.status === 'completed') {
@@ -522,6 +550,7 @@ function showSepResults(taskId, task, panelType) {
     var html = '';
     var stems = task.stems || {};
     for (var instr in stems) {
+        if (instr === '_mix') continue;
         var label = labels[instr] || instr;
         var color = colors[instr] || 'var(--primary-cyan)';
         var iconName = icons[instr] || 'music';
@@ -574,19 +603,11 @@ window.downloadStemResult = async function(event, taskId, instr, label) {
             btn.innerText = t('sep.writing', "写入中...");
             btn.disabled = true;
 
-            const res = await fetch(SEP_BASE + '/api/separation/save_to_disk', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'X-VocalMap-Token': window.internalApiToken || ''
-                },
-                body: JSON.stringify({
-                    task_id: taskId,
-                    stem: instr,
-                    save_path: savePath
-                })
+            const data = await invoke('vmap_save_separation_to_disk', {
+                taskId: taskId,
+                stem: instr,
+                savePath: savePath
             });
-            const data = await res.json();
             if (data.error) throw new Error(data.error);
             
             btn.innerText = t('sep.write_success', "写入成功");
@@ -628,20 +649,11 @@ window.exportCustomMap = async function(event, taskId, type) {
         btn.innerText = "生成中...";
         btn.disabled = true;
 
-        const endpoint = type === 'tmap' ? '/api/separation/export_tmap' : '/api/separation/export_vmap';
-
-        const res = await fetch(SEP_BASE + endpoint, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'X-VocalMap-Token': window.internalApiToken || ''
-            },
-            body: JSON.stringify({
-                task_id: taskId,
-                save_path: savePath
-            })
+        const cmd = type === 'tmap' ? 'vmap_export_tmap' : 'vmap_export_vmap';
+        const data = await invoke(cmd, {
+            taskId: taskId,
+            savePath: savePath
         });
-        const data = await res.json();
         if (data.error) throw new Error(data.error);
         
         btn.innerText = "导出成功";
@@ -780,24 +792,12 @@ window.exportCustomMap = async function(event, taskId, type) {
             window.lucide.createIcons();
             btn.style.pointerEvents = 'none';
             
-            var formData = new FormData();
-            formData.append('file', currentFile);
-            formData.append('target_format', targetFormat);
-            formData.append('save_path', savePath);
-            if (currentFile.path) formData.append('source_path', currentFile.path);
-            if (currentFile.webmFile) {
-                formData.append('webm_file', currentFile.webmFile);
-                if (currentFile.webmFile.path) formData.append('webm_source_path', currentFile.webmFile.path);
-            }
-            
-            var res = await fetch(window.SEP_BASE + '/api/convert/process', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-VocalMap-Token': window.internalApiToken || ''
-                }
+            var json = await invoke('vmap_convert_process', {
+                targetFormat: targetFormat,
+                savePath: savePath,
+                sourcePath: currentFile.path || null,
+                webmSourcePath: (currentFile.webmFile && currentFile.webmFile.path) || null
             });
-            var json = await res.json();
             
             if (json.status === 'success') {
                 if (window.toast) {

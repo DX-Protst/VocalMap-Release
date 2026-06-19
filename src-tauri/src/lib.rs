@@ -1,24 +1,14 @@
 pub mod downloader;
+pub mod dsp;
+pub mod license_verifier;
+pub mod commands;
 
-use std::process::{Command as StdCommand, Child};
-#[cfg(target_os = "windows")]
-use std::os::windows::process::CommandExt;
-use std::sync::Mutex;
 use tauri::{Manager, RunEvent};
 use std::path::PathBuf;
-
-struct BackendProcess(Mutex<Option<Child>>);
 
 struct ApiToken(String);
 
 struct BackendPort(u16);
-
-fn get_available_port() -> Option<u16> {
-    std::net::TcpListener::bind("127.0.0.1:0")
-        .and_then(|listener| listener.local_addr())
-        .map(|addr| addr.port())
-        .ok()
-}
 
 fn generate_token() -> String {
     use std::time::SystemTime;
@@ -69,7 +59,6 @@ fn check_vcredist() -> bool {
     }
 }
 
-
 #[tauri::command]
 fn relaunch_app(app_handle: tauri::AppHandle) {
     app_handle.restart();
@@ -79,7 +68,7 @@ fn relaunch_app(app_handle: tauri::AppHandle) {
 pub fn run() {
     let token = generate_token();
     let token_clone = token.clone();
-    let port = get_available_port().unwrap_or(5050);
+    let port = 5050; // Use a fixed port to avoid breakages in frontend
 
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
@@ -89,22 +78,7 @@ pub fn run() {
         .setup(move |app| {
             app.manage(ApiToken(token_clone));
             app.manage(BackendPort(port));
-            let resolver = app.path();
-            let root_dir = resolver.resource_dir().unwrap_or_else(|_| PathBuf::from(""));
-            
-            // 启动 FastAPI 后端
-            let python_exe = if cfg!(debug_assertions) {
-                // 开发模式：假设 python_runtime 在项目根目录
-                std::env::current_dir().unwrap().join("../python_runtime/python.exe")
-            } else {
-                root_dir.join("_up_").join("python_runtime").join("python.exe")
-            };
-
-            let backend_dir = if cfg!(debug_assertions) {
-                std::env::current_dir().unwrap().join("../backend")
-            } else {
-                root_dir.join("_up_").join("backend")
-            };
+            app.manage(commands::AppState::new());
             
             let app_data_dir = app.path().app_data_dir().unwrap_or_else(|_| PathBuf::from(""));
             let model_dir = app_data_dir.join("model");
@@ -121,45 +95,7 @@ pub fn run() {
                 std::fs::create_dir_all(&site_packages_dir).unwrap_or(());
             }
 
-            println!("[Tauri] 尝试启动引擎: {:?}", python_exe);
-            
-            let mut cmd = StdCommand::new(&python_exe);
-            cmd.args([
-                    "-m", "uvicorn",
-                    "app:app",
-                    "--host", "127.0.0.1",
-                    "--port", &port.to_string(),
-                    "--log-level", "warning"
-                ])
-                .current_dir(&backend_dir)
-                .env("VOCALMAP_HOST", "127.0.0.1")
-                .env("VOCALMAP_PORT", &port.to_string())
-                .env("VOCALMAP_MODEL_DIR", model_dir.to_string_lossy().to_string())
-                .env("VOCALMAP_DATA_DIR", app_data_dir.to_string_lossy().to_string())
-                .env("PYTHONPATH", site_packages_dir.to_string_lossy().to_string())
-                .env("VOCALMAP_PARENT_PID", std::process::id().to_string())
-                .env("VOCALMAP_INTERNAL_TOKEN", &token);
-            #[cfg(target_os = "windows")]
-            cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
-            
-            // Redirect logs to appdata for debugging VM crashes
-            let log_path = app_data_dir.join("backend_crash.log");
-            if let Ok(log_file) = std::fs::File::create(&log_path) {
-                cmd.stdout(log_file.try_clone().map(std::process::Stdio::from).unwrap_or_else(|_| std::process::Stdio::null()));
-                cmd.stderr(log_file);
-            }
-            
-            let child = cmd.spawn();
-
-            match child {
-                Ok(proc) => {
-                    println!("[Tauri] FastAPI 后端已启动, PID: {}, 端口: {}", proc.id(), port);
-                    app.manage(BackendProcess(Mutex::new(Some(proc))));
-                }
-                Err(e) => {
-                    eprintln!("[Tauri] 启动 FastAPI 失败: {}", e);
-                }
-            }
+            println!("[Tauri] Native backend initialized, Python FastAPI startup flow completely removed.");
 
             Ok(())
         })
@@ -170,29 +106,28 @@ pub fn run() {
             check_vcredist,
             downloader::check_dependencies,
             downloader::start_download,
-            relaunch_app
+            relaunch_app,
+            commands::vmap_get_file_size,
+            commands::vmap_get_license_status,
+            commands::vmap_activate_license,
+            commands::vmap_analyze_buffer,
+            commands::vmap_separate_audio,
+            commands::vmap_get_separation_task,
+            commands::vmap_save_separation_to_disk,
+            commands::vmap_export_tmap,
+            commands::vmap_export_vmap,
+            commands::vmap_convert_process,
+            commands::vmap_stream_start_record,
+            commands::vmap_stream_stop_record,
+            commands::vmap_update_settings,
+            commands::vmap_process_audio_chunk,
+            commands::vmap_log
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
-        .run(|app_handle, event| {
+        .run(|_app_handle, event| {
             if let RunEvent::Exit = event {
-                // 退出时杀掉 Python 子进程树 (Windows: taskkill /T /F)
-                if let Some(state) = app_handle.try_state::<BackendProcess>() {
-                    if let Ok(mut process_opt) = state.0.lock() {
-                        if let Some(mut proc) = process_opt.take() {
-                            let pid = proc.id();
-                            println!("[Tauri] 应用退出，终止 Python 引擎 PID: {}", pid);
-                            let mut kill_cmd = StdCommand::new("taskkill");
-                            kill_cmd.args(["/pid", &pid.to_string(), "/T", "/F"]);
-                            
-                            #[cfg(target_os = "windows")]
-                            kill_cmd.creation_flags(0x08000000);
-                            
-                            let _ = kill_cmd.status();
-                            let _ = proc.kill();
-                        }
-                    }
-                }
+                println!("[Tauri] Application exit.");
             }
         });
 }

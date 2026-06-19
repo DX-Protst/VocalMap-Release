@@ -1,67 +1,69 @@
+English Version | [简体中文](../README.md)
+
+<img width="1516" height="1523" alt="icon" src="https://github.com/user-attachments/assets/f3b678ec-0c1d-4edc-9644-9b5537762d9a" />
+
+
 # VocalMap Official Release 🚀
 
-English | [简体中文版](../README.md)
 
-Welcome to the official commercial release of VocalMap! This is a desktop-grade vocal diagnosis and stem separation workstation designed for vocal pedagogy, singer training, and professional audio production.
+Welcome to the official commercial release of VocalMap! This is a modern, desktop-class vocal diagnosis and stem separation workstation built specifically for vocal training, singing evaluation, and professional audio production.
 
-After deep architectural reconstruction and extreme performance optimization, we bring you the most advanced local AI audio processing experience. The latest version is fully evolved, making every sound you produce a tangible trace!
+After a series of complete architectural rewrites and extreme performance optimizations, we bring you the most advanced **pure, minimalistic, and zero-latency** local AI audio processing experience. The latest version evolves in every aspect, letting every sound you make leave a tangible trace!
 
-## 🌟 Key Highlights & Features
+## 🌟 Core Highlights
 
-### 1. Advanced Targeted Vocal Training Camp (Brand New)
-Ditch aimless singing! The system dynamically generates **6 progressive acoustic training stages** based on your standard vocal range (or a highly customizable **custom range**):
-*   **3-Second Look-ahead Camera**: Smoothly tracks and predicts upcoming vocal targets, resolving the visual blind spot caused by large vocal jumps (e.g., chest voice to head voice).
-*   **100ms Latency Compensation Algorithm**: Complete overhaul of the audio-visual sync logic. Piano prompts play on time while target boxes are offset by 100ms to offset microphone capture and processing latency.
-*   **Studio-Grade Dual-Track Dynamics Compressor**: Built-in Web Audio dynamics compressor maximizes piano prompting volume while keeping it warm and round, avoiding hard clipping.
-*   **Custom Target Training Mode (New!)**: A complete ecosystem loop from separation to training! Import dedicated `.tmap` custom stage files exported by the AI Stem Separation engine to tackle and conquer your favorite challenging song segments.
+### 1. Pure Rust IPC Driven Architecture (New Major Upgrade)
+We have completely deprecated the heavy and easily reverse-engineered Python FastAPI framework, migrating the entire underlying architecture to a 100% Tauri Native Rust IPC environment:
+*   **10MB Extreme Footprint**: Say goodbye to bulky 500MB+ installers. By removing all bundled local Python dependencies, the new installer size has drastically plummeted to **< 10MB**! All AI runtime environments will be dynamically "pulled on demand" from the cloud during the first run.
+*   **Zero-Latency Memory Interaction**: We completely abandoned the overhead of WebSocket network transmission. The acoustic engine now communicates directly with WebAudio via memory-level Rust IPC, reducing pitch tracking and diagnosis latency to microseconds.
+*   **Unbreakable Blackbox Security**: No more worries about malicious listening on local ports! Core authentication and DSP parsers (including the high-precision YIN algorithm) have all been rewritten into Rust native machine code, providing an unstoppable anti-reverse engineering shield.
 
-### 2. Real-Time Multi-Dimensional Acoustic Diagnosis Engine
-Leveraging zero-latency signal analysis algorithms (YIN pitch tracking variant + H1-H2 harmonic resonance assessment), VocalMap captures and analyzes vocal characteristics in real time via your microphone.
-*   **6-Dimensional Holographic Diagnosis Radar (Pro Feature)**: Tracks high-level vocal metrics like pitch accuracy, stability, resonance, and purity in milliseconds, and scores professional vibratos.
-*   **Dynamic Playback & Review (Newly Upgraded)**: Pack your performance tracks into `.vmap` project files. During playback, the view automatically locks onto the pitch, pairing with high-precision reference points for magnifying glass analysis.
-*   **One-Click Ultra-Fast Offline Analysis (Newly Upgraded)**: Import existing vocal dry tracks to analyze them instantly, outputting detailed comprehensive diagnostic reports without real-time playback.
-*   **HD Long Image Export**: Export sleek, dark-themed diagnostic reports as high-definition long images with zero background fading or clipping.
+### 2. Advanced Target Vocal Training Camp
+Stop singing blindly. Based on your selected standard vocal range (or a highly flexible **Custom Range**), the system will dynamically generate highly targeted **6 progressive acoustic training levels**:
+*   **3-Second Look-ahead Camera**: Solves the visual blind spot caused by large scale jumps (e.g., from chest voice straight to head voice) where the target flies off-screen. The camera smoothly and intelligently follows the upcoming target.
+*   **100ms Visual Latency Compensation Algorithm**: A completely rebuilt "audio-visual synchronization" logic. The piano plays exactly on time, while the judgment block cleverly retreats by 100 milliseconds to perfectly offset the microphone and system calculation latency, giving you the ultimate precision hit feel.
+*   **Studio-Grade Dual-Track Dynamics Compressor**: The built-in Web Audio Dynamics Compressor completely unlocks and amplifies the maximum volume of the piano cue. No matter how loud you sing, it remains round and thick, bidding farewell to hard clipping.
+*   **New [Custom Target Training] Entry**: We completely bridged the ecosystem loop from stem separation to training! You can now import exclusive `.tmap` custom level files extracted by the AI separation module, allowing you to specifically conquer any high-difficulty song snippet you want to practice.
 
-### 3. Studio-Grade AI Stem Separation (Pro Feature)
-Equipped with SOTA **BS-RoFormer** and **Logic-RoFormer** deep learning separation models.
-*   **Karaoke Vocals/Instrumental Separation**: Remove vocals to get clean accompaniment and backing vocals.
-*   **All-Rounder 6-Stem Instrument Separation**: Extract Vocals, Piano, Guitar, Bass, Drums, and Other.
-*   **Dual-Core Training Pack Export (New!)**: After separation, the system can not only export standard `.vmap` review packs but also automatically extract discrete pitch block sequences from the dry vocals to generate `.tmap` targeted training stages.
-*   **Absolute Data Privacy**: 100% local GPU/CPU inference. No data is ever uploaded to servers.
+### 3. Real-time Multidimensional Acoustic Diagnosis Engine
+Utilizing the zero-latency **Rust native high-performance signal analysis algorithm** (a YIN pitch tracking variant + H1-H2 resonance evaluation), VocalMap captures and parses vocal features in real-time through your microphone.
+*   **6D Holographic Diagnosis Radar (Pro Feature)**: Captures millisecond-level high-order vocal metrics such as pitch accuracy, stability, resonance, and purity. It can even precisely detect professional Vibrato and score it independently.
+*   **Dynamic Replay & Review**: All singing trajectories can be packaged into a `.vmap` project file with one click. During playback, the camera centers and locks onto the current pitch, combined with high-precision white baselines and vertical rulers, letting you examine every breath fluctuation as if under a magnifying glass.
+*   **High-Res Long Image Export**: Seamlessly export a dark-textured, high-resolution long image diagnostic report with one click. No grey backgrounds or content cropping, making sharing your results a breeze.
 
-### 4. Next-Gen Geek-Style User Experience
-*   Fully adopts high-end Liquid Glass UI with seamless dark/light modes.
-*   Smooth transition animations and **fixed golden ratio window size (1200x800)** to avoid layout deformation or scaling issues.
-*   **Independent Unoccluded Activation/Status Panel**: Completely refactored the Pro license activation and status viewing logic, replacing the traditional global overlay with a smooth, full-sized independent workspace. Users can also instantly check their exact initial activation time and remaining validity directly from the system settings.
+### 4. Studio-Grade AI Stem Separation (Pro Feature)
+Powered by the current SOTA level **BS-RoFormer** and **Logic-RoFormer** deep learning separation models.
+*   **Karaoke Vocal/Instrumental Separation**: Remove original vocals with one click, preserving extremely pure accompaniment and backing vocals.
+*   **Omnipotent 6-Stem Instrument Separation**: Precisely dissects mixed audio into Vocals, Piano, Guitar, Bass, Drums, and Others.
+*   **Dual-Core Training Package Export**: After separation, the system can not only export a standard `.vmap` review package for playback but also automatically extract a discrete block-like pitch sequence based on the dry vocal track, exporting it as a `.tmap` target training level.
+*   **Absolute Data Security**: Pure local GPU/CPU inference. No data is uploaded to any server, ensuring absolutely zero risk of privacy leaks.
 
-### 5. Multilingual Support & Seamless OTA Updates (Newly Upgraded)
-*   **Chinese/English Bilingual Support & Persistent Caching**: Detects system language and caches user language selections. Help manuals and diagnostic panels are 100% localized.
-*   **Seamless Toast-Style OTA Upgrades**: Replaces old navbar alerts with elegant toast notifications displaying download progress and reboot guides.
+### 5. Next-Gen Geek Textured Interaction
+*   Fully adopts Liquid Glass high-texture UI, including both Dark/Light dual modes.
+*   All interactive animations are accompanied by smooth gradient feedback; **The latest version permanently locks a golden ratio window (1200x800)**, perfectly circumventing typography disasters caused by scaling and stretching.
+*   **Independent Unobstructed Activation/Status Panel**: Completely rebuilt the Pro activation and status viewing logic, abandoning traditional global overlays in favor of smooth, full-size workspace transitions.
 
-### 6. Local Security Gateway & Privacy Protection (New Security Upgrade)
-To protect user privacy (especially voice recordings and audio assets) and shield local GPU/CPU hardware resources from unauthorized third-party access:
-*   **Dynamic Port Isolation**: Allocates an idle random port on startup for local backend binding. This prevents local malware from sniffing or hijacking the microphone WebSocket audio stream.
-*   **Internal API Token Handshake**: Enforces dynamically generated 32-character token validation between Tauri and the Python backend. Any unauthorized local script or app calling the AI engine will be rejected (401 Unauthorized), preventing your GPU/CPU from being stolen for unauthorized inference or mining.
-*   **Clock Rollback & Signature Checks**: Integrates encrypted system time validation in `.sys_state` to prevent clock tampering, securing runtime states and logs.
+### 6. Global Multilingual & Seamless Update Experience
+*   **Bilingual Mode (EN/ZH) & Persistent Caching**: Features automatic system language detection (initializing to English/Chinese based on OS locale on first launch) and persistent user selection caching. The entire UI, parameter panels, and the **comprehensive Help & Diagnosis Manual** are 100% localized.
+*   **Seamless Pop-up OTA Updates**: The hard-coded update text in the top nav bar has been removed. Update progress, download percentages, failure warnings, and reboot prompts now utilize elegant Toast notifications.
 
 ---
 
-## 📥 How to Install & Use
+## 📥 Installation & Usage
 
-1.  Download and run the `VocalMap.Setup.x.x.x.exe` installer.
-2.  Basic features are completely free. Premium multi-dimensional analysis and stem separation features are unlocked after purchasing a Pro license (Monthly: ¥19.9, Lifetime: ¥59.9).
-3.  **Optimized Mirror Downloads**: Auto-deploys AI environments from high-speed mirror servers, handling gigabytes of model dependencies seamlessly.
-4.  **Hardware Acceleration**: CUDA acceleration is automatically enabled on NVIDIA GPUs.
+1.  Download and run the `VocalMap.Setup.x.x.x.exe` installer provided below.
+2.  Upon launching the app, the basic features on the homepage are completely free. Advanced multi-dimensional analysis and stem separation features will be unlocked upon payment.
+3.  **On-Demand Cloud Setup**: When using the Pro AI features for the first time, the program will automatically deploy an independent lightweight runtime environment from cloud mirrors.
+4.  Once deployed, enjoy the extreme audio-visual experience brought by fast local GPU/CPU acceleration!
 
 > [!NOTE]
-> NVIDIA GPU owners with CUDA configured will experience tens of times faster stem separation and acoustic analysis.
+> If your computer has an NVIDIA graphics card, the program will automatically identify and enable CUDA parallel acceleration after downloading the environment, providing a multifold speedup for complex stem separation and audio inference!
 
-## 📄 Copyright & Legal Compliance
+## 📄 Copyright & Security Compliance
+This project (including but not limited to the Tauri frontend shell, Rust native backend engine, core acoustic analysis algorithms, and independent AI separation modules) holds complete independent intellectual property rights.
+*   **Non-Commercial Restriction**: This project is licensed under the **PolyForm Noncommercial License 1.0.0**. Without official written commercial permission, no organization or individual may use this project, code, or compiled products for any commercial purposes.
+*   **Strict Ban on Cracking & Illegal Redistribution**: The security verifications built into this software (e.g., RSA native encryption checks, system clock anti-cheat detection, etc.) are statutory "technological protection measures". Any act of intentionally circumventing, cracking, or destroying these measures is illegal.
+*   **Legal Rights Statement**: We reserve all legal rights, including DMCA takedowns, civil lawsuits, and criminal liability pursuits for any acts of destroying technical protection measures, redistributing cracked versions, or unauthorized commercial infringement.
 
-This project (including but not limited to the Tauri frontend, FastAPI backend, and compiled `.pyd` core acoustic/AI separation modules) holds full independent intellectual property rights.
-*   **Non-commercial Restriction**: Distributed under the **PolyForm Noncommercial License 1.0.0**. Any commercial exploitation, distribution, or reproduction of this software without official written commercial authorization is strictly prohibited.
-*   **Prohibition of Cracking & Redistribution**: The built-in safety controls (dynamic API tokens, port randomization, clock tampering checks) constitute legally recognized "Technological Protection Measures" (TPM). Bypassing, cracking, or destroying these security controls is illegal. Modifying, repackaging, or redistributing cracked versions (including uploading to open-source hosting, cloud drives, or app stores) is a copyright infringement.
-*   **Legal Action**: We actively monitor and enforce our copyrights. For any violations, unauthorized secondary distribution, or commercial exploitation, we reserve all rights to pursue DMCA takedowns, civil litigation for damages, and criminal prosecution.
-
-## 🛠️ Development Guide
+## 🛠️ Software Development Guide
 See [README_CORE_EN.md](README_CORE_EN.md)

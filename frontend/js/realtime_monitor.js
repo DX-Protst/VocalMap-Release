@@ -677,11 +677,7 @@ function drawTrainingTargets(ctx, canvasW, canvasH, getLocalY, deltaTime) {
             window.lastTimelineLogTime = now;
             const progressMsg = `[Canvas Draw] elapsedSeconds: ${elapsedSeconds.toFixed(1)}s / targetEndTime: ${endTime.toFixed(1)}s, isModalShowing: ${isTrainingModalShowing}`;
             console.log(progressMsg);
-            fetch(LOCAL_API_BASE + '/api/log', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: progressMsg })
-            }).catch(err => {});
+            invoke('vmap_log', { message: progressMsg }).catch(err => {});
         }
         
         if (elapsedSeconds > endTime + 2.0) {

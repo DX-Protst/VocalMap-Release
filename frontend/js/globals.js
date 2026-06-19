@@ -6,22 +6,14 @@
 window.addEventListener('error', function(event) {
     const errorMsg = `Error: ${event.message} at ${event.filename || 'unknown'}:${event.lineno || 0}:${event.colno || 0}\nStack: ${event.error ? event.error.stack : 'No stack trace'}`;
     console.error(errorMsg);
-    fetch(LOCAL_API_BASE + '/api/log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: errorMsg })
-    }).catch(err => console.warn("Failed to send log to backend", err));
+    invoke('vmap_log', { message: errorMsg }).catch(err => console.warn("Failed to send log to backend", err));
 });
 
 // Capture unhandled promise rejections as well
 window.addEventListener('unhandledrejection', function(event) {
     const errorMsg = `Unhandled Promise Rejection: ${event.reason ? (event.reason.message || event.reason) : 'Unknown reason'}\nStack: ${event.reason && event.reason.stack ? event.reason.stack : 'No stack trace'}`;
     console.error(errorMsg);
-    fetch(LOCAL_API_BASE + '/api/log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: errorMsg })
-    }).catch(err => console.warn("Failed to send log to backend", err));
+    invoke('vmap_log', { message: errorMsg }).catch(err => console.warn("Failed to send log to backend", err));
 });
 
 const startBtn = document.getElementById('startBtn');

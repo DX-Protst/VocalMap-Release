@@ -11,7 +11,7 @@ let currentDetectAudioSource = null;
 
 if (document.getElementById('btnStartRecord')) {
     document.getElementById('btnStartRecord').addEventListener('click', () => {
-        if (!isRunning || ws.readyState !== WebSocket.OPEN) {
+        if (!isRunning) {
             if (typeof showToast === 'function') {
                 showToast(t('diag.mic_warn_title', "全息诊断警告"), t('diag.mic_warn_msg', "全息全录诊断舱需要先启动声学系统。请先点击右上角【连接后端并启动】按钮！"), "warning");
             } else {
@@ -49,13 +49,13 @@ if (document.getElementById('btnStartRecord')) {
             }
         }
         
-        ws.send(JSON.stringify({ action: "start_record" }));
+        invoke('vmap_stream_start_record');
     });
 }
 
 if (btnImportAudioDetect) {
     btnImportAudioDetect.addEventListener('click', () => {
-        if (!isRunning || ws.readyState !== WebSocket.OPEN) {
+        if (!isRunning) {
             if (typeof showToast === 'function') {
                 showToast(t('diag.mic_warn_title', "全息诊断警告"), t('diag.import_warn_msg', "导入全长音频进行一键诊断需要先启动声学引擎，打通底层检测服务通道！"), "warning");
             } else {
@@ -95,18 +95,9 @@ if (importAudioDetectFile) {
                 int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
             }
             
-            const response = await fetch(`${LOCAL_API_BASE}/api/analyze_buffer`, {
-                method: 'POST',
-                body: int16Array.buffer,
-                headers: { 
-                    'Content-Type': 'application/octet-stream',
-                    'X-VocalMap-Token': window.internalApiToken || ''
-                }
-            });
-            
-            const data = await response.json();
-            if (data.type === 'pro_report') {
-                renderProReport(data.report);
+            const report = await invoke('vmap_analyze_buffer', { buffer: Array.from(int16Array) });
+            if (report) {
+                renderProReport(report);
             } else {
                 document.getElementById('reportContent').innerText = t('diag.process_failed', "分析失败: 未知返回格式");
             }
@@ -140,8 +131,11 @@ if (document.getElementById('btnStopRecord')) {
             }
         }
         
-        document.getElementById('reportContent').innerText = t('diag.analyzing_rec', "正在综合分析刚才的演唱数据，请稍候...");
-        ws.send(JSON.stringify({ action: "stop_record" }));
+        invoke('vmap_stream_stop_record').then(report => {
+            handleBackendData({ type: "pro_report", report: report });
+        }).catch(err => {
+            handleBackendData({ type: "pro_report", report: { status: "error", message: err.toString() } });
+        });
     });
 }
 

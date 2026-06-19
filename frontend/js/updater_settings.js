@@ -271,13 +271,13 @@ window.closeSettings = function() {
 };
 
 function sendSettings() {
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    if (!isRunning) return;
     const settings = {
         loudness_gate: parseFloat(sLoudness.value),
         clarity_threshold: parseFloat(sClarity.value),
         noise_silence_threshold: parseFloat(sNoise.value)
     };
-    ws.send(JSON.stringify({ action: "update_settings", settings: settings }));
+    invoke('vmap_update_settings', { settings: settings }).catch(e => console.error(e));
 }
 
 (function loadSettings() {

@@ -85,10 +85,7 @@ async function checkLicenseStatus(silent) {
     }
 
     try {
-        let resp = await fetch(`${LOCAL_API_BASE}/api/license/status?machine_id=${encodeURIComponent(localMachineId)}`, {
-            headers: { 'X-VocalMap-Token': window.internalApiToken || '' }
-        });
-        let data = await resp.json();
+        let data = await invoke('vmap_get_license_status', { machineId: localMachineId });
         if (data.valid) {
             saveLicenseCache(data.plan_type, data.expires_at);
             hidePremiumOverlay(data.plan_type);
@@ -231,15 +228,7 @@ async function activateCDK() {
     msgEl.innerText = t('pay.verifying', '正在验证激活码...');
 
     try {
-        let resp = await fetch(`${LOCAL_API_BASE}/api/license/activate`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'X-VocalMap-Token': window.internalApiToken || ''
-            },
-            body: JSON.stringify({ cdk: cdk.toUpperCase(), machine_id: localMachineId })
-        });
-        let data = await resp.json();
+        let data = await invoke('vmap_activate_license', { cdk: cdk.toUpperCase(), machineId: localMachineId });
         if (data.success) {
             saveLicenseCache(data.plan_type, data.expires_at);
             msgEl.style.color = '#00E676';
@@ -263,10 +252,7 @@ async function refreshLicenseStatus() {
     msgEl.innerText = t('pay.refreshing', '正在刷新许可证状态...');
 
     try {
-        let resp = await fetch(`${LOCAL_API_BASE}/api/license/status?machine_id=${encodeURIComponent(localMachineId)}`, {
-            headers: { 'X-VocalMap-Token': window.internalApiToken || '' }
-        });
-        let data = await resp.json();
+        let data = await invoke('vmap_get_license_status', { machineId: localMachineId });
         if (data.valid) {
             saveLicenseCache(data.plan_type, data.expires_at);
             msgEl.style.color = '#00E676';

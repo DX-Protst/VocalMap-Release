@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "VocalMap",
-  "version": "3.1.4",
+  "version": "3.2.0",
   "identifier": "com.vocalmap.engine",
   "build": {
     "frontendDist": "../frontend",
@@ -37,9 +37,7 @@
       "icons/icon.ico"
     ],
     "resources": [
-      "../backend/**/*",
-      "../logic_bsroformer/**/*",
-      "../python_runtime/**/*"
+      "../logic_bsroformer/**/*"
     ]
   },
   "plugins": {
