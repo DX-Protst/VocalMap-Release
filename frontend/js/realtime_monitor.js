@@ -578,7 +578,7 @@ function drawTrainingTargets(ctx, canvasW, canvasH, getLocalY, deltaTime) {
                 if (t.type === 'stability') {
                     let latestStab = textBuffer.stab.length > 0 ? textBuffer.stab[textBuffer.stab.length - 1] : 0;
                     if (latestStab < 70) hitCondition = false;
-                    hitReason = hitCondition ? t('train.hit_stable', "气息稳定!") : t('train.hit_unstable', "气息不稳!");
+                    hitReason = hitCondition ? window.t('train.hit_stable', "气息稳定!") : window.t('train.hit_unstable', "气息不稳!");
                 } else if (t.type === 'chest') {
                     let latestPure = textBuffer.pure.length > 0 ? textBuffer.pure[textBuffer.pure.length - 1] : 0;
                     if (latestPure < 15) hitCondition = false;
@@ -637,9 +637,9 @@ function drawTrainingTargets(ctx, canvasW, canvasH, getLocalY, deltaTime) {
             let displayInst = upcomingTarget.instruction;
             if (displayInst.startsWith('[听音提示] ')) {
                 let actualInst = displayInst.replace('[听音提示] ', '');
-                displayInst = t('[听音提示] ', '[Listening Hint] ') + t(actualInst, actualInst);
+                displayInst = window.t('[听音提示] ', '[Listening Hint] ') + window.t(actualInst, actualInst);
             } else {
-                displayInst = t(displayInst, displayInst);
+                displayInst = window.t(displayInst, displayInst);
             }
             if (overlayText.innerText !== displayInst) {
                 overlayText.innerText = displayInst;
