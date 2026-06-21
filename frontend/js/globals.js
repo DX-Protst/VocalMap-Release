@@ -133,7 +133,11 @@ function playGuideTone(midiNote, durationSeconds = 1.0) {
     if (!audioContext || audioContext.state === 'suspended') return;
     
     // Initialize a global compressor to prevent clipping when volume is high
-    if (!window.pianoCompressor) {
+    // Also ensure it belongs to the current audioContext (in case audioContext was recreated)
+    if (!window.pianoCompressor || window.pianoCompressor.context !== audioContext) {
+        if (window.pianoCompressor) {
+            try { window.pianoCompressor.disconnect(); } catch (e) {}
+        }
         window.pianoCompressor = audioContext.createDynamicsCompressor();
         window.pianoCompressor.threshold.value = -8; // Start compressing at -8dB
         window.pianoCompressor.knee.value = 12;
