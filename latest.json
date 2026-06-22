@@ -1,11 +1,11 @@
 {
-  "version": "3.2.1",
+  "version": "3.2.2",
   "notes": "Update new URL links of seperation models",
   "pub_date": "2026-05-26T12:00:00Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSWRnZjhaQWhGc3ZtOWMxclZtSmVKdHpveUM5cHZNN1paVDZhSllqR2xKdzg4bWx1UnVTQVZuOTNteWhqOFVHdlBDNWJEdmVSN1dFaVBTb1dVWHlhYmdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgxODUwMTQ3CWZpbGU6Vm9jYWxNYXBfMy4yLjFfeDY0LXNldHVwLmV4ZQpGeWkzNG9JamZFRFpSYXkybVhXT2lKdVpnUzdlemJwcm5KY0RySDlQYTN1Ykt3eVA3bTJnMVBSQTNzUzVPbUVpTi9wWkp4TEs2Y3RiZFQ3UU5pNUZDQT09Cg==",
-      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.2.1/VocalMap_3.2.1_x64-setup.exe"
+      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.2.2/VocalMap_3.2.2_x64-setup.exe"
     }
   }
 }
