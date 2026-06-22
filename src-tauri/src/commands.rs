@@ -295,7 +295,7 @@ pub fn vmap_separate_audio(
     let root_dir = if cfg!(debug_assertions) {
         std::env::current_dir().unwrap().join("..")
     } else {
-        root_dir
+        root_dir.join("_up_")
     };
 
     let python_exe = data_dir.join("python_runtime").join("python.exe");
@@ -400,7 +400,7 @@ pub fn vmap_separate_audio(
                 cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
             }
 
-            let mut child = cmd.spawn().map_err(|e| format!("Failed to spawn process: {}", e))?;
+            let mut child = cmd.spawn().map_err(|e| format!("[VMAP_V2_FIXED] Failed to spawn Python process: {} | Executable: {}", e, python_exe_clean))?;
 
             // Read lines and parse progress
             let stdout = child.stdout.take().unwrap();
@@ -428,6 +428,11 @@ pub fn vmap_separate_audio(
                             } else if let Some(stage) = payload.get("stage").and_then(|v| v.as_str()) {
                                 status_update = Some(stage.to_string());
                             }
+                        }
+                    } else if clean_line.contains("Error") || clean_line.contains("Traceback") || clean_line.contains("Errno") || clean_line.contains("can't open file") {
+                        let mut tasks = state_clone.separation_tasks.lock().unwrap();
+                        if let Some(t) = tasks.get_mut(&task_id_clone) {
+                            t.error = Some(format!("[VMAP_V2_FIXED] {}", clean_line));
                         }
                     }
 
