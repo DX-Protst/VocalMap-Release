@@ -69,7 +69,7 @@ pub fn verify_pro_license(
         .verify(Pkcs1v15Sign::new::<Sha256>(), &hashed, &signature)
         .map_err(|_| "许可证签名伪造或遭篡改！".to_string())?;
 
-    // 5. Check expiration
+    // 5. Check expiration and machine_id binding
     let payload: serde_json::Value = serde_json::from_str(payload_str)
         .map_err(|e| format!("解析 payload 失败: {}", e))?;
 
@@ -82,6 +82,17 @@ pub fn verify_pro_license(
         if current_time > exp {
             return Err("您的许可证已过期，请续费。".to_string());
         }
+    }
+
+    let payload_machine_id = payload.get("machine_id").and_then(|v| v.as_str());
+    let current_machine_id = machine_uid::get().unwrap_or_else(|_| "unknown_machine_id".to_string());
+
+    if let Some(pmid) = payload_machine_id {
+        if pmid != current_machine_id {
+            return Err("该许可证不属于当前设备，请勿盗用！".to_string());
+        }
+    } else {
+        return Err("许可证数据残缺，缺少机器码绑定信息！".to_string());
     }
 
     Ok(payload)
