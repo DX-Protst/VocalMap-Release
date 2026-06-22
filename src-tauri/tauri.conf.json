@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "VocalMap",
-  "version": "3.2.3",
+  "version": "3.2.4",
   "identifier": "com.vocalmap.engine",
   "build": {
     "frontendDist": "../frontend",

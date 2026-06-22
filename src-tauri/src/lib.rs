@@ -95,6 +95,24 @@ pub fn run() {
                 std::fs::create_dir_all(&site_packages_dir).unwrap_or(());
             }
 
+            // Legacy License Migration
+            let license_path = app_data_dir.join("license.key");
+            if !license_path.exists() {
+                let resource_dir = app.path().resource_dir().unwrap_or_else(|_| PathBuf::from(""));
+                let legacy_paths = vec![
+                    resource_dir.join("_up_").join("backend").join("license.key"),
+                    std::env::current_dir().unwrap_or_else(|_| PathBuf::from("")).join("..").join("backend").join("license.key")
+                ];
+                for p in legacy_paths {
+                    if p.exists() {
+                        if std::fs::copy(&p, &license_path).is_ok() {
+                            println!("[Tauri] Legacy license.key migrated successfully to AppData.");
+                        }
+                        break;
+                    }
+                }
+            }
+
             println!("[Tauri] Native backend initialized, Python FastAPI startup flow completely removed.");
 
             Ok(())

@@ -59,13 +59,11 @@ pub fn get_data_dir(app_handle: &AppHandle) -> PathBuf {
 }
 
 pub fn get_backend_dir(app_handle: &AppHandle) -> PathBuf {
-    let resolver = app_handle.path();
-    let root_dir = resolver.resource_dir().unwrap_or_else(|_| PathBuf::from(""));
-    if cfg!(debug_assertions) {
-        std::env::current_dir().unwrap().join("..").join("backend")
-    } else {
-        root_dir.join("_up_").join("backend")
-    }
+    // 之前用于指向 Python backend 目录，现在后端已迁移至 Rust，
+    // license.key 统一放在数据目录 (AppData) 中。
+    let dir = get_data_dir(app_handle);
+    let _ = std::fs::create_dir_all(&dir);
+    dir
 }
 
 fn now_secs() -> f64 {
@@ -73,6 +71,15 @@ fn now_secs() -> f64 {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs_f64())
         .unwrap_or(0.0)
+}
+
+fn clean_path_for_python(path: &Path) -> String {
+    let s = path.to_string_lossy().to_string();
+    if s.starts_with(r"\\?\") {
+        s[4..].to_string()
+    } else {
+        s
+    }
 }
 
 fn generate_task_id() -> String {
@@ -329,11 +336,11 @@ pub fn vmap_separate_audio(
         logs: vec![format!(
             "Task {} created. Input file copied to {}",
             task_id,
-            copied_input_path.to_string_lossy()
+            clean_path_for_python(&copied_input_path)
         )],
         updated_at: now_secs(),
         stems: None,
-        output_dir: Some(output_dir.to_string_lossy().to_string()),
+        output_dir: Some(clean_path_for_python(&output_dir)),
         error: None,
     };
 
@@ -350,21 +357,22 @@ pub fn vmap_separate_audio(
 
     std::thread::spawn(move || {
         let run_separation = || -> Result<HashMap<String, String>, String> {
-            let mut cmd = std::process::Command::new(&python_exe);
+            let python_exe_clean = clean_path_for_python(&python_exe);
+            let mut cmd = std::process::Command::new(&python_exe_clean);
             cmd.args(&[
                 "-B",
                 "-u",
-                &inference_script.to_string_lossy(),
+                &clean_path_for_python(&inference_script),
                 "--model_type",
                 "bs_roformer",
                 "--config_path",
-                &config_path.to_string_lossy(),
+                &clean_path_for_python(&config_path),
                 "--start_check_point",
-                &ckpt_path.to_string_lossy(),
+                &clean_path_for_python(&ckpt_path),
                 "--input_folder",
-                &task_dir.to_string_lossy(),
+                &clean_path_for_python(&task_dir),
                 "--store_dir",
-                &output_dir.to_string_lossy(),
+                &clean_path_for_python(&output_dir),
             ]);
             if model_info.extract_instrumental {
                 cmd.arg("--extract_instrumental");
@@ -376,7 +384,7 @@ pub fn vmap_separate_audio(
             let logic_dir = root_dir.join("logic_bsroformer");
             let data_dir = get_data_dir(&app_handle_clone);
             let site_packages = data_dir.join("site-packages");
-            let mut path_var = format!("{};{}", logic_dir.to_string_lossy(), site_packages.to_string_lossy());
+            let mut path_var = format!("{};{}", clean_path_for_python(&logic_dir), clean_path_for_python(&site_packages));
             if let Ok(existing) = std::env::var("PYTHONPATH") {
                 path_var = format!("{};{}", path_var, existing);
             }

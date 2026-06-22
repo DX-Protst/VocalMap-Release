@@ -26,6 +26,17 @@ pub fn verify_pro_license(
     data_dir: &Path,
     backend_dir: &Path,
 ) -> Result<serde_json::Value, String> {
+    // --- BYPASS LICENSE CHECK (ONLY IN DEV MODE) ---
+    #[cfg(debug_assertions)]
+    {
+        let current_machine_id = machine_uid::get().unwrap_or_else(|_| "unknown_machine_id".to_string());
+        return Ok(serde_json::json!({
+            "machine_id": current_machine_id,
+            "expires_at": 4102444800.0,
+            "tier": "pro"
+        }));
+    }
+    // ------------------------------------------------
     // 1. Clock tampering check
     super::clock::check_clock_tampering(data_dir)?;
 
