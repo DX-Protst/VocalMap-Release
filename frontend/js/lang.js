@@ -195,6 +195,8 @@ const LANG_DICTIONARY = {
         '#help_adv_c4_desc': '系统支持为暗色和亮色模式定制专属的背景预设。为了保证视觉美感，当处于暗色主题时，所有亮色预设将自动变灰不可选；同理，亮色主题下所有暗色预设也会变灰。若切换系统主题，当前背景将智能退回至对应主题的默认预设，避免色彩对比失衡。',
         '#help_adv_c5_title': '自定义纯色与背景图',
         '#help_adv_c5_desc': '选择“自定义纯色”可调出系统调色板选择您心仪的背景颜色。选择“自定义背景图”可通过本地文件上传图片，系统会自动对图片进行等比例降分辨率和压缩，既确保显示清晰度，又防止因 Base64 数据过大超出 localStorage 浏览器的容量限制导致加载失败。',
+        '#help_adv_c6_title': '前端高性能渲染模式',
+        '#help_adv_c6_desc': '开启后，系统将停用大面积背景的色相旋转动画以及所有玻璃面板的毛玻璃滤镜（用高效的半透明固态色代替），并启用 Canvas 渲染解耦及离屏缓存。这能够极大地降低高刷新率显示器或核显设备在空闲与运行时的 CPU 和 GPU 占用，杜绝发热与卡顿。',
 
         '#help_faq_title': '声乐教学与分析高阶独门技巧',
         '#help_faq_t1_strong_txt': '终极教学秘籍：如何完美测量一首现成歌曲的歌手精确音高？',
@@ -259,7 +261,7 @@ const LANG_DICTIONARY = {
         '#descLicenseStatus': '查看您的 VocalMap Pro 激活信息，或输入激活码解锁高级功能。',
         '#settingsModal .btn-ghost': '恢复默认设置',
         '#settingsModal .btn-primary': '确定并应用',
-            '#wsStatus': '连接状态: 已断开',
+        '#wsStatus': '<span class="nav-text-hide">连接状态: </span>已断开',
         '#btnStartRecord': '<i data-lucide="mic" class="lucide-icon"></i> 麦克风实时检测',
         '#btnImportAudioDetect': '<i data-lucide="upload" class="lucide-icon"></i> 导入音频检测',
         '#btnStopRecord': '<i data-lucide="square" class="lucide-icon"></i> 停止检测并分析',
@@ -511,6 +513,8 @@ const LANG_DICTIONARY = {
         '#help_adv_c4_desc': 'The system customizes presets for dark and light modes. To ensure visual aesthetics, light presets are disabled (grayed out) in dark mode, and dark presets are disabled in light mode. Switching the main theme auto-reverts the background to the respective default preset, preventing readability issues.',
         '#help_adv_c5_title': 'Custom Colors & Background Images',
         '#help_adv_c5_desc': 'Selecting "Custom Solid Color" triggers the system color picker. Selecting "Custom Image" uploads a local background photo, which is downscaled and compressed in the background to preserve load performance and prevent localStorage capacity overflows.',
+        '#help_adv_c6_title': 'High Performance Rendering Mode',
+        '#help_adv_c6_desc': 'When enabled, the system stops the background color rotation animation and disables all glass panel backdrop filters (replacing them with elegant semi-transparent solid colors). It also enables off-screen Canvas caching. This significantly reduces CPU and GPU usage on high-refresh-rate monitors or integrated graphics, preventing heat and UI stutter.',
 
         '#help_faq_title': 'Advanced Techniques for Vocal Teaching & Analysis',
         '#help_faq_t1_strong_txt': 'Ultimate Vocal Secret: How to perfectly measure a singer\'s exact pitch in any existing song?',
@@ -575,7 +579,7 @@ const LANG_DICTIONARY = {
         '#descLicenseStatus': 'View your VocalMap Pro activation info, or enter a CDK to unlock advanced features.',
         '#settingsModal .btn-ghost': 'Restore Defaults',
         '#settingsModal .btn-primary': 'Confirm & Apply',
-        '#wsStatus': 'Connection: Disconnected',
+        '#wsStatus': '<span class="nav-text-hide">Connection: </span>Disconnected',
         '#btnStartRecord': '<i data-lucide="mic" class="lucide-icon"></i> Mic Real-time Detection',
         '#btnImportAudioDetect': '<i data-lucide="upload" class="lucide-icon"></i> Import Audio Detection',
         '#btnStopRecord': '<i data-lucide="square" class="lucide-icon"></i> Stop Detection & Analyze',
@@ -646,8 +650,8 @@ const JS_DICTIONARY = {
         'audio.mic_label': '麦克风',
         'audio.no_devices': '无法获取设备列表',
         'audio.vc_redist_warning': '⚠️ 严重环境缺失：\n\n检测到您的系统未安装微软 C++ 运行库 (VC++ 2015-2022 Redistributable)。\n\nVocalMap 的音频核心需要此底层环境才能运行。\n\n点击【确定】将自动为您打开微软官方下载链接，请下载并安装 x64 版本后，重新启动本软件！',
-        'audio.backend_connected': '连接状态: 已连接',
-        'audio.backend_disconnected': '连接状态: 已断开',
+        'audio.backend_connected': '<span class="nav-text-hide">连接状态: </span>已连接',
+        'audio.backend_disconnected': '<span class="nav-text-hide">连接状态: </span>已断开',
         'audio.mic_access_failed_title': '麦克风访问失败',
         'audio.mic_access_failed_msg': '无法访问您的音频输入设备: ',
         'audio.mic_access_failed_alert': '无法访问麦克风: ',
@@ -890,8 +894,8 @@ const JS_DICTIONARY = {
         'audio.mic_label': 'Microphone',
         'audio.no_devices': 'Failed to get device list',
         'audio.vc_redist_warning': '⚠️ Missing Environment:\n\nMicrosoft C++ Redistributable (VC++ 2015-2022) is not installed.\n\nVocalMap needs this environment to run the audio core.\n\nClick [OK] to download the x64 version, and restart the software after installation!',
-        'audio.backend_connected': 'Backend: Connected',
-        'audio.backend_disconnected': 'Backend: Disconnected',
+        'audio.backend_connected': '<span class="nav-text-hide">Backend: </span>Connected',
+        'audio.backend_disconnected': '<span class="nav-text-hide">Backend: </span>Disconnected',
         'audio.mic_access_failed_title': 'Mic Access Failed',
         'audio.mic_access_failed_msg': 'Cannot access your audio device: ',
         'audio.mic_access_failed_alert': 'Mic access failed: ',
@@ -1171,7 +1175,7 @@ const JS_DICTIONARY = {
         'train.hit_unstable': 'Breath Unstable!',
         '[听音提示] ': '[Listening Hint] ',
         'train.finished_alert_prefix': 'Training finished! Final score: ',
-        'audio.backend_connected': 'Connection: Connected'
+        'audio.backend_connected': '<span class="nav-text-hide">Connection: </span>Connected'
     }
 };
 

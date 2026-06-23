@@ -3,6 +3,8 @@
 // ==========================================
 
 window.switchTab = function(tabName) {
+    if (typeof window.closeMobileMenu === 'function') window.closeMobileMenu();
+
     const freeWs = document.getElementById('freeWorkspace');
     const proWs = document.getElementById('proWorkspace');
     const btnFree = document.getElementById('tabBtnFree');
@@ -46,7 +48,52 @@ window.switchTab = function(tabName) {
         if (btnFree) btnFree.classList.remove('active');
         if (licenseWs) triggerAnimation(licenseWs, 'animate-slide-right');
     }
+
+    if (typeof window.doResize === 'function') {
+        window.doResize();
+    }
 };
+
+// ==========================================
+// Mobile Menu Collapse/Toggle UI Functions
+// ==========================================
+window.toggleMobileMenu = function() {
+    const menu = document.getElementById('topNavMenu');
+    const toggleIcon = document.getElementById('menuToggleIcon');
+    if (menu) {
+        menu.classList.toggle('active');
+        if (menu.classList.contains('active')) {
+            if (toggleIcon) toggleIcon.setAttribute('data-lucide', 'x');
+        } else {
+            if (toggleIcon) toggleIcon.setAttribute('data-lucide', 'menu');
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+};
+
+window.closeMobileMenu = function() {
+    const menu = document.getElementById('topNavMenu');
+    const toggleIcon = document.getElementById('menuToggleIcon');
+    if (menu && menu.classList.contains('active')) {
+        menu.classList.remove('active');
+        if (toggleIcon) {
+            toggleIcon.setAttribute('data-lucide', 'menu');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    }
+};
+
+// Register backdrop click to close mobile menu overlay
+document.addEventListener('DOMContentLoaded', () => {
+    const menu = document.getElementById('topNavMenu');
+    if (menu) {
+        menu.addEventListener('click', (e) => {
+            if (e.target === menu) {
+                window.closeMobileMenu();
+            }
+        });
+    }
+});
 
 // Tauri Updater
 (function initUpdateUI() {
@@ -234,6 +281,7 @@ const DEFAULT_SETTINGS = {
 };
 
 window.openSettings = function() {
+    if (typeof window.closeMobileMenu === 'function') window.closeMobileMenu();
     if (sPerfMode) sPerfMode.checked = performanceMode;
     const selectLanguage = document.getElementById('selectLanguage');
     if (selectLanguage) {
@@ -324,6 +372,9 @@ if (sPerfMode) {
     sPerfMode.addEventListener('change', () => {
         performanceMode = sPerfMode.checked;
         localStorage.setItem('vocalmap_perf', performanceMode ? 'true' : 'false');
+        if (typeof window.syncPerformanceModeCSS === 'function') {
+            window.syncPerformanceModeCSS();
+        }
         if (!performanceMode && typeof drawPitchBackground === 'function') {
             drawPitchBackground(); // Force a full background redraw when switching back to legacy mode
         }
@@ -338,9 +389,12 @@ window.resetSettings = function() {
     if (sPlayVol) sPlayVol.value = 1.0;
     
     if (sPerfMode) {
-        sPerfMode.checked = true;
-        performanceMode = true;
-        localStorage.setItem('vocalmap_perf', 'true');
+        sPerfMode.checked = false;
+        performanceMode = false;
+        localStorage.setItem('vocalmap_perf', 'false');
+        if (typeof window.syncPerformanceModeCSS === 'function') {
+            window.syncPerformanceModeCSS();
+        }
     }
     
     // Reset custom background elements
@@ -406,6 +460,7 @@ document.addEventListener('scroll', () => {
 const helpModal = document.getElementById('helpModal');
 
 window.openHelp = function() {
+    if (typeof window.closeMobileMenu === 'function') window.closeMobileMenu();
     if (helpModal) {
         helpModal.classList.add('active');
         // 自动切换到第一个“快速入门”标签
@@ -429,7 +484,25 @@ window.switchHelpTab = function(tabId) {
     
     // 激活对应的标签按钮
     const targetBtn = document.getElementById('helpTabBtn_' + tabId);
-    if (targetBtn) targetBtn.classList.add('active');
+    if (targetBtn) {
+        targetBtn.classList.add('active');
+        
+        // 自动将当前选中的 Tab 按钮居中滚动
+        const sidebar = targetBtn.parentElement;
+        if (sidebar && sidebar.classList.contains('help-sidebar')) {
+            const btnLeft = targetBtn.offsetLeft;
+            const btnWidth = targetBtn.offsetWidth;
+            const sidebarWidth = sidebar.clientWidth;
+            
+            // 让按钮中点与滚动容器中点对齐
+            const scrollTarget = btnLeft - (sidebarWidth / 2) + (btnWidth / 2);
+            
+            sidebar.scrollTo({
+                left: scrollTarget,
+                behavior: 'smooth'
+            });
+        }
+    }
 };
 
 window.submitBug = function() {

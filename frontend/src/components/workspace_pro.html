@@ -1,4 +1,4 @@
-<div id="proWorkspace" style="display: none; position: relative; width: 100%; max-width: 1320px; flex: 1; min-height: 0; box-sizing: border-box; overflow: hidden;">
+<div id="proWorkspace" class="custom-scrollbar" style="display: none; position: relative; width: 100%; flex: 1; min-height: 0; box-sizing: border-box; overflow: hidden;">
         
         <div style="display: flex; gap: 12px; margin-bottom: 24px;">
             <button id="btnSubTabSing" onclick="switchProTab('sing')" class="btn-ghost active-mini" style="font-size: 14px; padding: 8px 16px;"><i data-lucide="mic" class="lucide-icon"></i> 歌声检测</button>
@@ -130,7 +130,7 @@
             </div>
             
             <!-- 格式转换舱 (Format Converter) -->
-            <div class="glass-panel" style="margin-top: 24px; padding: 20px; display: flex; flex-direction: row; gap: 24px; align-items: center; flex-shrink: 0;">
+            <div id="formatConverterPanel" class="glass-panel" style="margin-top: 24px; padding: 20px; display: flex; flex-direction: row; gap: 24px; align-items: center; flex-shrink: 0;">
                 <div style="flex: 1;">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                         <i data-lucide="refresh-cw" class="lucide-icon" style="color: #FFD700; width: 20px; height: 20px;"></i>
@@ -331,19 +331,4 @@
             </div>
             
         </div>
-
-
-            <div id="purchaseContainer" style="display: flex; gap: 24px; margin-bottom: 24px;">
-                <button id="btnBuyMonthly" class="btn-cyan" style="padding: 16px 36px; font-size: 16px; border-width: 2px;">
-                    <i data-lucide="calendar" class="lucide-icon"></i> 购买月度通行证 <span style="font-size: 24px; font-weight: 800; margin-left: 8px;">￥ 19.9</span>
-                </button>
-                <button id="btnBuyLifetime" class="btn-primary" style="padding: 16px 36px; font-size: 16px;">
-                    <i data-lucide="infinity" class="lucide-icon"></i> 购买永久买断版 <span style="font-size: 24px; font-weight: 800; margin-left: 8px;">￥ 59.9</span>
-                </button>
-            </div>
-
-            <button id="btnRefreshStatus" class="btn-ghost" style="padding: 8px 24px;"><i data-lucide="refresh-cw" class="lucide-icon"></i> 重新验证激活状态</button>
-            <p id="payMessage" style="color: var(--primary-cyan); margin-top: 16px; font-size: 14px; font-weight: 600; min-height: 20px;"></p>
-        </div>
-
-    </div>
+</div>

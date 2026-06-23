@@ -1,10 +1,10 @@
 {
   "version": "3.2.4",
-  "notes": "常规更新：优化系统性能与体验",
+  "notes": "Enabled flexible windows for upcoming version.",
   "pub_date": "2026-05-26T12:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSVNtWGpiSzFlZTBsemlyQ2N6RmZZYXNhQkZOZUdEUS9xckhJN1FzV1YvdTRqblF2OWJWQjVucnIyWm51QTdXa3BkdHVMRXFMWXJiMnQrT014OGxramdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgyMTMzNjMzCWZpbGU6Vm9jYWxNYXBfMy4yLjRfeDY0LXNldHVwLmV4ZQpRNXFRZU5tbjMxQUo3clB4ZlRSR2VGZTFpbm4zdXQ4NG1haFRtSHowaGVYcXdwYjV6cW9Od1cwRW4zLzNDWlJyaUE5VTN4V1JqK2I3ODNZczRRL29BQT09Cg==",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSVFPZVd2SlV0NEhHVGlxVDkzeFBBeGtFYWFNZ1AyaURxVm1hTkR2bEtCdk5kQUVYenlqWTFqc3hZb1kvbzJmZEFxNVBNSDZGdDlaMDNUbkMzNnYyaXdnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgyMjA1NzMxCWZpbGU6Vm9jYWxNYXBfMy4yLjRfeDY0LXNldHVwLmV4ZQpPUVVsNTZwUG80Vmp3REJoUS9DMlEzRFg4b25XcWh6azQ1WkVYbXFuVW1Ja1JIaDMycnhGZ3VXQ1NSd21UV0RJTlUwN28rSS9VSjNhMHVuNnEvaWxCZz09Cg==",
       "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.2.4/VocalMap_3.2.4_x64-setup.exe"
     }
   }

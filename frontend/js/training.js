@@ -574,6 +574,9 @@ function startTraining() {
         toView.classList.remove('animate-slide-left', 'animate-slide-right', 'animate-slide-up');
         void toView.offsetWidth; // Force reflow
         toView.classList.add('animate-slide-up');
+        if (typeof window.doResize === 'function') {
+            window.doResize();
+        }
     }
     const activeLevelText = t('train.level_' + currentSelectedLevel, LEVEL_NAMES[currentSelectedLevel]);
     document.getElementById('trainingActiveLevelName').innerText = t('train.active_level_prefix', '正在进行: 关卡 ') + `${currentSelectedLevel} - ${activeLevelText}`;

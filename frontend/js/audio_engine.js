@@ -69,7 +69,7 @@ async function startEngine() {
                 stopEngine();
             }
         };
-        wsStatus.innerText = t('audio.backend_connected', "连接状态: 已连接"); wsStatus.style.color = "#00ADB5";
+        wsStatus.innerHTML = t('audio.backend_connected', '<span class="nav-text-hide">连接状态: </span>已连接'); wsStatus.style.color = "#00ADB5";
         try {
             let baseConstraints = {
                 echoCancellation: false,
@@ -175,7 +175,7 @@ function stopEngine() {
         valPitchEl.style.color = '#555';
         document.getElementById('descPitch').innerText = t('monitor.waiting', "等待发声...");
     }
-    wsStatus.innerText = t('audio.backend_disconnected', "连接状态: 已断开"); wsStatus.style.color = "#E23E57";
+    wsStatus.innerHTML = t('audio.backend_disconnected', '<span class="nav-text-hide">连接状态: </span>已断开'); wsStatus.style.color = "#E23E57";
 }
 
 startBtn.addEventListener('click', () => isRunning ? stopEngine() : startEngine());
@@ -187,10 +187,10 @@ initMicrophoneSelect();
 window.addEventListener('languagechanged', () => {
     if (wsStatus) {
         if (ws && ws.readyState === WebSocket.OPEN) {
-            wsStatus.innerText = t('audio.backend_connected', "连接状态: 已连接");
+            wsStatus.innerHTML = t('audio.backend_connected', '<span class="nav-text-hide">连接状态: </span>已连接');
             wsStatus.style.color = "#00ADB5";
         } else {
-            wsStatus.innerText = t('audio.backend_disconnected', "连接状态: 已断开");
+            wsStatus.innerHTML = t('audio.backend_disconnected', '<span class="nav-text-hide">连接状态: </span>已断开');
             wsStatus.style.color = "#E23E57";
         }
     }

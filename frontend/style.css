@@ -175,6 +175,10 @@
     background-color: rgba(248, 250, 252, 1) !important;
 }
 
+:root[data-theme="light"] #updateProgressWrapper {
+    background: rgba(0, 0, 0, 0.08) !important;
+}
+
 body {
     margin: 0; padding: 20px; 
     background: radial-gradient(circle at 50% 50%, #151025, #0a0715);
@@ -237,8 +241,8 @@ body[data-bg-type="green_light"] {
 
 .glass-panel {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
-    backdrop-filter: blur(35px) saturate(160%) brightness(105%);
-    -webkit-backdrop-filter: blur(35px) saturate(160%) brightness(105%);
+    backdrop-filter: blur(12px) saturate(160%) brightness(105%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%) brightness(105%);
     border: 1px solid rgba(255, 255, 255, 0.04);
     border-radius: 16px;
     box-shadow:
@@ -288,9 +292,62 @@ body[data-bg-type="green_light"] {
 
 /* 顶部导航与全局容器统一宽度 */
 .top-nav {
-    width: 100%; max-width: 1320px; display: flex; gap: 12px; padding: 12px 16px; 
+    width: 100%; display: flex; gap: 12px; padding: 12px 16px; 
     box-sizing: border-box; margin-bottom: 24px;
     align-items: center;
+}
+
+.mobile-brand-wrapper {
+    display: contents;
+}
+
+.brand-title {
+    display: none;
+}
+
+.mobile-actions-wrapper {
+    display: contents;
+}
+
+#btnMenuToggle {
+    display: none;
+}
+
+#startBtn {
+    order: 10 !important;
+}
+
+.top-nav-links {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.cc-card {
+    display: contents;
+}
+
+.cc-card-title {
+    display: none;
+}
+
+.cc-text-only {
+    display: none;
+}
+
+.cc-button-group,
+.cc-grid {
+    display: contents;
+}
+
+.menu-modal-content {
+    display: contents;
+}
+
+.menu-modal-header {
+    display: none;
 }
 
 /* 防止顶部导航栏内文字换行或组件压缩 */
@@ -941,8 +998,8 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 :root[data-theme="light"] .modal-content {
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%) !important;
     border: 1px solid rgba(0, 0, 0, 0.04) !important;
-    backdrop-filter: blur(35px) saturate(160%) brightness(105%) !important;
-    -webkit-backdrop-filter: blur(35px) saturate(160%) brightness(105%) !important;
+    backdrop-filter: blur(12px) saturate(160%) brightness(105%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(160%) brightness(105%) !important;
     box-shadow:
         inset 1.5px -1.5px 1px -1px rgba(0, 0, 0, 0.25),
         inset -1.5px 1.5px 1px -1px rgba(0, 0, 0, 0.35),
@@ -1116,7 +1173,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 .flex-shrink-0 { flex-shrink: 0; }
 .w-full { width: 100%; }
 .h-full { height: 100%; }
-.max-w-1320 { max-width: 1320px; }
+.max-w-1320 { max-width: 100%; }
 .max-w-500 { max-width: 500px; }
 .m-0 { margin: 0; }
 .mt-0 { margin-top: 0; }
@@ -1214,3 +1271,639 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 .box-border { box-sizing: border-box; }
 .whitespace-nowrap { white-space: nowrap; }
 .z-10 { z-index: 10; }
+
+/* ==========================================================================
+   高性能渲染模式覆盖样式 (High Performance Rendering Mode Overrides)
+   ========================================================================== */
+:root[data-perf-mode="true"] body::before {
+    animation: none !important; /* 停止大面积背景的色相旋转动画 */
+}
+
+:root[data-perf-mode="true"] .glass-panel,
+:root[data-perf-mode="true"] .modal-content,
+:root[data-perf-mode="true"] .help-card,
+:root[data-perf-mode="true"] .modal-overlay,
+:root[data-perf-mode="true"] .vocalmap-toast,
+:root[data-perf-mode="true"] .btn-primary,
+:root[data-perf-mode="true"] .btn-cyan,
+:root[data-perf-mode="true"] .btn-ghost,
+:root[data-perf-mode="true"] .btn-danger,
+:root[data-perf-mode="true"] .btn-tab,
+:root[data-perf-mode="true"] .sep-upload-zone {
+    backdrop-filter: none !important; /* 禁用高斯模糊 */
+    -webkit-backdrop-filter: none !important;
+}
+
+/* 高性能模式下的暗色 fallback 背景色，确保在没有毛玻璃时文本清晰 */
+:root[data-perf-mode="true"] .glass-panel,
+:root[data-perf-mode="true"] .help-card {
+    background: rgba(21, 16, 37, 0.88) !important;
+}
+:root[data-perf-mode="true"] .modal-content {
+    background: rgba(15, 10, 25, 0.96) !important;
+}
+
+/* 高性能模式下的亮色 fallback 背景色 */
+:root[data-perf-mode="true"][data-theme="light"] .glass-panel,
+:root[data-perf-mode="true"][data-theme="light"] .help-card {
+    background: rgba(241, 245, 249, 0.94) !important;
+}
+:root[data-perf-mode="true"][data-theme="light"] .modal-content {
+    background: rgba(255, 255, 255, 0.98) !important;
+}
+
+/* 中等宽度屏幕下 (901px 到 1150px) 优化桌面导航栏，防止横向溢出 */
+@media (min-width: 901px) and (max-width: 1150px) {
+    .top-nav {
+        gap: 8px !important;
+        padding: 8px 12px !important;
+    }
+    .top-nav-links {
+        gap: 8px !important;
+    }
+    .top-nav .btn-tab {
+        padding: 8px 10px !important;
+        font-size: 12px !important;
+    }
+    .top-nav .btn-ghost,
+    .top-nav .btn-cyan,
+    .top-nav .btn-primary {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+    }
+    #wsStatus {
+        font-size: 12px !important;
+    }
+    #updateZone {
+        margin-left: 6px !important;
+        padding-left: 6px !important;
+        gap: 6px !important;
+    }
+    #updateVersionLabel {
+        font-size: 12px !important;
+    }
+    .nav-text-hide {
+        display: none !important;
+    }
+}
+
+/* ==========================================================================
+   Responsive Adaptations & Mobile Media Queries
+   ========================================================================== */
+
+/* 1. 平板与小屏幕笔记本窗口适配 (Width <= 900px) */
+@media (max-width: 900px) {
+    body {
+        height: 100vh !important;
+        overflow: hidden !important;
+        padding: 12px !important;
+    }
+
+    /* 顶部导航栏折叠菜单重构（手机控制中心悬浮样式） */
+    .top-nav {
+        position: relative !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        height: auto !important;
+        padding: 10px 14px !important;
+        margin-bottom: 16px !important;
+        z-index: 990 !important; /* 确保导航栏及其模态遮罩层在主界面层级之上 */
+    }
+    
+    .mobile-brand-wrapper {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        height: 44px !important;
+    }
+    
+    .mobile-brand-wrapper .brand-title {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+    
+    .mobile-actions-wrapper {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+    
+    /* 启动引擎按钮放置在外面且靠右，在移动端样式优化 */
+    #startBtn {
+        order: initial !important;
+        padding: 8px 14px !important;
+        font-size: 13px !important;
+        border-radius: 20px !important;
+        margin: 0 !important;
+    }
+    
+    #btnMenuToggle {
+        display: flex !important;
+    }
+    
+    /* 导航栏作为全屏模态遮罩层出现，借鉴设置与帮助界面的做法 */
+    .top-nav-links {
+        display: flex !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: rgba(15, 10, 25, 0.55) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        z-index: 1000 !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    }
+    
+    .top-nav-links.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+    
+    /* 模态卡片容器 */
+    .menu-modal-content {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+        width: 100% !important;
+        max-width: none !important;
+        background: rgba(18, 14, 32, 0.95) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 24px !important;
+        padding: 24px !important;
+        padding-top: max(24px, env(safe-area-inset-top)) !important;
+        box-sizing: border-box !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7) !important;
+        transform: translateY(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    }
+    
+    :root[data-theme="light"] .top-nav-links {
+        background: rgba(241, 245, 249, 0.25) !important;
+    }
+
+    :root[data-theme="light"] .menu-modal-content {
+        background: rgba(255, 255, 255, 0.95) !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    }
+    
+    .top-nav-links.active .menu-modal-content {
+        transform: translateY(0) !important;
+    }
+    
+    /* 模态头部 */
+    .menu-modal-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-bottom: 1px solid var(--glass-border) !important;
+        padding-bottom: 12px !important;
+        margin-bottom: 4px !important;
+        width: 100% !important;
+    }
+    
+    .menu-modal-title {
+        font-size: 15px !important;
+        font-weight: bold !important;
+        color: var(--text-main) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+    
+    /* 控制中心聚合卡片 */
+    .cc-card {
+        display: flex !important;
+        flex-direction: column !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 12px !important;
+        padding: 12px !important;
+        box-sizing: border-box !important;
+    }
+    
+    :root[data-theme="light"] .cc-card {
+        background: rgba(0, 0, 0, 0.03) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    }
+    
+    .cc-card-title {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        font-size: 12px !important;
+        color: var(--text-muted) !important;
+        margin-bottom: 10px !important;
+        font-weight: bold !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    .cc-card-title i {
+        width: 14px !important;
+        height: 14px !important;
+    }
+    
+    /* 卡片 1: 视图导航 */
+    .cc-button-group {
+        display: flex !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+    
+    .cc-button-group button {
+        flex: 1 !important;
+        padding: 10px !important;
+        font-size: 13px !important;
+    }
+    
+    /* 卡片 2: 系统状态与更新 */
+    #wsStatus {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        text-align: left !important;
+        display: block !important;
+        margin-bottom: 6px !important;
+        font-size: 13px !important;
+    }
+    
+    #updateZone {
+        border-left: none !important;
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+    
+    #updateZone button {
+        flex: 1 1 auto !important;
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+    
+    #updateProgressWrapper {
+        width: 100% !important;
+        margin-top: 4px !important;
+    }
+    
+    /* 卡片 3: 快捷配置网格 */
+    .cc-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+    
+    .cc-grid button {
+        flex-direction: column !important;
+        padding: 12px 6px !important;
+        height: 72px !important;
+        border-radius: 10px !important;
+        font-size: 11px !important;
+        gap: 6px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    
+    .cc-grid button i,
+    .cc-grid button svg {
+        width: 20px !important;
+        height: 20px !important;
+        margin: 0 !important;
+    }
+    
+    .cc-text-only {
+        display: inline !important;
+    }
+
+    /* 工作区上下堆叠，但保持在一屏高度内，使用弹性布局而非写死高度计算 */
+    #freeWorkspace, 
+    #trainingSessionView {
+        flex-direction: column !important;
+        flex: 1 1 0% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        gap: 12px !important;
+    }
+
+    #proWorkspace {
+        flex-direction: column !important;
+        flex: 1 1 0% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        gap: 12px !important;
+    }
+
+    #proStateSeparation {
+        flex-direction: column !important;
+        flex: none !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        gap: 12px !important;
+    }
+
+    #freeWorkspace,
+    #proWorkspace {
+        min-height: 0 !important;
+    }
+
+    /* 左半部分画布区在高度上分配 45% 的比例 */
+    #freeWorkspace > .flex-col,
+    #trainingSessionView > .flex-col {
+        flex: 0 0 45% !important;
+        height: 45% !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* 右半部分仪表盘分配 52% 比例，若超出则在其内部实现滚动 */
+    #freeWorkspace > .dashboard,
+    #trainingSessionView > .dashboard {
+        flex: 1 1 auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: 52% !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        padding: 12px !important;
+    }
+
+    /* 窄屏状态下仪表盘内各卡片及字体微缩，保证一屏全部呈现在视野中 */
+    .dashboard {
+        gap: 8px !important;
+        padding: 10px !important;
+    }
+    .gauge-card {
+        padding: 10px 8px !important;
+    }
+    .gauge-wrapper {
+        width: 64px !important;
+        height: 64px !important;
+        margin-bottom: 8px !important;
+    }
+    .gauge-inner {
+        width: 52px !important;
+        height: 52px !important;
+        top: 6px !important;
+        left: 6px !important;
+        font-size: 14px !important;
+    }
+    .gauge-title {
+        font-size: 11px !important;
+        margin-bottom: 6px !important;
+    }
+    .gauge-desc {
+        font-size: 10px !important;
+        height: auto !important;
+    }
+    .v-bar-container {
+        width: 14px !important;
+        margin-left: 16px !important;
+    }
+    .v-bar-axis {
+        font-size: 8px !important;
+        left: -24px !important;
+    }
+    #valPitch, #trainValPitch {
+        font-size: 32px !important;
+    }
+
+    /* Pro状态下的各面板高度自适应并限制在一屏 */
+    #proStateIdle, 
+    #proStateRecording {
+        height: 100% !important;
+        padding: 32px 16px !important;
+        justify-content: center !important;
+    }
+    
+    #proStateReport {
+        height: calc(100% - 60px) !important;
+        overflow: hidden !important;
+    }
+    #reportContent {
+        flex: 1 !important;
+        height: 100% !important;
+        overflow-y: auto !important;
+        padding: 16px !important;
+    }
+
+    /* 音轨分离面板在移动端展示全部内容，由父级滚动 */
+    #sepPanelsContainer {
+        flex-direction: column !important;
+        flex: none !important;
+        overflow: visible !important;
+        gap: 12px !important;
+        padding-bottom: 12px !important;
+    }
+    #sepPanelsContainer > .glass-panel {
+        flex: none !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    #sepPanelsContainer > .glass-panel > div {
+        overflow-y: visible !important;
+    }
+
+    /* 格式转换舱垂直堆叠 */
+    #formatConverterPanel {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 16px !important;
+        height: auto !important;
+    }
+    #formatConverterPanel > * {
+        flex: none !important;
+        width: 100% !important;
+    }
+
+    /* 运行设备栏换行居中 */
+    #sepDeviceBar {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        height: auto !important;
+        padding: 12px !important;
+        gap: 8px !important;
+    }
+    #sepDeviceBar span {
+        margin-left: 0 !important;
+    }
+
+    /* 关卡训练营声部选择改为 2 列 */
+    #trainingRangeContainer {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+    }
+}
+
+/* 2. 手机端竖屏适配 (Width <= 600px) */
+@media (max-width: 600px) {
+    /* 帮助弹窗改为顶部可滚动式菜单栏 */
+    .help-modal-layout {
+        flex-direction: column !important;
+    }
+    .help-sidebar {
+        position: relative !important;
+        width: 100% !important;
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        padding: 8px !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--glass-border) !important;
+        white-space: nowrap !important;
+        gap: 8px !important;
+    }
+    .help-sidebar::-webkit-scrollbar {
+        display: none !important;
+    }
+    .help-tab-btn {
+        width: auto !important;
+        display: inline-flex !important;
+        padding: 8px 12px !important;
+    }
+    .help-tab-btn#helpTabBtn_website {
+        border-bottom: none !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 8px !important;
+    }
+
+    /* 帮助弹窗移动端布局与大小微调 */
+    #helpModal .modal-content {
+        height: 90vh !important;
+        max-height: none !important;
+    }
+    #helpModal .help-modal-header {
+        padding: 14px 16px !important;
+    }
+    #helpModal .help-modal-header h2 {
+        font-size: 15px !important;
+    }
+    #helpModal .help-content {
+        padding: 16px !important;
+    }
+    #helpModal .help-modal-footer {
+        padding: 12px 16px !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        text-align: center !important;
+    }
+    #helpModal .help-modal-footer button {
+        width: 100% !important;
+        padding: 8px 20px !important;
+    }
+    #helpModal .help-tab-content > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* 关卡训练营声部选择改为 1 列 */
+    #trainingRangeContainer {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    #customRangeConfigPanel {
+        grid-column: span 1 !important;
+        padding: 16px !important;
+    }
+    #customRangeConfigPanel > div {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+    #customRangeConfigPanel button {
+        width: 100% !important;
+        margin-top: 8px !important;
+    }
+
+    /* 关卡选择列表布局调整 */
+    #trainingLevelContainer {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    .level-card[data-level="1"] {
+        grid-column: span 1 !important;
+    }
+
+    /* Pro版激活与CDK组件在手机端拉伸 */
+    #licenseWorkspace {
+        height: auto !important;
+        min-height: 100% !important;
+        overflow-y: auto !important;
+        padding: 32px 16px !important;
+    }
+    #machineFingerprintPanel {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        padding: 16px 20px !important;
+        width: 90% !important;
+    }
+    #machineFingerprintPanel code {
+        margin-left: 0 !important;
+    }
+    #cdkInputContainer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        width: 90% !important;
+        box-sizing: border-box !important;
+    }
+    #cdkInput {
+        width: 100% !important;
+    }
+    #cdkInputContainer button {
+        width: 100% !important;
+    }
+    #purchaseContainer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        width: 90% !important;
+    }
+    #purchaseContainer button {
+        width: 100% !important;
+    }
+}
+
+/* 3. 小手机与极窄窗口适配 (Width <= 480px) */
+@media (max-width: 480px) {
+    /* 仪表盘列数从 3 列缩减为 2 列 */
+    .dashboard {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        padding: 12px !important;
+    }
+    .dashboard-title {
+        grid-column: span 2 !important;
+    }
+    .gauge-card.card-large {
+        grid-column: span 2 !important;
+    }
+    .gauge-card.card-medium {
+        grid-column: span 2 !important;
+        grid-row: auto !important;
+        flex-direction: row !important;
+    }
+    .gauge-card.card-small {
+        grid-column: span 1 !important;
+    }
+}
+

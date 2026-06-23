@@ -24,16 +24,21 @@ const wsStatus = document.getElementById('wsStatus');
 let audioContext, microphone, processor, ws;
 let isRunning = false;
 let isLightMode = false;
-let performanceMode = localStorage.getItem('vocalmap_perf') !== 'false'; // 默认为 true
+let performanceMode = localStorage.getItem('vocalmap_perf') === 'true'; // 默认为 false
 
-const CANVAS_WIDTH = pitchCanvas ? pitchCanvas.width : 850;
-const CANVAS_HEIGHT = pitchCanvas ? pitchCanvas.height : 520;
+window.syncPerformanceModeCSS = function() {
+    document.documentElement.setAttribute('data-perf-mode', performanceMode ? 'true' : 'false');
+};
+window.syncPerformanceModeCSS();
+
+let CANVAS_WIDTH = pitchCanvas ? pitchCanvas.width : 850;
+let CANVAS_HEIGHT = pitchCanvas ? pitchCanvas.height : 520;
 const VIEW_RANGE = 24; 
 let viewCenterMidi = 48; 
 let targetCenterMidi = 48; 
 
 const SCROLL_SPEED = 8.5; 
-const MAX_HISTORY = Math.floor(CANVAS_WIDTH / SCROLL_SPEED); 
+let MAX_HISTORY = Math.floor(CANVAS_WIDTH / SCROLL_SPEED); 
 let pitchHistory = new Array(MAX_HISTORY).fill(-1); 
 
 const MAX_BUFFER = 15; 
@@ -249,3 +254,67 @@ function showToast(title, message, type = 'info') {
         dismiss();
     }, 3000);
 }
+
+// ==========================================
+// Dynamic Responsive Canvas Scaling Logic
+// ==========================================
+function initResponsiveCanvas() {
+    const pCanvas = document.getElementById('pitchCanvas');
+    const tCanvas = document.getElementById('trainingPitchCanvas');
+
+    function resizeSingleCanvas(canvas) {
+        if (!canvas) return;
+        const container = canvas.parentElement;
+        if (!container) return;
+        const rect = container.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            return rect;
+        }
+        return null;
+    }
+
+    window.doResize = function() {
+        const pRect = resizeSingleCanvas(pCanvas);
+        if (pRect) {
+            CANVAS_WIDTH = pRect.width;
+            CANVAS_HEIGHT = pRect.height;
+
+            const newMaxHistory = Math.floor(CANVAS_WIDTH / SCROLL_SPEED);
+            if (newMaxHistory !== MAX_HISTORY) {
+                const oldHistory = [...pitchHistory];
+                if (newMaxHistory > MAX_HISTORY) {
+                    pitchHistory = new Array(newMaxHistory - MAX_HISTORY).fill(-1).concat(oldHistory);
+                } else {
+                    pitchHistory = oldHistory.slice(oldHistory.length - newMaxHistory);
+                }
+                MAX_HISTORY = newMaxHistory;
+            }
+
+            if (typeof bgCanvasCache !== 'undefined' && bgCanvasCache !== null) {
+                bgCanvasCache.width = CANVAS_WIDTH;
+                bgCanvasCache.height = CANVAS_HEIGHT;
+                if (typeof lastRenderedViewCenterMidi !== 'undefined') {
+                    lastRenderedViewCenterMidi = null; 
+                }
+            }
+        }
+
+        resizeSingleCanvas(tCanvas);
+
+        if (typeof drawPitchBackground === 'function') {
+            drawPitchBackground();
+        }
+    };
+
+    window.doResize();
+
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(window.doResize, 80);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initResponsiveCanvas);

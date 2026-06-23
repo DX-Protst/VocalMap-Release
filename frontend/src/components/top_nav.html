@@ -1,27 +1,71 @@
     <div class="top-nav glass-panel">
-        <button onclick="switchTab('free')" id="tabBtnFree" class="btn-tab active"><i data-lucide="activity" class="lucide-icon"></i> 实时监视</button>
-        <button onclick="switchTab('pro')" id="tabBtnPro" class="btn-tab"><i data-lucide="crown" class="lucide-icon"></i> Pro 核心功能</button>
-        
-        <span id="wsStatus" class="ml-auto font-semibold text-14 text-red">连接状态: 已断开</span>
-
-        <!-- ===== 检查更新区域 ===== -->
-        <div id="updateZone" class="flex items-center gap-8 ml-12 pl-12" style="border-left: 1px solid var(--glass-border);">
-            <span id="updateVersionLabel" class="text-muted text-13 font-mono">v--</span>
-            <button id="btnCheckUpdate" class="btn-ghost">检查更新</button>
-            <div id="updateProgressWrapper" class="hidden overflow-hidden rounded-6" style="width: 120px; height: 6px; background: rgba(255,255,255,0.05);">
-                <div id="updateProgressBar" class="h-full rounded-6 transition-all" style="width: 0%; background: var(--primary-cyan); box-shadow: 0 0 10px var(--primary-cyan);"></div>
+        <!-- 移动端专用的顶部品牌和汉堡菜单栏 -->
+        <div class="mobile-brand-wrapper">
+            <div class="brand-title">
+                <i data-lucide="mic" class="lucide-icon text-cyan" style="width: 22px; height: 22px;"></i>
+                <span class="font-bold text-16 tracking-wider">VocalMap</span>
             </div>
-
-            <button id="btnInstallUpdate" class="btn-primary hidden px-14 py-6 text-13">重启安装</button>
+            
+            <!-- 启动引擎与汉堡菜单右侧对齐的包装盒 -->
+            <div class="mobile-actions-wrapper">
+                <!-- 启动引擎按钮放置于移动端标题栏靠右侧 -->
+                <button id="startBtn" class="btn-cyan"><i data-lucide="zap" class="lucide-icon"></i> 启动引擎</button>
+                
+                <button id="btnMenuToggle" class="btn-ghost p-10 flex items-center justify-center" style="width: 42px; height: 42px;" onclick="toggleMobileMenu()" aria-label="Toggle Menu">
+                    <i id="menuToggleIcon" data-lucide="menu" class="lucide-icon m-0" style="width: 22px; height: 22px;"></i>
+                </button>
+            </div>
         </div>
 
-        <button id="btnSettings" class="btn-ghost ml-auto" onclick="openSettings()"><i data-lucide="sliders" class="lucide-icon"></i> 引擎参数</button>
-        <button id="btnThemeToggle" class="btn-ghost ml-6 p-10 flex items-center justify-center rounded-full relative" style="width: 42px; height: 42px;" onclick="toggleTheme()" aria-label="Toggle Theme">
-            <svg id="iconSun" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-            <svg id="iconMoon" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-        </button>
-        <button id="btnHelp" class="btn-ghost ml-6 p-10 flex items-center justify-center rounded-full" style="width: 42px; height: 42px;" onclick="openHelp()" title="使用帮助" aria-label="Help">
-            <i data-lucide="help-circle" class="lucide-icon m-0" style="width: 20px; height: 20px;"></i>
-        </button>
-        <button id="startBtn" class="btn-cyan ml-6"><i data-lucide="zap" class="lucide-icon"></i> 启动引擎</button>
+        <!-- 导航菜单项容器（移动端下会作为 modal-overlay 遮罩层渲染，内部有类似设置弹窗的卡片内容） -->
+        <div id="topNavMenu" class="top-nav-links">
+            <div class="menu-modal-content glass-panel">
+                <div class="menu-modal-header">
+                    <span class="menu-modal-title"><i data-lucide="settings-2" class="lucide-icon text-purple"></i> 导航与控制中心</span>
+                    <button class="btn-ghost p-6 rounded-full" onclick="closeMobileMenu()" style="width: 32px; height: 32px;" title="关闭"><i data-lucide="x" style="width: 18px; height: 18px;"></i></button>
+                </div>
+
+                <!-- 卡片 1: 视图导航 -->
+                <div class="cc-card cc-views-card">
+                    <div class="cc-card-title"><i data-lucide="layout" class="lucide-icon text-purple"></i> 视图导航</div>
+                    <div class="cc-button-group">
+                        <button onclick="switchTab('free')" id="tabBtnFree" class="btn-tab active"><i data-lucide="activity" class="lucide-icon"></i> 实时监视</button>
+                        <button onclick="switchTab('pro')" id="tabBtnPro" class="btn-tab"><i data-lucide="crown" class="lucide-icon"></i> Pro 核心功能</button>
+                    </div>
+                </div>
+                
+                <span id="wsStatus" class="ml-auto font-semibold text-14 text-red"><span class="nav-text-hide">连接状态: </span>已断开</span>
+
+                <!-- ===== 检查更新区域 (作为卡片 2: 系统状态与更新) ===== -->
+                <div class="cc-card cc-status-card">
+                    <div class="cc-card-title"><i data-lucide="info" class="lucide-icon text-cyan"></i> 系统状态</div>
+                    <div id="updateZone" class="flex items-center gap-8 ml-12 pl-12" style="border-left: 1px solid var(--glass-border);">
+                        <span id="updateVersionLabel" class="text-muted text-13 font-mono">v--</span>
+                        <button id="btnCheckUpdate" class="btn-ghost"><span class="nav-text-hide">检查</span>更新</button>
+                        <div id="updateProgressWrapper" class="hidden overflow-hidden rounded-6" style="width: 120px; height: 6px; background: rgba(255,255,255,0.05);">
+                            <div id="updateProgressBar" class="h-full rounded-6 transition-all" style="width: 0%; background: var(--primary-cyan); box-shadow: 0 0 10px var(--primary-cyan);"></div>
+                        </div>
+                        <button id="btnInstallUpdate" class="btn-primary hidden px-14 py-6 text-13">重启安装</button>
+                    </div>
+                </div>
+
+                <!-- 卡片 3: 控制与快捷键 -->
+                <div class="cc-card cc-settings-card">
+                    <div class="cc-card-title"><i data-lucide="sliders" class="lucide-icon text-pink"></i> 快捷配置</div>
+                    <div class="cc-grid">
+                        <button id="btnSettings" class="btn-ghost ml-auto" onclick="openSettings()"><i data-lucide="sliders" class="lucide-icon"></i> <span class="nav-text-hide">引擎参数</span></button>
+                        
+                        <button id="btnThemeToggle" class="btn-ghost ml-6 p-10 flex items-center justify-center rounded-full relative" style="width: 42px; height: 42px;" onclick="toggleTheme()" aria-label="Toggle Theme">
+                            <svg id="iconSun" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                            <svg id="iconMoon" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        </button>
+                        
+                        <button id="btnHelp" class="btn-ghost ml-6 p-10 flex items-center justify-center rounded-full" style="width: 42px; height: 42px;" onclick="openHelp()" title="使用帮助" aria-label="Help">
+                            <i data-lucide="help-circle" class="lucide-icon m-0" style="width: 20px; height: 20px;"></i>
+                            <span class="cc-text-only ml-8">使用帮助</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>

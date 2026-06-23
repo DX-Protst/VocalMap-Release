@@ -22,6 +22,7 @@ pub fn get_public_key_pem() -> String {
     OBFUSCATED_KEY_BYTES.iter().map(|&b| (b ^ 0x5A) as char).collect()
 }
 
+#[allow(unused_variables, unreachable_code)]
 pub fn verify_pro_license(
     data_dir: &Path,
     backend_dir: &Path,

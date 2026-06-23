@@ -15,9 +15,11 @@
         "title": "VocalMap 声境",
         "width": 1200,
         "height": 800,
-        "resizable": false,
-        "maximizable": false,
+        "resizable": true,
+        "maximizable": true,
         "fullscreen": false,
+        "minWidth": 360,
+        "minHeight": 500,
         "backgroundColor": "#121212"
       }
     ],

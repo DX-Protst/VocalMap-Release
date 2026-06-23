@@ -239,10 +239,10 @@ pub fn vmap_activate_license(app_handle: AppHandle, cdk: String, machine_id: Str
 // ---------- 2. Offline Analysis Commands ----------
 
 #[tauri::command]
-pub fn vmap_analyze_buffer(
+pub async fn vmap_analyze_buffer(
     app_handle: AppHandle,
     state: State<'_, AppState>,
-    buffer: Vec<i16>,
+    buffer: Vec<u8>,
 ) -> Result<serde_json::Value, String> {
     let data_dir = get_data_dir(&app_handle);
     let backend_dir = get_backend_dir(&app_handle);
@@ -251,21 +251,28 @@ pub fn vmap_analyze_buffer(
     let _payload = crate::license_verifier::verify::verify_pro_license(&data_dir, &backend_dir)
         .map_err(|e| e)?;
 
-    // Convert Vec<i16> to raw bytes
-    let mut audio_bytes = Vec::with_capacity(buffer.len() * 2);
-    for &val in &buffer {
-        audio_bytes.extend_from_slice(&val.to_ne_bytes());
-    }
+    let (loudness_gate, clarity_threshold, noise_silence_threshold, sample_rate) = {
+        let analyzer_lock = state.analyzer.lock().unwrap();
+        (
+            analyzer_lock.loudness_gate,
+            analyzer_lock.clarity_threshold,
+            analyzer_lock.noise_silence_threshold,
+            analyzer_lock.sample_rate,
+        )
+    };
 
-    let analyzer_lock = state.analyzer.lock().unwrap();
-    let report = crate::dsp::metrics::generate_comprehensive_report(
-        &audio_bytes,
-        analyzer_lock.loudness_gate,
-        analyzer_lock.clarity_threshold,
-        analyzer_lock.noise_silence_threshold,
-        analyzer_lock.sample_rate,
-        2048,
-    );
+    let report = tauri::async_runtime::spawn_blocking(move || {
+        crate::dsp::metrics::generate_comprehensive_report(
+            &buffer,
+            loudness_gate,
+            clarity_threshold,
+            noise_silence_threshold,
+            sample_rate,
+            2048,
+        )
+    })
+    .await
+    .map_err(|e| format!("Analysis task failed: {}", e))?;
 
     Ok(serde_json::to_value(report).unwrap())
 }
@@ -919,19 +926,35 @@ pub fn vmap_get_file_size(path: String) -> Result<u64, String> {
 }
 
 #[tauri::command]
-pub fn vmap_stream_stop_record(state: State<'_, AppState>) -> Result<serde_json::Value, String> {
-    let analyzer_lock = state.analyzer.lock().unwrap();
-    let mut stream = state.stream_state.lock().unwrap();
-    stream.is_recording = false;
+pub async fn vmap_stream_stop_record(state: State<'_, AppState>) -> Result<serde_json::Value, String> {
+    let (loudness_gate, clarity_threshold, noise_silence_threshold, sample_rate) = {
+        let analyzer_lock = state.analyzer.lock().unwrap();
+        (
+            analyzer_lock.loudness_gate,
+            analyzer_lock.clarity_threshold,
+            analyzer_lock.noise_silence_threshold,
+            analyzer_lock.sample_rate,
+        )
+    };
 
-    let report = crate::dsp::metrics::generate_comprehensive_report(
-        &stream.audio_buffer,
-        analyzer_lock.loudness_gate,
-        analyzer_lock.clarity_threshold,
-        analyzer_lock.noise_silence_threshold,
-        analyzer_lock.sample_rate,
-        2048,
-    );
+    let audio_bytes = {
+        let mut stream = state.stream_state.lock().unwrap();
+        stream.is_recording = false;
+        std::mem::take(&mut stream.audio_buffer)
+    };
+
+    let report = tauri::async_runtime::spawn_blocking(move || {
+        crate::dsp::metrics::generate_comprehensive_report(
+            &audio_bytes,
+            loudness_gate,
+            clarity_threshold,
+            noise_silence_threshold,
+            sample_rate,
+            2048,
+        )
+    })
+    .await
+    .map_err(|e| format!("Analysis task failed: {}", e))?;
 
     Ok(serde_json::to_value(report).unwrap())
 }

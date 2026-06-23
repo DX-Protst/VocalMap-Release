@@ -95,7 +95,8 @@ if (importAudioDetectFile) {
                 int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
             }
             
-            const report = await invoke('vmap_analyze_buffer', { buffer: Array.from(int16Array) });
+            // Pass Uint8Array directly to leverage Tauri's native binary serialization (avoids massive JSON stringification lag)
+            const report = await invoke('vmap_analyze_buffer', { buffer: new Uint8Array(int16Array.buffer) });
             if (report) {
                 renderProReport(report);
             } else {

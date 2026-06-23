@@ -1,26 +1,19 @@
-# Project: Vocal Map Audio Separation Progress Display Fix
+# Project: VocalMap Client Optimization & Bug Fixes
 
 ## Architecture
 - **Frontend**: Single page application written in HTML/CSS/JS (`frontend/index.html`, `frontend/style.css`, `frontend/js/`).
-- **Backend**: FastAPI server (`backend/app.py`) running locally.
-- **AI Inference Engine**: `logic_bsroformer/` performing separation using PyTorch.
-- **Port/API Security**: Tauri starts FastAPI on a random port, passes the port and `VOCALMAP_INTERNAL_TOKEN` as environment variables. Frontend uses these to communicate with the backend.
+- **Backend**: Native Rust IPC (Tauri Core) handling commands, settings, authorization, and process management.
+- **AI Inference Engine**: `logic_bsroformer/` performing audio separation using PyTorch, run via native OS processes.
 
 ## Code Layout
-- Frontend UI: `frontend/index.html`, `frontend/style.css`
-- Frontend Scripts: `frontend/js/separation.js`, `frontend/js/globals.js`
-- Backend Router/Server: `backend/app.py`
-- Separation Manager: `backend/separation.py`
+- Frontend UI: `frontend/index.html`, `frontend/style.css` (compiled from `frontend/src/`)
+- Frontend Scripts: `frontend/js/` (containing `globals.js`, `realtime_monitor.js`, `training.js`, `updater_settings.js`, `separation.js`)
+- Native Backend: `src-tauri/src/` (Rust core)
 - Inference Code: `logic_bsroformer/inference.py`
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| 1 | Exploration & Root Cause Analysis | Tracing full pipeline (inference tqdm output -> backend capture -> network channel -> frontend state & DOM updates). | None | DONE (IDs: e5331904, 309e1daa, 0ed93bc3) |
-| 2 | Full-Stack Implementation & Progress Wire-up | Fix frontend label swap, combine progress & status, optimize backend read, timeout, thread-safe lock. | M1 | IN_PROGRESS |
-| 3 | System Verification & Audit | Verify fixes using Reviewer, Challenger, and Forensic Auditor. | M2 | PLANNED |
-
-## Interface Contracts
-- **Communication Security**:
-  - Request Header: `X-VocalMap-Token` must match `VOCALMAP_INTERNAL_TOKEN` on all HTTP API calls to backend.
-  - Port Selection: Dynamically randomly allocated, frontend queries the port or retrieves it.
+| 1 | Audio Separation Progress Display Fix | Trace progress outputs, capture backend logs, update frontend UI. | None | DONE |
+| 2 | Pure Rust Native Migration | Remove Python FastAPI, integrate RSA verification, XOR encryption into Tauri Rust IPC. | M1 | DONE |
+| 3 | Canvas Initialization & Resize Redraw Fixes | Expose `window.doResize()` to handle dynamic canvas scaling, initial load background grid rendering, window resize event redrawing, tab-switching adjustments, and training camp canvas initialization. | M2 | DONE |
