@@ -182,14 +182,15 @@ pub fn vmap_get_license_status(app_handle: AppHandle, machine_id: String) -> ser
 }
 
 #[tauri::command]
-pub fn vmap_activate_license(app_handle: AppHandle, cdk: String, machine_id: String) -> serde_json::Value {
+pub fn vmap_activate_license(app_handle: AppHandle, cdk: String, machine_id: String, overwrite: Option<bool>) -> serde_json::Value {
     let backend_dir = get_backend_dir(&app_handle);
     let cloud_url = std::env::var("VMAP_CLOUD_URL").unwrap_or_else(|_| "http://66.112.209.251:8000".to_string());
     let url = format!("{}/api/activate_cdk", cloud_url);
 
     let body = serde_json::json!({
         "cdk": cdk,
-        "machine_id": machine_id
+        "machine_id": machine_id,
+        "overwrite": overwrite.unwrap_or(false)
     });
 
     let client = reqwest::blocking::Client::builder()
@@ -197,7 +198,10 @@ pub fn vmap_activate_license(app_handle: AppHandle, cdk: String, machine_id: Str
         .build();
     match client {
         Ok(cl) => {
-            match cl.post(&url).json(&body).send() {
+            match cl.post(&url)
+                .header("X-VocalMap-Platform", "desktop")
+                .json(&body)
+                .send() {
                 Ok(resp) => {
                     if let Ok(data) = resp.json::<serde_json::Value>() {
                         if data.get("success").and_then(|v| v.as_bool()).unwrap_or(false) {
@@ -234,6 +238,60 @@ pub fn vmap_activate_license(app_handle: AppHandle, cdk: String, machine_id: Str
             })
         }
     }
+}
+
+#[tauri::command]
+pub fn vmap_deactivate_license(app_handle: AppHandle, machine_id: String) -> serde_json::Value {
+    let backend_dir = get_backend_dir(&app_handle);
+    let cloud_url = std::env::var("VMAP_CLOUD_URL").unwrap_or_else(|_| "http://66.112.209.251:8000".to_string());
+    let url = format!("{}/api/deactivate_device", cloud_url);
+
+    let body = serde_json::json!({
+        "machine_id": machine_id
+    });
+
+    let client = reqwest::blocking::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .build();
+        
+    let result = match client {
+        Ok(cl) => {
+            match cl.post(&url).json(&body).send() {
+                Ok(resp) => {
+                    if let Ok(data) = resp.json::<serde_json::Value>() {
+                        data
+                    } else {
+                        serde_json::json!({
+                            "success": false,
+                            "message": "解绑响应解析失败"
+                        })
+                    }
+                }
+                Err(err) => {
+                    serde_json::json!({
+                        "success": false,
+                        "message": format!("无法连接许可证服务器: {}", err)
+                    })
+                }
+            }
+        }
+        Err(e) => {
+            serde_json::json!({
+                "success": false,
+                "message": format!("构建 HTTP 客户端失败: {}", e)
+            })
+        }
+    };
+    
+    let success = result.get("success").and_then(|v| v.as_bool()).unwrap_or(false);
+    if success {
+        let license_path = backend_dir.join("license.key");
+        if license_path.exists() {
+            let _ = std::fs::remove_file(license_path);
+        }
+    }
+    
+    result
 }
 
 // ---------- 2. Offline Analysis Commands ----------

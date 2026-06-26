@@ -128,6 +128,7 @@ pub fn run() {
             commands::vmap_get_file_size,
             commands::vmap_get_license_status,
             commands::vmap_activate_license,
+            commands::vmap_deactivate_license,
             commands::vmap_analyze_buffer,
             commands::vmap_separate_audio,
             commands::vmap_get_separation_task,

@@ -685,20 +685,23 @@ function drawTrainingTargets(ctx, canvasW, canvasH, getLocalY, deltaTime) {
                 isTrainingModalShowing = true; // Lock state immediately
                 
                 let safeScore = 0;
-                if (!isNaN(scoreDisplay) && isFinite(scoreDisplay)) {
-                    safeScore = Math.floor(scoreDisplay);
+                if (typeof currentTrainingScore !== 'undefined' && typeof currentTrainingMaxScore !== 'undefined' && currentTrainingMaxScore > 0) {
+                    let calcScore = (currentTrainingScore / currentTrainingMaxScore) * 100;
+                    if (!isNaN(calcScore) && isFinite(calcScore)) {
+                        safeScore = Math.floor(Math.min(calcScore, 100));
+                    }
                 }
                 
                 try {
                     if (typeof showTrainingResultModal === 'function') {
                         showTrainingResultModal(safeScore);
                     } else {
-                        alert(t('train.finished_alert_prefix', '训练完成！最终达成率: ') + `${safeScore}%`);
+                        alert(window.t('train.finished_alert_prefix', '训练完成！最终达成率: ') + `${safeScore}%`);
                         if (typeof exitTraining === 'function') exitTraining();
                     }
                 } catch (e) {
                     console.error("Error showing modal:", e);
-                    alert(t('train.modal_error', '训练完成！(展示结算面板时发生错误)'));
+                    alert(window.t('train.modal_error', '训练完成！(展示结算面板时发生错误)'));
                     if (typeof exitTraining === 'function') exitTraining();
                 }
             }

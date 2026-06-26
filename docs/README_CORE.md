@@ -18,6 +18,7 @@ VocalMap 是一款面向专业声乐教学、声音诊断与音频后期制作�
 - [📁 代码库核心导航 (Codebase Guide)](#-代码库核心导航-codebase-guide)
 - [⚙️ 安装与运行 (Installation & Usage)](#️-安装与运行-installation--usage)
 - [🛠️ 开发与构建 (Development)](#️-开发与构建-development)
+- [📱 Android 移动端移植可行性评估](#-android-移动端移植可行性评估)
 
 ---
 
@@ -25,6 +26,7 @@ VocalMap 是一款面向专业声乐教学、声音诊断与音频后期制作�
 
 ### 🎧 全方位声学诊断与回放 (`frontend/js/playback.js`, `frontend/js/realtime_monitor.js`)
 * **实时演唱录制与回放**：基于 Web Audio API 捕获 PCM 音频流，与底层 Rust DSP 吐出的音高数据强绑定，打包保存为专属 `.vmap` 项目文件。回放时 `realtime_monitor.js` 会通过 Canvas 绘制贝塞尔曲线并自动锁定中心音高。
+* **高精度画布自适应与防清空重绘**：将画布的自适应逻辑封装为全局 `window.doResize()`，在初始化、窗口大小缩放、工作区选项卡切换以及关卡特训营开启时动态校准 Canvas 物理像素尺寸并重新绘制背景，解决启动黑屏与模糊拉伸问题。
 * **原生 Rust DSP 引擎**：绕过浏览器播放限制，使用极速的 Rust 算法对音频文件进行全量深度诊断。
 
 ### 🚀 靶向发声训练营 (Vocal Training Camp, `frontend/js/training.js`)
@@ -97,3 +99,9 @@ graph TD
 .\scripts\build_tauri.ps1
 ```
 * **一键编译**：自动配置 Tauri Updater 秘钥签名环境，并调用 `npx tauri build` 进行打包，直接输出轻量化安装包。
+
+---
+
+## 📱 Android 移动端移植可行性评估
+
+有关将项目移植到 Android（安卓端）的可行性分析、技术瓶颈、裁剪范围（如不移植 AI 分离模块）及适配重构路线，请详见：[Android 移动端移植可行性评估报告](ANDROID_FEASIBILITY.md)。

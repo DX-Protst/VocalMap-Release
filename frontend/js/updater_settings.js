@@ -93,6 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    
+    // Bind settings button click
+    const btnSettings = document.getElementById('btnSettings');
+    if (btnSettings && typeof window.openSettings === 'function') {
+        btnSettings.addEventListener('click', window.openSettings);
+    }
 });
 
 // Tauri Updater
@@ -281,41 +287,52 @@ const DEFAULT_SETTINGS = {
 };
 
 window.openSettings = function() {
-    if (typeof window.closeMobileMenu === 'function') window.closeMobileMenu();
-    if (sPerfMode) sPerfMode.checked = performanceMode;
-    const selectLanguage = document.getElementById('selectLanguage');
-    if (selectLanguage) {
-        selectLanguage.value = localStorage.getItem('vmap_set_lang') || 'zh';
+    try {
+        if (typeof window.closeMobileMenu === 'function') window.closeMobileMenu();
+        const sPerfMode = document.getElementById('togglePerformanceMode');
+        if (sPerfMode) sPerfMode.checked = typeof performanceMode !== 'undefined' ? performanceMode : false;
+        const selectLanguage = document.getElementById('selectLanguage');
+        if (selectLanguage) {
+            selectLanguage.value = localStorage.getItem('vmap_set_lang') || 'zh';
+        }
+        
+        // Sync custom background controls and disable invalid ones based on theme
+        if (typeof window.syncBackgroundOptions === 'function') {
+            window.syncBackgroundOptions();
+        }
+        
+        let isLight = typeof isLightMode !== 'undefined' ? isLightMode : false;
+        const bgType = localStorage.getItem('vmap_set_bg_type') || (isLight ? 'default_light' : 'default_dark');
+        
+        const colorContainer = document.getElementById('customColorContainer');
+        const imageContainer = document.getElementById('customImageContainer');
+        if (colorContainer) colorContainer.style.display = (bgType === 'color') ? 'flex' : 'none';
+        if (imageContainer) imageContainer.style.display = (bgType === 'image') ? 'flex' : 'none';
+        
+        const inputColor = document.getElementById('inputCustomColor');
+        if (inputColor) {
+            inputColor.value = localStorage.getItem('vmap_set_bg_color') || '#050508';
+        }
+        
+        const statusText = document.getElementById('textImageStatus');
+        if (statusText) {
+            const hasImg = !!localStorage.getItem('vmap_set_bg_image_data');
+            statusText.innerText = hasImg ? (window.t ? window.t('bg.load_success', '背景图片已应用并保存') : '背景图片已应用并保存') : (window.t ? window.t('bg.no_image', '未选择任何图片') : '未选择任何图片');
+        }
+        
+        const modal = document.getElementById('settingsModal');
+        if (modal) modal.classList.add('active');
+        else console.error("settingsModal not found in DOM");
+    } catch (e) {
+        console.error("Error in openSettings:", e);
+        const modal = document.getElementById('settingsModal');
+        if (modal) modal.classList.add('active');
     }
-    
-    // Sync custom background controls and disable invalid ones based on theme
-    if (typeof window.syncBackgroundOptions === 'function') {
-        window.syncBackgroundOptions();
-    }
-    
-    const bgType = localStorage.getItem('vmap_set_bg_type') || (isLightMode ? 'default_light' : 'default_dark');
-    
-    const colorContainer = document.getElementById('customColorContainer');
-    const imageContainer = document.getElementById('customImageContainer');
-    if (colorContainer) colorContainer.style.display = (bgType === 'color') ? 'flex' : 'none';
-    if (imageContainer) imageContainer.style.display = (bgType === 'image') ? 'flex' : 'none';
-    
-    const inputColor = document.getElementById('inputCustomColor');
-    if (inputColor) {
-        inputColor.value = localStorage.getItem('vmap_set_bg_color') || '#050508';
-    }
-    
-    const statusText = document.getElementById('textImageStatus');
-    if (statusText) {
-        const hasImg = !!localStorage.getItem('vmap_set_bg_image_data');
-        statusText.innerText = hasImg ? window.t('bg.load_success', '背景图片已应用并保存') : window.t('bg.no_image', '未选择任何图片');
-    }
-    
-    if (settingsModal) settingsModal.classList.add('active');
 };
 
 window.closeSettings = function() {
-    if (settingsModal) settingsModal.classList.remove('active');
+    const modal = document.getElementById('settingsModal');
+    if (modal) modal.classList.remove('active');
 };
 
 function sendSettings() {

@@ -2,7 +2,7 @@
 // VocalMap Payment & CDK Licensing System
 // ==========================================
 
-function saveLicenseCache(planType, expiresAt) {
+function saveLicenseCache(planType, expiresAt, cdk) {
     if (!localMachineId) return;
     
     let actTime = Date.now();
@@ -20,6 +20,7 @@ function saveLicenseCache(planType, expiresAt) {
         machine_id: localMachineId,
         plan_type: planType,
         expires_at: expiresAt || null,
+        cdk: cdk || null,
         cached_at: actTime
     };
     try {
@@ -87,7 +88,7 @@ async function checkLicenseStatus(silent) {
     try {
         let data = await invoke('vmap_get_license_status', { machineId: localMachineId });
         if (data.valid) {
-            saveLicenseCache(data.plan_type, data.expires_at);
+            saveLicenseCache(data.plan_type, data.expires_at, data.cdk);
             hidePremiumOverlay(data.plan_type);
         } else {
             clearLicenseCache();
@@ -179,12 +180,61 @@ window.viewLicenseStatus = function() {
                 remText = t('pay.license_status_rem_days_prefix', '剩余 ') + remDays + t('pay.license_status_rem_days_suffix', ' 天');
             }
             
+            let maskedCDK = cache.cdk ? cache.cdk.substring(0, 5) + '****-****-****' : 'VMAP-****-****-****';
+
             infoContainer.innerHTML = `
                 <div style="color: var(--text-main); font-size: 14px; font-weight: 600;">${t('pay.license_status_activated', '已激活: ')}<span style="color: var(--primary-cyan);">${cache.plan_type === 'lifetime' ? t('pay.license_status_lifetime', '永久买断版') : t('pay.license_status_monthly', '月度通行证')}</span></div>
+                <div style="color: var(--text-muted); font-size: 13px;">${t('pay.license_status_cdk', '激活码: ')}<span id="displayCdk">${maskedCDK}</span>
+                    <button id="btnCopyCDK" class="vmap-btn" style="margin-left: 8px; padding: 2px 8px; font-size: 12px; min-height: 24px;">${t('pay.copy', '复制')}</button>
+                </div>
                 <div style="color: var(--text-muted); font-size: 13px;">${t('pay.license_status_act_time', '激活时间: ')}${actDate}</div>
                 <div style="color: var(--text-muted); font-size: 13px;">${t('pay.license_status_valid', '有效期: ')}<span style="color: #00E676; font-weight: bold;">${remText}</span></div>
+                <div style="margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
+                    <button id="btnUnbindDevice" class="vmap-btn" style="width: 100%; border-color: #FF5252; color: #FF5252;">${t('pay.unbind_device', '解绑当前设备')}</button>
+                </div>
             `;
             infoContainer.style.display = 'flex';
+
+            let btnCopy = infoContainer.querySelector('#btnCopyCDK');
+            if (btnCopy) {
+                btnCopy.addEventListener('click', () => {
+                    let confirmCopy = confirm(t('pay.warn_copy_cdk', '警告：请妥善保管您的激活码，不要泄露给他人。\n如果您要更换设备，请先在此设备点击【解绑当前设备】，然后再在目标设备上使用激活码。\n\n是否继续复制明文激活码？'));
+                    if (confirmCopy && cache.cdk) {
+                        navigator.clipboard.writeText(cache.cdk).then(() => {
+                            btnCopy.innerText = t('pay.copied', '已复制!');
+                            setTimeout(() => btnCopy.innerText = t('pay.copy', '复制'), 2000);
+                        });
+                    }
+                });
+            }
+
+            let btnUnbind = infoContainer.querySelector('#btnUnbindDevice');
+            if (btnUnbind) {
+                btnUnbind.addEventListener('click', async () => {
+                    let confirmUnbind = confirm(t('pay.confirm_unbind', '确定要解绑当前设备吗？\n解绑后此设备将失去授权，您可以将激活码用于其他设备。'));
+                    if (confirmUnbind) {
+                        btnUnbind.innerText = t('pay.unbinding', '解绑中...');
+                        btnUnbind.disabled = true;
+                        try {
+                            let res = await invoke('vmap_deactivate_license', { machineId: localMachineId });
+                            if (res.success) {
+                                alert(t('pay.unbind_success', '解绑成功！请复制并妥善保存您的激活码：\n') + cache.cdk);
+                                clearLicenseCache();
+                                checkLicenseStatus(false);
+                                viewLicenseStatus();
+                            } else {
+                                alert(t('pay.unbind_failed', '解绑失败：') + res.message);
+                                btnUnbind.innerText = t('pay.unbind_device', '解绑当前设备');
+                                btnUnbind.disabled = false;
+                            }
+                        } catch (err) {
+                            alert(t('pay.server_error', '连接服务器失败'));
+                            btnUnbind.innerText = t('pay.unbind_device', '解绑当前设备');
+                            btnUnbind.disabled = false;
+                        }
+                    }
+                });
+            }
         } else {
             if (buyContainer) {
                 buyContainer.style.display = 'flex';
@@ -207,7 +257,11 @@ window.viewLicenseStatus = function() {
     });
 };
 
-async function activateCDK() {
+async function activateCDK(isOverwrite = false) {
+    if (isOverwrite instanceof Event) {
+        isOverwrite = false;
+    }
+
     let cdkInput = document.getElementById('cdkInput');
     let msgEl = document.getElementById('payMessage');
     if (!cdkInput || !msgEl) return;
@@ -228,13 +282,21 @@ async function activateCDK() {
     msgEl.innerText = t('pay.verifying', '正在验证激活码...');
 
     try {
-        let data = await invoke('vmap_activate_license', { cdk: cdk.toUpperCase(), machineId: localMachineId });
+        let data = await invoke('vmap_activate_license', { cdk: cdk.toUpperCase(), machineId: localMachineId, overwrite: isOverwrite });
         if (data.success) {
-            saveLicenseCache(data.plan_type, data.expires_at);
+            saveLicenseCache(data.plan_type, data.expires_at, data.cdk || cdk.toUpperCase());
             msgEl.style.color = '#00E676';
             msgEl.innerText = data.message || t('pay.success', '激活成功！');
             cdkInput.value = '';
             setTimeout(() => hidePremiumOverlay(data.plan_type), 800);
+        } else if (data.error_code === 'ALREADY_BOUND') {
+            let confirmOverwrite = confirm(data.message || t('pay.confirm_overwrite', '该激活码已在其他设备绑定。是否强制解绑旧设备并在本机激活？\n(注意：这会导致旧设备失去授权)'));
+            if (confirmOverwrite) {
+                return activateCDK(true);
+            } else {
+                msgEl.style.color = '#FF5252';
+                msgEl.innerText = t('pay.overwrite_canceled', '已取消强制激活');
+            }
         } else {
             msgEl.style.color = '#FF5252';
             msgEl.innerText = data.message || t('pay.failed', '激活失败');
@@ -254,7 +316,7 @@ async function refreshLicenseStatus() {
     try {
         let data = await invoke('vmap_get_license_status', { machineId: localMachineId });
         if (data.valid) {
-            saveLicenseCache(data.plan_type, data.expires_at);
+            saveLicenseCache(data.plan_type, data.expires_at, data.cdk);
             msgEl.style.color = '#00E676';
             msgEl.innerText = t('pay.license_valid', '许可证有效，已解锁 Pro 功能。');
             setTimeout(() => hidePremiumOverlay(data.plan_type), 600);

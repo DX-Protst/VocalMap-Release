@@ -1844,8 +1844,9 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
     /* Pro版激活与CDK组件在手机端拉伸 */
     #licenseWorkspace {
+        flex: 1 1 0% !important;
         height: auto !important;
-        min-height: 100% !important;
+        min-height: 0 !important;
         overflow-y: auto !important;
         padding: 32px 16px !important;
     }

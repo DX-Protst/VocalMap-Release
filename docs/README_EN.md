@@ -40,7 +40,7 @@ Powered by the current SOTA level **BS-RoFormer** and **Logic-RoFormer** deep le
 
 ### 5. Next-Gen Geek Textured Interaction
 *   Fully adopts Liquid Glass high-texture UI, including both Dark/Light dual modes.
-*   All interactive animations are accompanied by smooth gradient feedback; **The latest version permanently locks a golden ratio window (1200x800)**, perfectly circumventing typography disasters caused by scaling and stretching.
+*   All interactive animations are accompanied by smooth gradient feedback; **Supports responsive layouts and adaptive scaling**, meaning both high-res displays and narrow/vertical windows scale fluidly using Flexbox elastic fitting with automated canvas redraws to prevent layout issues.
 *   **Independent Unobstructed Activation/Status Panel**: Completely rebuilt the Pro activation and status viewing logic, abandoning traditional global overlays in favor of smooth, full-size workspace transitions.
 
 ### 6. Global Multilingual & Seamless Update Experience
@@ -58,6 +58,15 @@ Powered by the current SOTA level **BS-RoFormer** and **Logic-RoFormer** deep le
 
 > [!NOTE]
 > If your computer has an NVIDIA graphics card, the program will automatically identify and enable CUDA parallel acceleration after downloading the environment, providing a multifold speedup for complex stem separation and audio inference!
+
+## 📱 Mobile (Android) Porting Feasibility Assessment
+
+Based on VocalMap's current **Tauri v2 + Rust Native DSP + Web Audio Frontend** architecture, we evaluated the technical feasibility of porting the application to the **Android mobile platform**:
+*   **Core Feasibility**: Tauri v2 has robust, built-in support for Android build targets; the frontend's responsive layout and dynamic Canvas redrawing adapt fluidly to mobile screen sizes; the core Rust native DSP engine (YIN algorithm, etc.) cross-compiles to Android native machine code with zero performance compromises.
+*   **Explicit Exclusion**: **AI stem separation features (BS-RoFormer models) rely heavily on the PyTorch framework and massive CPU/GPU resources and will NOT be ported to mobile devices.** This module will be hidden/disabled in the mobile release.
+*   **Desktop Dependencies to Refactor**: Device licensing (`machine-uid` crate is not supported on Android; needs native JNI calls for `ANDROID_ID`), file picker (needs to target Android Scoped Storage), and auto-updater (desktop updater must be disabled in favor of app store distributions).
+
+For a detailed technical analysis and adaptation roadmap, please see: [Android Porting Feasibility Report](ANDROID_FEASIBILITY_EN.md)
 
 ## 📄 Copyright & Security Compliance
 This project (including but not limited to the Tauri frontend shell, Rust native backend engine, core acoustic analysis algorithms, and independent AI separation modules) holds complete independent intellectual property rights.

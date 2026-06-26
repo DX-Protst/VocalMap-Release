@@ -184,11 +184,18 @@ function backToRangeSelection() {
 }
 
 function selectTrainingLevel(level) {
-    currentSelectedLevel = parseInt(level);
+    if (level === 'custom') {
+        currentSelectedLevel = 'custom';
+    } else {
+        currentSelectedLevel = parseInt(level);
+    }
     
     // Update UI
     document.querySelectorAll('.level-card').forEach(card => {
-        if (parseInt(card.dataset.level) === currentSelectedLevel) {
+        let cardLevel = card.dataset.level;
+        if (cardLevel !== 'custom') cardLevel = parseInt(cardLevel);
+        
+        if (cardLevel === currentSelectedLevel) {
             card.style.borderColor = 'var(--primary-purple)';
             card.style.background = 'rgba(192, 132, 252, 0.1)';
         } else {
@@ -610,7 +617,7 @@ function startTraining() {
         
         const scheduleLog = `[Timer Scheduled] totalDurationSeconds: ${totalDurationSeconds}s, level: ${currentSelectedLevel}, range: ${currentSelectedRange}`;
         console.log(scheduleLog);
-        fetch(LOCAL_API_BASE + '/api/log', {
+        fetch((typeof LOCAL_API_BASE !== 'undefined' ? LOCAL_API_BASE : '') + '/api/log', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: scheduleLog })
@@ -620,7 +627,7 @@ function startTraining() {
             // Double check that the training session is still active and has not been cancelled/exited
             const activeCheckLog = `[Timer Fire] activeTrainingSequence: ${activeTrainingSequence}, currentSelectedLevel: ${currentSelectedLevel}, isTrainingModalShowing: ${isTrainingModalShowing}`;
             console.log(activeCheckLog);
-            fetch(LOCAL_API_BASE + '/api/log', {
+            fetch((typeof LOCAL_API_BASE !== 'undefined' ? LOCAL_API_BASE : '') + '/api/log', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: activeCheckLog })
@@ -640,12 +647,12 @@ function startTraining() {
                     if (typeof showTrainingResultModal === 'function') {
                         showTrainingResultModal(safeScore);
                     } else {
-                        alert(t('train.finished_alert_prefix', '训练完成！最终达成率: ') + `${safeScore}%`);
+                        alert(window.t('train.finished_alert_prefix', '训练完成！最终达成率: ') + `${safeScore}%`);
                         if (typeof exitTraining === 'function') exitTraining();
                     }
                 } catch (e) {
                     console.error("Error showing modal via timer:", e);
-                    alert(t('train.modal_error', '训练完成！(展示结算面板时发生错误)'));
+                    alert(window.t('train.modal_error', '训练完成！(展示结算面板时发生错误)'));
                     if (typeof exitTraining === 'function') exitTraining();
                 }
             }
@@ -692,7 +699,7 @@ function stopTraining() {
 function showTrainingResultModal(score) {
     const logCall = `[showTrainingResultModal] called with score: ${score}`;
     console.log(logCall);
-    fetch(LOCAL_API_BASE + '/api/log', {
+    fetch((typeof LOCAL_API_BASE !== 'undefined' ? LOCAL_API_BASE : '') + '/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: logCall })
@@ -705,7 +712,7 @@ function showTrainingResultModal(score) {
     
     const domCheck = `[showTrainingResultModal DOM check] modal: ${!!modal}, scoreVal: ${!!scoreVal}, feedbackBox: ${!!feedbackBox}, tutorialText: ${!!tutorialText}`;
     console.log(domCheck);
-    fetch(LOCAL_API_BASE + '/api/log', {
+    fetch((typeof LOCAL_API_BASE !== 'undefined' ? LOCAL_API_BASE : '') + '/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: domCheck })
@@ -717,13 +724,13 @@ function showTrainingResultModal(score) {
         // AI Feedback generation based on score
         let feedbackHTML = "";
         if (score >= 90) {
-            feedbackHTML = t('train.feedback.perfect', `<b style="color: #00E676;"><i data-lucide="check-circle" class="lucide-icon" style="width:16px;height:16px;"></i> 完美驾驭！</b><br>您的气息支撑和音准控制堪称专业级表现，共鸣通道完全打开。可以尝试更高难度的挑战或跨音区练习了！`);
+            feedbackHTML = window.t('train.feedback.perfect', `<b style="color: #00E676;"><i data-lucide="check-circle" class="lucide-icon" style="width:16px;height:16px;"></i> 完美驾驭！</b><br>您的气息支撑和音准控制堪称专业级表现，共鸣通道完全打开。可以尝试更高难度的挑战或跨音区练习了！`);
         } else if (score >= 70) {
-            feedbackHTML = t('train.feedback.good', `<b style="color: #00B0FF;"><i data-lucide="thumbs-up" class="lucide-icon" style="width:16px;height:16px;"></i> 表现优秀！</b><br>您已经掌握了该关卡的核心发声技巧。但在长音稳定度或音阶切换的瞬间还可以更加平滑，继续保持练习！`);
+            feedbackHTML = window.t('train.feedback.good', `<b style="color: #00B0FF;"><i data-lucide="thumbs-up" class="lucide-icon" style="width:16px;height:16px;"></i> 表现优秀！</b><br>您已经掌握了该关卡的核心发声技巧。但在长音稳定度或音阶切换的瞬间还可以更加平滑，继续保持练习！`);
         } else if (score >= 50) {
-            feedbackHTML = t('train.feedback.average', `<b style="color: #FFEA00;"><i data-lucide="alert-circle" class="lucide-icon" style="width:16px;height:16px;"></i> 潜力很大！</b><br>音准大方向是正确的，但在特定靶向区间出现了气息不稳或音高游离。建议先退回上一关进行慢速的热身巩固。`);
+            feedbackHTML = window.t('train.feedback.average', `<b style="color: #FFEA00;"><i data-lucide="alert-circle" class="lucide-icon" style="width:16px;height:16px;"></i> 潜力很大！</b><br>音准大方向是正确的，但在特定靶向区间出现了气息不稳或音高游离。建议先退回上一关进行慢速的热身巩固。`);
         } else {
-            feedbackHTML = t('train.feedback.poor', `<b style="color: #FF5252;"><i data-lucide="info" class="lucide-icon" style="width:16px;height:16px;"></i> 需要调整！</b><br>音准偏差较大，可能是发声机能尚未唤醒或音区选择不匹配。别灰心，建议重新选择您的核心音区，从最基础的长直音开始练起。`);
+            feedbackHTML = window.t('train.feedback.poor', `<b style="color: #FF5252;"><i data-lucide="info" class="lucide-icon" style="width:16px;height:16px;"></i> 需要调整！</b><br>音准偏差较大，可能是发声机能尚未唤醒或音区选择不匹配。别灰心，建议重新选择您的核心音区，从最基础的长直音开始练起。`);
         }
         
         feedbackBox.innerHTML = feedbackHTML;
@@ -731,17 +738,17 @@ function showTrainingResultModal(score) {
         if (tutorialText) {
             let tutorialHTML = "";
             if (currentSelectedLevel === 1) {
-                tutorialHTML = t('train.tutorial.level1', "【热身激活】目标是唤醒声带。得分的关键在于<b>放松喉头</b>，不要追求音量，而是追求在每个音符转换时的平滑度与音高的准确命中。");
+                tutorialHTML = window.t('train.tutorial.level1', "【热身激活】目标是唤醒声带。得分的关键在于<b>放松喉头</b>，不要追求音量，而是追求在每个音符转换时的平滑度与音高的准确命中。");
             } else if (currentSelectedLevel === 2) {
-                tutorialHTML = t('train.tutorial.level2', "【气息稳定】得分的关键是<b>控制呼气的均匀度</b>。在超长音期间，请使用横膈膜支撑，保持发光线条（稳定度 Stab）笔直，不要让声音发抖。");
+                tutorialHTML = window.t('train.tutorial.level2', "【气息稳定】得分的关键是<b>控制呼气的均匀度</b>。在超长音期间，请使用横膈膜支撑，保持发光线条（稳定度 Stab）笔直，不要让声音发抖。");
             } else if (currentSelectedLevel === 3) {
-                tutorialHTML = t('train.tutorial.level3', "【转音练习】得分的关键在于<b>颗粒感</b>。遇到密集的下行音阶，切忌滑音拖沓。可以在练习时加入微弱的“弹”的感觉，确保每个音都能单独被识别框捕获。");
+                tutorialHTML = window.t('train.tutorial.level3', "【转音练习】得分的关键在于<b>颗粒感</b>。遇到密集的下行音阶，切忌滑音拖沓。可以在练习时加入微弱的“弹”的感觉，确保每个音都能单独被识别框捕获。");
             } else if (currentSelectedLevel === 4) {
-                tutorialHTML = t('train.tutorial.level4', "【音准精修】面对大跨度跳跃，不要在滑动中寻找音高。得分秘诀是：在心里提前“听”到目标音，然后用气息<b>直接精准降落</b>在目标矩形内。");
+                tutorialHTML = window.t('train.tutorial.level4', "【音准精修】面对大跨度跳跃，不要在滑动中寻找音高。得分秘诀是：在心里提前“听”到目标音，然后用气息<b>直接精准降落</b>在目标矩形内。");
             } else if (currentSelectedLevel === 5) {
-                tutorialHTML = t('train.tutorial.level5', "【三类共鸣】得分要求不仅是音准！底音区需要您提高胸腔震动（声带闭合严实）；中音区需结合面罩共鸣；高音区需放松下巴，让气流冲击头腔（提升亮度 Brightness）。");
+                tutorialHTML = window.t('train.tutorial.level5', "【三类共鸣】得分要求不仅是音准！底音区需要您提高胸腔震动（声带闭合严实）；中音区需结合面罩共鸣；高音区需放松下巴，让气流冲击头腔（提升亮度 Brightness）。");
             } else if (currentSelectedLevel === 6) {
-                tutorialHTML = t('train.tutorial.level6', "【综合挑战】这不仅考核声乐机能，更考核体力。高分的秘诀是学会<b>在间隙合理偷气</b>，在转音时收力，在长音时使用核心对抗。");
+                tutorialHTML = window.t('train.tutorial.level6', "【综合挑战】这不仅考核声乐机能，更考核体力。高分的秘诀是学会<b>在间隙合理偷气</b>，在转音时收力，在长音时使用核心对抗。");
             }
             tutorialText.innerHTML = tutorialHTML;
         }

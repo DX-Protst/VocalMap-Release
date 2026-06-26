@@ -18,6 +18,7 @@ This project has completed a grand leap from a hybrid architecture to a **Full-D
 - [📁 Codebase Guide](#-codebase-guide)
 - [⚙️ Installation & Usage](#️-installation--usage)
 - [🛠️ Development](#️-development)
+- [📱 Android Porting Feasibility](#-android-porting-feasibility)
 
 ---
 
@@ -25,6 +26,7 @@ This project has completed a grand leap from a hybrid architecture to a **Full-D
 
 ### 🎧 Omnidirectional Acoustic Diagnosis & Playback (`frontend/js/playback.js`, `frontend/js/realtime_monitor.js`)
 * **Real-time Singing Recording & Playback**: Captures PCM audio streams based on the Web Audio API, tightly binding it with pitch data emitted from the underlying Rust DSP, and saving it as an exclusive `.vmap` project file. During playback, `realtime_monitor.js` draws Bezier curves via Canvas and automatically locks onto the center pitch.
+* **High-Precision Canvas Auto-Resize & Redraw**: Encapsulates adaptive canvas logic inside global `window.doResize()`. It dynamically calibrates the Canvas physical pixel sizes and redraws the grid background during initialization, window resizing, workspace tab switching, and training camp start, solving startup blank screens and scaling blurriness.
 * **Native Rust DSP Engine**: Bypasses browser playback restrictions, utilizing lightning-fast Rust algorithms to conduct full-scale deep diagnosis on audio files.
 
 ### 🚀 Target Vocal Training Camp (`frontend/js/training.js`)
@@ -97,3 +99,9 @@ Run the automated compilation script to package the production release (10MB lev
 .\scripts\build_tauri.ps1
 ```
 * **One-Click Compilation**: Automatically configures the Tauri Updater signature environment and calls `npx tauri build` to output a lightweight installer directly.
+
+---
+
+## 📱 Android Porting Feasibility
+
+For technical analysis, architecture adaptation, Tailored features (such as excluding AI Stem Separation), and refactoring roadmaps for porting this project to Android, please refer to: [Android Porting Feasibility Report](ANDROID_FEASIBILITY_EN.md).
