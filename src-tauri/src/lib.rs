@@ -32,9 +32,27 @@ fn generate_token() -> String {
     token
 }
 
+pub(crate) fn internal_get_machine_id(app_handle: &tauri::AppHandle) -> String {
+    #[cfg(target_os = "android")]
+    {
+        let data_dir = app_handle.path().app_data_dir().unwrap_or_else(|_| std::path::PathBuf::from(""));
+        let id_file = data_dir.join("android_id.txt");
+        if let Ok(id) = std::fs::read_to_string(&id_file) {
+            return id.trim().to_string();
+        }
+        let new_id = generate_token();
+        let _ = std::fs::write(&id_file, &new_id);
+        new_id
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        machine_uid::get().unwrap_or_else(|_| "unknown_machine_id".to_string())
+    }
+}
+
 #[tauri::command]
-fn get_machine_id() -> String {
-    machine_uid::get().unwrap_or_else(|_| "unknown_machine_id".to_string())
+fn get_machine_id(app_handle: tauri::AppHandle) -> String {
+    internal_get_machine_id(&app_handle)
 }
 
 #[tauri::command]
@@ -70,12 +88,17 @@ pub fn run() {
     let token_clone = token.clone();
     let port = 5050; // Use a fixed port to avoid breakages in frontend
 
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_shell::init())
-        .setup(move |app| {
+        .plugin(tauri_plugin_shell::init());
+
+    #[cfg(not(target_os = "android"))]
+    {
+        builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+    }
+
+    builder.setup(move |app| {
             app.manage(ApiToken(token_clone));
             app.manage(BackendPort(port));
             app.manage(commands::AppState::new());
@@ -140,7 +163,8 @@ pub fn run() {
             commands::vmap_stream_stop_record,
             commands::vmap_update_settings,
             commands::vmap_process_audio_chunk,
-            commands::vmap_log
+            commands::vmap_log,
+            commands::vmap_request_payment
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

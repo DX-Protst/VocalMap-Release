@@ -1,11 +1,11 @@
 {
-  "version": "3.2.6",
+  "version": "3.3.0",
   "notes": "常规更新：优化系统性能与体验",
   "pub_date": "2026-05-26T12:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSWYyUGxHKytnT1psaFB3c2tscmNNUnBZU2o0Znk2MHVJemVieExOOTdkWXhncjQ0VlBnSEhsbEY4cmhwZ1RCc0E5dFdYQWw2TUdXOEdOc2V4LzNqWUE4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzgyNDcwNDU0CWZpbGU6Vm9jYWxNYXBfMy4yLjZfeDY0LXNldHVwLmV4ZQp0ajVudHp0eEROenB3SjRLMVJ0MXllKzVxZW1JUDMwS2dKZ2xxaDRoRWtPZ1Iray84WWZ5SFVlQjNGT3J3dU8vYlhvR29NS3djQU5qS2laWlBOUkxDZz09Cg==",
-      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.2.6/VocalMap_3.2.6_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSejZRQnZYRm1KSVRnU1pKOXk3NVhjTnB5Vzh2ZkZDMGNUVzhNVm9jbXU2RU5QRUVybHhob2U0OFRKcVZwM1dHT3I1U3RweE9JUDd5YkhRYi9sMHh5RVhDUjArVm40RkFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg0MDQ0MDkxCWZpbGU6Vm9jYWxNYXBfMy4zLjBfeDY0LXNldHVwLmV4ZQpIYW1qTkcvRnIyTUZ5bUllQU9KVS9xUDIwWHhRVFoyZm1CZ0IwWTZQSlplK2ZGbTZrSHRTZkE0VmtLZytic0Q2emQ0SmR0SHdBLzI4eGtQYTF4dTVEdz09Cg==",
+      "url": "https://ghproxy.net/https://github.com/DX-Protst/VocalMap-Release/releases/download/v3.3.0/VocalMap_3.3.0_x64-setup.exe"
     }
   }
 }

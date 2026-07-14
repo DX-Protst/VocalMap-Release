@@ -35,6 +35,9 @@ function drawPitchBackground() {
     let ctx = getActiveCtx();
     if (!ctx) return;
 
+    // Reset shadowBlur before clearing and drawing to prevent performance lag, tiling, and flickering
+    ctx.shadowBlur = 0;
+
     let targetCtx = ctx;
     let isPerfMode = typeof performanceMode !== 'undefined' && performanceMode;
     let isTraining = typeof activeTrainingSequence !== 'undefined' && activeTrainingSequence !== null;
@@ -42,29 +45,30 @@ function drawPitchBackground() {
     let canvasW = ctx.canvas.width;
     let canvasH = ctx.canvas.height;
 
-    // 训练模式下画布尺寸可能是动态的，为了简化，我们可以每次重绘背景，或者适配缓存。
-    // 如果是性能模式且不是训练模式，使用缓存：
-    if (isPerfMode && !isTraining) {
-        if (lastRenderedViewCenterMidi === viewCenterMidi && lastRenderedTheme === isLightMode) {
-            ctx.clearRect(0, 0, canvasW, canvasH);
-            ctx.drawImage(bgCanvasCache, 0, 0);
-            return;
-        }
-        targetCtx = bgCtxCache;
-        canvasW = CANVAS_WIDTH;
-        canvasH = CANVAS_HEIGHT;
+    // Use offscreen canvas for all background grid drawing to avoid flickering
+    targetCtx = bgCtxCache;
+    let cacheW = CANVAS_WIDTH;
+    let cacheH = CANVAS_HEIGHT;
+
+    // Also reset targetCtx shadowBlur to be safe
+    targetCtx.shadowBlur = 0;
+
+    if (!isTraining && lastRenderedViewCenterMidi === viewCenterMidi && lastRenderedTheme === isLightMode) {
+        ctx.clearRect(0, 0, canvasW, canvasH);
+        ctx.drawImage(bgCanvasCache, 0, 0, cacheW, cacheH, 0, 0, canvasW, canvasH);
+        return;
     }
 
-    targetCtx.clearRect(0, 0, canvasW, canvasH);
+    targetCtx.clearRect(0, 0, cacheW, cacheH);
     const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
     
     // getYFromMidi 适配动态高度
     const getLocalY = (midi) => {
         let normalized = (midi - (viewCenterMidi - VIEW_RANGE / 2)) / VIEW_RANGE;
-        return canvasH - normalized * canvasH; 
+        return cacheH - normalized * cacheH; 
     };
     
-    let rowHeight = canvasH / VIEW_RANGE; 
+    let rowHeight = cacheH / VIEW_RANGE; 
     let minMidi = Math.floor(viewCenterMidi - VIEW_RANGE / 2) - 2;
     let maxMidi = Math.ceil(viewCenterMidi + VIEW_RANGE / 2) + 2;
 
@@ -76,38 +80,40 @@ function drawPitchBackground() {
 
         if (isBlackKey) {
             targetCtx.fillStyle = isLightMode ? 'rgba(15, 23, 42, 0.04)' : 'rgba(255, 255, 255, 0.04)';
-            targetCtx.fillRect(0, y - rowHeight / 2, canvasW, rowHeight);
+            targetCtx.fillRect(0, y - rowHeight / 2, cacheW, rowHeight);
         }
 
         targetCtx.beginPath();
         if (noteName === "C") {
             targetCtx.strokeStyle = isLightMode ? 'rgba(2, 132, 199, 0.6)' : 'rgba(0, 173, 181, 0.4)';
             targetCtx.lineWidth = 1.5;
-            targetCtx.moveTo(0, y); targetCtx.lineTo(canvasW, y);
+            targetCtx.moveTo(0, y); targetCtx.lineTo(cacheW, y);
             targetCtx.fillStyle = isLightMode ? 'rgba(2, 132, 199, 1)' : 'rgba(0, 173, 181, 0.9)';
             targetCtx.font = 'bold 12px monospace';
             targetCtx.fillText(`C${octave}`, 5, y - 4);
         } else if (!isBlackKey) {
             targetCtx.strokeStyle = isLightMode ? 'rgba(15, 23, 42, 0.1)' : 'rgba(255, 255, 255, 0.25)';
             targetCtx.lineWidth = 1;
-            targetCtx.moveTo(0, y); targetCtx.lineTo(canvasW, y);
+            targetCtx.moveTo(0, y); targetCtx.lineTo(cacheW, y);
             targetCtx.fillStyle = isLightMode ? 'rgba(15, 23, 42, 0.4)' : 'rgba(255, 255, 255, 0.7)';
             targetCtx.font = '10px monospace';
             targetCtx.fillText(`${noteName}${octave}`, 5, y - 2);
         } else {
             targetCtx.strokeStyle = isLightMode ? 'rgba(15, 23, 42, 0.02)' : 'rgba(255, 255, 255, 0.08)';
             targetCtx.lineWidth = 1;
-            targetCtx.moveTo(0, y); targetCtx.lineTo(canvasW, y);
+            targetCtx.moveTo(0, y); targetCtx.lineTo(cacheW, y);
         }
         targetCtx.stroke();
     }
 
-    if (isPerfMode && !isTraining) {
+    if (!isTraining) {
         lastRenderedViewCenterMidi = viewCenterMidi;
         lastRenderedTheme = isLightMode;
-        ctx.clearRect(0, 0, canvasW, canvasH);
-        ctx.drawImage(bgCanvasCache, 0, 0);
     }
+    
+    // Copy the rendered grid to the main canvas
+    ctx.clearRect(0, 0, canvasW, canvasH);
+    ctx.drawImage(bgCanvasCache, 0, 0, cacheW, cacheH, 0, 0, canvasW, canvasH);
 }
 
 function updateGaugeCSS(id, percent, color, valText) {
@@ -236,9 +242,7 @@ function handleBackendData(data) {
         }
     }
 
-    if (!isPerfMode) {
-        renderFrame(); 
-    } else if (!isRenderLoopRunning) {
+    if (!isRenderLoopRunning) {
         isRenderLoopRunning = true;
         renderLoop();
     }
@@ -251,8 +255,7 @@ let isRenderLoopRunning = false;
 let lastRenderTime = performance.now();
 
 function renderLoop() {
-    let isPerfMode = typeof performanceMode !== 'undefined' && performanceMode;
-    if (!isRunning || !isPerfMode) {
+    if (!isRunning) {
         isRenderLoopRunning = false;
         return;
     }
@@ -345,7 +348,7 @@ function renderFrame() {
     gradient.addColorStop(1, '#00E5FF');
     
     if (!isPerfMode) {
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = isAndroidGlobal ? 0 : 15;
         ctx.shadowColor = 'rgba(192, 132, 252, 0.8)';
         ctx.strokeStyle = gradient;
         ctx.lineWidth = 4;
@@ -407,7 +410,7 @@ function renderFrame() {
         let currentY = getLocalY(currentMidi);
         
         if (!isPerfMode) {
-            ctx.shadowBlur = 25;
+            ctx.shadowBlur = isAndroidGlobal ? 0 : 25;
             ctx.shadowColor = '#00E5FF';
         }
         let pulseRadius = 6 + 2 * Math.sin(Date.now() / 100);
@@ -423,7 +426,20 @@ function renderFrame() {
         
         ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
         ctx.beginPath();
-        ctx.roundRect(currentX - 50, currentY - 30, 40, 24, 4);
+        if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(currentX - 50, currentY - 30, 40, 24, 4);
+        } else {
+            let rx = currentX - 50, ry = currentY - 30, rw = 40, rh = 24, radius = 4;
+            ctx.moveTo(rx + radius, ry);
+            ctx.lineTo(rx + rw - radius, ry);
+            ctx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + radius);
+            ctx.lineTo(rx + rw, ry + rh - radius);
+            ctx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - radius, ry + rh);
+            ctx.lineTo(rx + radius, ry + rh);
+            ctx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - radius);
+            ctx.lineTo(rx, ry + radius);
+            ctx.quadraticCurveTo(rx, ry, rx + radius, ry);
+        }
         ctx.fill();
         
         ctx.fillStyle = '#00FFF5';

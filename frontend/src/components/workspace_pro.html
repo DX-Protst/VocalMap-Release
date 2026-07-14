@@ -1,17 +1,17 @@
-<div id="proWorkspace" class="custom-scrollbar" style="display: none; position: relative; width: 100%; flex: 1; min-height: 0; box-sizing: border-box; overflow: hidden;">
+<div id="proWorkspace" class="custom-scrollbar" style="display: none; flex-direction: column; position: relative; width: 100%; flex: 1; min-height: 0; box-sizing: border-box; overflow: hidden;">
         
-        <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+        <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
             <button id="btnSubTabSing" onclick="switchProTab('sing')" class="btn-ghost active-mini" style="font-size: 14px; padding: 8px 16px;"><i data-lucide="mic" class="lucide-icon"></i> 歌声检测</button>
             <button id="btnSubTabTrain" onclick="switchProTab('train')" class="btn-ghost" style="font-size: 14px; padding: 8px 16px;"><i data-lucide="target" class="lucide-icon"></i> 关卡训练营</button>
             <button id="btnSubTabSep" onclick="switchProTab('sep')" class="btn-ghost" style="font-size: 14px; padding: 8px 16px;"><i data-lucide="split" class="lucide-icon"></i> 音轨分离</button>
         </div>
         
-        <!-- �嗆��1: 蝛粹𤦭�嗆�� -->
+        <!-- 嗆1: 蝛粹𤦭嗆 -->
         <div id="proStateIdle" class="glass-panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: calc(100% - 60px); text-align: center;">
             <i data-lucide="mic" style="width: 64px; height: 64px; margin-bottom: 24px; stroke-width: 1.5px; color: var(--primary-purple); filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.45)); display: block;"></i>
             <h2 style="color: var(--text-main); margin-top: 0; font-weight: 800; font-size: 28px;">歌声全息诊断系统</h2>
             <p style="color: var(--text-muted); max-width: 500px; line-height: 1.6; font-size: 15px;">点击下方按钮开始录制人声进行诊断，或直接导入本地音频文件进行毫秒级提取，获取五维声学诊断报告。</p>
-            <div style="display: flex; gap: 16px; margin-top: 32px;">
+            <div style="display: flex; gap: 16px; margin-top: 32px; flex-wrap: wrap; justify-content: center;">
                 <button id="btnStartRecord" class="btn-primary" style="padding: 16px 48px; font-size: 18px; border-radius: 40px; box-shadow: 0 8px 25px rgba(192, 132, 252, 0.4);">
                     <i data-lucide="mic" class="lucide-icon"></i> 麦克风实时检测
                 </button>

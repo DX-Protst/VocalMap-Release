@@ -1,6 +1,6 @@
 <!-- CDK Activation & Purchase Standalone Workspace -->
 <div id="licenseWorkspace" class="workspace" style="display: none; position: relative; width: 100%; flex: 1; min-height: 0; box-sizing: border-box; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px; overflow: hidden;">
-    <div class="glass-panel custom-scrollbar" style="display: flex; flex-direction: column; align-items: center; padding: 32px 24px; max-width: 700px; width: 100%; flex: 1; min-height: 0; box-sizing: border-box; overflow-y: auto;">
+    <div class="glass-panel custom-scrollbar" style="display: flex; flex-direction: column; align-items: center; padding: 32px 24px; max-width: 700px; width: 100%; flex: 1; flex-shrink: 0; min-height: 0; box-sizing: border-box; overflow-y: auto;">
         <i data-lucide="lock" style="width: 72px; height: 72px; margin-bottom: 24px; stroke-width: 1.5px; color: var(--primary-purple); filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.45)); display: block;"></i>
         <h1 style="color: var(--text-main); margin-bottom: 12px; font-weight: 800; font-size: 32px; letter-spacing: 1px; text-align: center;">VocalMap <span style="background: var(--gradient-accent); -webkit-background-clip: text; color: transparent;">Pro</span> 专业特权激活</h1>
         <p style="color: var(--text-muted); font-size: 16px; margin-bottom: 32px; text-align: center;">激活后即可解锁全息声学诊断、雷达图报告导出及音轨分离等高级功能。</p>
@@ -11,7 +11,7 @@
         </div>
 
         <!-- CDK 激活码 -->
-        <div id="cdkInputContainer" class="glass-panel" style="padding: 16px 24px; margin-bottom: 24px; display: flex; gap: 12px; align-items: center; justify-content: center; width: 100%; box-sizing: border-box;">
+        <div id="cdkInputContainer" class="glass-panel" style="padding: 16px 24px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; width: 100%; box-sizing: border-box;">
             <span style="color: var(--text-main); font-size: 14px; font-weight: 600; white-space: nowrap;">CDK 激活码:</span>
             <input id="cdkInput" type="text" placeholder="VMAP-XXXX-XXXX-XXXX"
                 class="cdk-input-field"
@@ -19,7 +19,7 @@
             <button id="btnActivateCDK" class="btn-cyan" style="white-space: nowrap;"><i data-lucide="key" class="lucide-icon"></i> 一键激活 Pro 特权</button>
         </div>
 
-        <div id="purchaseContainer" style="display: flex; gap: 24px; margin-bottom: 24px; width: 100%; box-sizing: border-box;">
+        <div id="purchaseContainer" style="display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 24px; width: 100%; box-sizing: border-box;">
             <button id="btnBuyMonthly" class="btn-cyan" style="flex: 1; padding: 16px 24px; font-size: 16px; border-width: 2px; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i data-lucide="calendar" class="lucide-icon"></i> 购买月度通行证 <span style="font-size: 20px; font-weight: 800;">￥ 19.9</span>
             </button>

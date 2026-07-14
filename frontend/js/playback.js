@@ -177,25 +177,37 @@ if (btnExportRecord) {
             return;
         }
         
+        const isAndroid = navigator.userAgent.toLowerCase().includes('android');
+        
         try {
-            const savePath = await dialog.save({
-                filters: [{ name: 'VocalMap Record', extensions: ['vmap'] }]
-            });
-            
-            if (savePath) {
+            let savePath = '';
+            let webmPath = '';
+            const fs = window.__TAURI__.fs;
+
+            if (isAndroid) {
+                const { BaseDirectory } = window.__TAURI__.path;
+                const timestamp = new Date().getTime();
+                savePath = `VocalMap_Record_${timestamp}.vmap`;
+                webmPath = `VocalMap_Record_${timestamp}.webm`;
+                
                 const arrayBuffer = await recordedAudioBlob.arrayBuffer();
-                const uint8Array = new Uint8Array(arrayBuffer);
+                await fs.writeFile(webmPath, new Uint8Array(arrayBuffer), { baseDir: BaseDirectory.Download });
+                await fs.writeTextFile(savePath, JSON.stringify(recordedPitchData), { baseDir: BaseDirectory.Download });
+                alert(t('diag.export_vmap_success', '导出成功！已保存:\n') + 'Downloads/' + savePath);
+            } else {
+                savePath = await dialog.save({
+                    filters: [{ name: 'VocalMap Record', extensions: ['vmap'] }]
+                });
                 
-                const fs = window.__TAURI__.fs;
-                const webmPath = savePath.replace(/\.vmap$/, '') + '.webm';
-                
-                // Write text data
-                await fs.writeTextFile(savePath, JSON.stringify(recordedPitchData));
-                
-                // Write binary data directly to avoid IPC JSON serialization
-                await fs.writeFile(webmPath, uint8Array);
-                
-                alert(t('diag.export_vmap_success', "导出成功！已保存:\n") + `${savePath}\n${webmPath}`);
+                if (savePath) {
+                    const arrayBuffer = await recordedAudioBlob.arrayBuffer();
+                    const uint8Array = new Uint8Array(arrayBuffer);
+                    webmPath = savePath.replace(/\.vmap$/, '') + '.webm';
+                    
+                    await fs.writeFile(webmPath, uint8Array);
+                    await fs.writeTextFile(savePath, JSON.stringify(recordedPitchData));
+                    alert(t('diag.export_vmap_success', '导出成功！已保存:\n') + savePath);
+                }
             }
         } catch (err) {
             alert(t('monitor.export_failed', "导出失败: ") + err);

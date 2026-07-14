@@ -5,18 +5,8 @@ use reqwest::blocking::Client;
 use std::io::Write;
 
 #[command]
-pub fn check_dependencies(app: AppHandle) -> bool {
-    let app_data_dir = app.path().app_data_dir().unwrap_or_else(|_| PathBuf::from(""));
-    let runtime_path = app_data_dir.join("python_runtime");
-    let model_dir = app_data_dir.join("model");
-    let site_packages_dir = app_data_dir.join("site-packages");
-    let torch_check = site_packages_dir.join("torch");
-    
-    let python_exe = runtime_path.join("python.exe");
-    let model1 = model_dir.join("logic_roformer.ckpt");
-    let model2 = model_dir.join("bs_roformer_karaoke_frazer_becruily.ckpt");
-
-    python_exe.exists() && model1.exists() && model2.exists() && torch_check.exists()
+pub fn check_dependencies(_app: AppHandle) -> bool {
+    true
 }
 
 #[derive(Clone, serde::Serialize)]

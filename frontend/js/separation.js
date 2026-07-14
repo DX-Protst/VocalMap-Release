@@ -12,15 +12,7 @@ window.switchProTab = async function(tabName) {
     const btnTrain = document.getElementById('btnSubTabTrain');
 
     if (tabName === 'sep') {
-        try {
-            const hasDeps = await invoke('check_dependencies');
-            if (!hasDeps) {
-                showDownloadOverlay();
-                return; 
-            }
-        } catch (e) {
-            console.warn(e);
-        }
+        // Bypass dependency check as the vocal separation module no longer uses the ML model
 
         singStates.forEach(function(id) {
             var el = document.getElementById(id);
@@ -71,110 +63,7 @@ window.switchProTab = async function(tabName) {
     }
 };
 
-function showDownloadOverlay() {
-    let overlay = document.getElementById('envDownloadOverlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'envDownloadOverlay';
-        overlay.className = 'modal-overlay active';
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:"Segoe UI",sans-serif; transition: opacity 0.3s;';
-        
-        overlay.innerHTML = `
-            <div class="modal-content glass-panel" style="position:relative; padding:40px;width:540px;text-align:center;">
-                <button id="btnHideEnvDl" style="position:absolute;top:15px;right:15px;background:transparent;border:none;color:var(--text-muted);font-size:24px;cursor:pointer;display:none;line-height:1;">&times;</button>
-                <h2 style="margin-top:0;color:var(--primary-cyan);">${t('sep.dl_title', '初始化 AI 分离引擎')}</h2>
-                <p style="color:var(--text-muted);font-size:14px;line-height:1.6;margin-bottom:20px;">
-                    ${t('sep.dl_desc', '首次使用音轨分离功能需要下载运行环境及模型权重。<br>这包含 PyTorch、CUDA 加速库以及两个高性能模型（总计约 5GB）。<br>下载时间取决于您的网速，请保持网络畅通。')}
-                </p>
-                <div id="dlProgressContainer" style="display:none;margin-bottom:20px;">
-                    <div style="width:100%;height:8px;background:var(--glass-border);border-radius:4px;overflow:hidden;">
-                        <div id="dlProgressBar" style="width:0%;height:100%;background:var(--primary-cyan);transition:width 0.3s;"></div>
-                    </div>
-                    <p id="dlProgressText" style="color:var(--primary-cyan);font-size:13px;margin-top:10px;">${t('sep.dl_preparing', '准备下载...')}</p>
-                </div>
-                <div id="dlConsole" style="display:none; width:100%; height:180px; background:rgba(0,0,0,0.5); border:1px solid var(--glass-border); border-radius:6px; margin-bottom:20px; overflow-y:auto; text-align:left; padding:10px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#a399b5; box-sizing:border-box;"></div>
-                <button id="btnStartEnvDl" style="background:var(--primary-cyan);color:#121212;border:none;padding:12px 30px;border-radius:6px;font-size:15px;cursor:pointer;font-weight:bold;transition:0.2s;">
-                    ${t('sep.dl_btn_dl', '🚀 立即开始下载 (5GB)')}
-                </button>
-                <button id="btnCancelEnvDl" style="background:transparent;color:var(--text-muted);border:none;margin-top:15px;cursor:pointer;font-size:13px;">
-                    ${t('sep.dl_btn_later', '以后再说，返回主界面')}
-                </button>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-
-        document.getElementById('btnCancelEnvDl').onclick = () => {
-            overlay.style.display = 'none';
-            document.getElementById('btnStartEnvDl').style.display = 'inline-block';
-            document.getElementById('btnCancelEnvDl').innerText = t('sep.dl_btn_later', '以后再说，返回主界面');
-            document.getElementById('dlProgressContainer').style.display = 'none';
-            document.getElementById('dlProgressBar').style.width = '0%';
-            document.getElementById('dlProgressText').innerText = t('sep.dl_preparing', '准备下载...');
-            document.getElementById('dlProgressText').style.color = 'var(--primary-cyan)';
-            document.getElementById('dlProgressBar').style.background = 'var(--primary-cyan)';
-            document.getElementById('dlConsole').style.display = 'none';
-        };
-
-        document.getElementById('btnHideEnvDl').onclick = () => {
-            overlay.style.display = 'none';
-        };
-
-        let progressUnlisten = null;
-        let consoleUnlisten = null;
-
-        document.getElementById('btnStartEnvDl').onclick = async () => {
-            document.getElementById('btnStartEnvDl').style.display = 'none';
-            document.getElementById('btnCancelEnvDl').style.display = 'none';
-            document.getElementById('btnHideEnvDl').style.display = 'block';
-            document.getElementById('dlProgressContainer').style.display = 'block';
-            document.getElementById('dlConsole').style.display = 'block';
-            document.getElementById('dlConsole').innerHTML = '';
-            
-            try {
-                if (!progressUnlisten) {
-                    progressUnlisten = await listen('download-progress', (event) => {
-                        const data = event.payload;
-                        document.getElementById('dlProgressBar').style.width = data.percent + '%';
-                        document.getElementById('dlProgressText').innerText = data.message + ' (' + data.percent.toFixed(1) + '%)';
-                    });
-                }
-                
-                if (!consoleUnlisten) {
-                    consoleUnlisten = await listen('download-console', (event) => {
-                        const data = event.payload;
-                        const consoleEl = document.getElementById('dlConsole');
-                        const line = document.createElement('div');
-                        line.innerText = data.line;
-                        consoleEl.appendChild(line);
-                        consoleEl.scrollTop = consoleEl.scrollHeight;
-                    });
-                }
-
-                const result = await invoke('start_download');
-                if (result.success) {
-                    document.getElementById('dlProgressText').innerText = t('sep.dl_success', '✅ 下载部署完成！正在进入系统...');
-                    document.getElementById('dlProgressText').style.color = 'var(--primary-green)';
-                    document.getElementById('dlProgressBar').style.background = 'var(--primary-green)';
-                    
-                    if (progressUnlisten) { progressUnlisten(); progressUnlisten = null; }
-                    if (consoleUnlisten) { consoleUnlisten(); consoleUnlisten = null; }
-
-                    setTimeout(() => {
-                        overlay.style.display = 'none';
-                        window.switchProTab('sep');
-                    }, 2000);
-                }
-            } catch (error) {
-                document.getElementById('dlProgressText').innerText = t('sep.dl_failed', '❌ 下载失败: ') + error;
-                document.getElementById('dlProgressText').style.color = 'var(--primary-red)';
-                document.getElementById('dlProgressBar').style.background = 'var(--primary-red)';
-                document.getElementById('btnCancelEnvDl').style.display = 'inline-block';
-                document.getElementById('btnCancelEnvDl').innerText = t('sep.dl_close_retry', '关闭并重试');
-            }
-        };
-    }
-    overlay.style.display = 'flex';
-}
+// showDownloadOverlay logic removed
 
 window.setDevice = function(device) {
     forceCPU = (device === 'cpu');
@@ -451,7 +340,12 @@ async function startSeparation(panelType) {
         });
         pollSepTask(taskId, panelType);
     } catch (err) {
-        alert(t('sep.request_failed', '请求失败: ') + (err.message || err));
+        var msg = err.message || err;
+        if (typeof msg === 'string' && msg.includes('移动端不支持')) {
+            alert(msg);
+        } else {
+            alert(t('sep.request_failed', '请求失败: ') + msg);
+        }
         if (panelType === 'inst') resetInstUI(); else resetVocUI();
     }
 }
@@ -780,11 +674,20 @@ window.exportCustomMap = async function(event, taskId, type) {
         var btn = targetFormat === 'tmap' ? btnTmap : btnVmap;
         
         try {
-            var savePath = await window.__TAURI__.dialog.save({
-                title: `保存 .${targetFormat} 文件`,
-                filters: [{ name: 'VocalMap Data', extensions: [targetFormat] }],
-                defaultPath: currentFile.name.replace(/\.[^/.]+$/, "") + `.${targetFormat}`
-            });
+            var savePath = "";
+            var isAndroid = navigator.userAgent.toLowerCase().includes('android');
+            
+            if (isAndroid) {
+                const { join, downloadDir } = window.__TAURI__.path;
+                const dl = await downloadDir();
+                savePath = await join(dl, currentFile.name.replace(/\.[^/.]+$/, "") + `_${new Date().getTime()}.${targetFormat}`);
+            } else {
+                savePath = await window.__TAURI__.dialog.save({
+                    title: `保存 .${targetFormat} 文件`,
+                    filters: [{ name: 'VocalMap Data', extensions: [targetFormat] }],
+                    defaultPath: currentFile.name.replace(/\.[^/.]+$/, "") + `.${targetFormat}`
+                });
+            }
             
             if (!savePath) return;
             

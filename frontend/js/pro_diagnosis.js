@@ -242,11 +242,6 @@ if (btnExportImage) {
                 }
 
                 try {
-                    const savePath = await dialog.save({
-                        filters: [{ name: 'Image', extensions: ['png'] }]
-                    });
-                    if (!savePath) return;
-
                     const base64Data = imgDataUrl.split(',')[1];
                     const byteCharacters = atob(base64Data);
                     const byteNumbers = new Array(byteCharacters.length);
@@ -255,9 +250,21 @@ if (btnExportImage) {
                     }
                     const byteArray = new Uint8Array(byteNumbers);
                     const fs = window.__TAURI__.fs;
+                    const isAndroid = navigator.userAgent.toLowerCase().includes('android');
 
-                    await fs.writeFile(savePath, byteArray);
-                    alert(t('diag.export_success', "报告长图导出成功！\n已保存至: ") + savePath);
+                    if (isAndroid) {
+                        const { BaseDirectory } = window.__TAURI__.path;
+                        const savePath = `VocalMap_Pro_Report_${new Date().getTime()}.png`;
+                        await fs.writeFile(savePath, byteArray, { baseDir: BaseDirectory.Download });
+                        alert(t('diag.export_success', "报告长图导出成功！\n已保存至: ") + 'Downloads/' + savePath);
+                    } else {
+                        const savePath = await dialog.save({
+                            filters: [{ name: 'Image', extensions: ['png'] }]
+                        });
+                        if (!savePath) return;
+                        await fs.writeFile(savePath, byteArray);
+                        alert(t('diag.export_success', "报告长图导出成功！\n已保存至: ") + savePath);
+                    }
                 } catch (err) {
                     alert(t('diag.export_failed', "保存长图失败: ") + err);
                 }
@@ -295,20 +302,29 @@ if (btnExportVmap) {
         }
 
         try {
-            const savePath = await dialog.save({
-                filters: [{ name: 'VocalMap Record', extensions: ['vmap'] }]
-            });
-            if (!savePath) return;
-
             const audioArrayBuffer = await proAudioBlob.arrayBuffer();
             const audioBytes = new Uint8Array(audioArrayBuffer);
             const fs = window.__TAURI__.fs;
-            const webmPath = savePath.replace(/\.vmap$/, '') + '.webm';
+            const isAndroid = navigator.userAgent.toLowerCase().includes('android');
 
-            await fs.writeTextFile(savePath, JSON.stringify(proTimeline));
-            await fs.writeFile(webmPath, audioBytes);
-            
-            alert(t('diag.export_vmap_success', "导出成功！已保存:\n") + savePath + "\n" + webmPath);
+            if (isAndroid) {
+                const { BaseDirectory } = window.__TAURI__.path;
+                const timestamp = new Date().getTime();
+                const savePath = `VocalMap_Pro_${timestamp}.vmap`;
+                const webmPath = `VocalMap_Pro_${timestamp}.webm`;
+                await fs.writeTextFile(savePath, JSON.stringify(proTimeline), { baseDir: BaseDirectory.Download });
+                await fs.writeFile(webmPath, audioBytes, { baseDir: BaseDirectory.Download });
+                alert(t('diag.export_vmap_success', "导出成功！已保存:\n") + 'Downloads/' + savePath);
+            } else {
+                const savePath = await dialog.save({
+                    filters: [{ name: 'VocalMap Record', extensions: ['vmap'] }]
+                });
+                if (!savePath) return;
+                const webmPath = savePath.replace(/\.vmap$/, '') + '.webm';
+                await fs.writeTextFile(savePath, JSON.stringify(proTimeline));
+                await fs.writeFile(webmPath, audioBytes);
+                alert(t('diag.export_vmap_success', "导出成功！已保存:\n") + savePath + "\n" + webmPath);
+            }
         } catch (e) {
             alert(t('diag.export_failed', "保存失败: ") + e);
         }

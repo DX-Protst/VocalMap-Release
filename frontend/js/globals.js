@@ -24,20 +24,24 @@ const wsStatus = document.getElementById('wsStatus');
 let audioContext, microphone, processor, ws;
 let isRunning = false;
 let isLightMode = false;
-let performanceMode = localStorage.getItem('vocalmap_perf') === 'true'; // 默认为 false
+let performanceMode = localStorage.getItem('vocalmap_perf') === 'true' || navigator.userAgent.toLowerCase().includes('android');
 
 window.syncPerformanceModeCSS = function() {
     document.documentElement.setAttribute('data-perf-mode', performanceMode ? 'true' : 'false');
 };
 window.syncPerformanceModeCSS();
 
+const isAndroidGlobal = navigator.userAgent.toLowerCase().includes('android');
+if (isAndroidGlobal) {
+    document.documentElement.setAttribute('data-android', 'true');
+}
 let CANVAS_WIDTH = pitchCanvas ? pitchCanvas.width : 850;
 let CANVAS_HEIGHT = pitchCanvas ? pitchCanvas.height : 520;
-const VIEW_RANGE = 24; 
+let VIEW_RANGE = isAndroidGlobal ? 16 : 24; 
 let viewCenterMidi = 48; 
 let targetCenterMidi = 48; 
 
-const SCROLL_SPEED = 8.5; 
+let SCROLL_SPEED = isAndroidGlobal ? 5.5 : 8.5; 
 let MAX_HISTORY = Math.floor(CANVAS_WIDTH / SCROLL_SPEED); 
 let pitchHistory = new Array(MAX_HISTORY).fill(-1); 
 
@@ -277,9 +281,11 @@ function initResponsiveCanvas() {
 
     window.doResize = function() {
         const pRect = resizeSingleCanvas(pCanvas);
-        if (pRect) {
-            CANVAS_WIDTH = pRect.width;
-            CANVAS_HEIGHT = pRect.height;
+        const tRect = resizeSingleCanvas(tCanvas);
+        const activeRect = pRect || tRect;
+        if (activeRect) {
+            CANVAS_WIDTH = activeRect.width;
+            CANVAS_HEIGHT = activeRect.height;
 
             const newMaxHistory = Math.floor(CANVAS_WIDTH / SCROLL_SPEED);
             if (newMaxHistory !== MAX_HISTORY) {
@@ -301,8 +307,6 @@ function initResponsiveCanvas() {
             }
         }
 
-        resizeSingleCanvas(tCanvas);
-
         if (typeof drawPitchBackground === 'function') {
             drawPitchBackground();
         }
@@ -318,3 +322,10 @@ function initResponsiveCanvas() {
 }
 
 document.addEventListener('DOMContentLoaded', initResponsiveCanvas);
+
+// Prevent default viewport bouncing/dragging on mobile platforms
+document.addEventListener('touchmove', function(e) {
+    if (!e.target.closest('.overflow-y-auto, .help-content, #licenseWorkspace, .custom-scrollbar')) {
+        e.preventDefault();
+    }
+}, { passive: false });

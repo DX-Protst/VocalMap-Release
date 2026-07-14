@@ -338,24 +338,25 @@ async function requestPayment(planType) {
     msgEl.style.color = '#00FFF5';
     msgEl.innerText = t('pay.generating_gateway', "正在生成支付通道...");
     try {
-        let response = await fetch(`${CLOUD_API_BASE}/create_order`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ plan_type: planType, machine_id: localMachineId })
-        });
-        let data = await response.json();
+        let data = await invoke('vmap_request_payment', { planType: planType, machineId: localMachineId });
         if (data.status === 'success') {
             msgEl.innerText = t('pay.order_created', "已打开浏览器支付页面。支付完成后请点击【刷新许可证状态】。");
             try {
                 await open(data.payment_url);
             } catch (err) {
-                msgEl.innerText = t('pay.blocked_popup', '网页环境拦截跳转，链接: ') + data.payment_url;
+                try {
+                    window.open(data.payment_url, '_blank') || (window.location.href = data.payment_url);
+                } catch(e) {
+                    msgEl.innerText = t('pay.blocked_popup', '网页环境拦截跳转，链接: ') + data.payment_url;
+                }
             }
         } else {
-            msgEl.style.color = '#FF5252'; msgEl.innerText = t('pay.failed_prefix', "失败：") + data.message;
+            msgEl.style.color = '#FF5252';
+            msgEl.innerText = t('pay.failed_prefix', "失败：") + (data.message || '未知错误');
         }
     } catch (err) {
-        msgEl.style.color = '#FF5252'; msgEl.innerText = t('pay.cloud_failed', "云端连接失败，请检查网络。");
+        msgEl.style.color = '#FF5252';
+        msgEl.innerText = t('pay.cloud_failed', "云端连接失败，请检查网络。");
     }
 }
 

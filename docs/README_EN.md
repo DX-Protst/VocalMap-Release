@@ -8,7 +8,7 @@ English Version | [简体中文](../README.md)
 
 Welcome to the official commercial release of VocalMap! This is a modern, desktop-class vocal diagnosis and stem separation workstation built specifically for vocal training, singing evaluation, and professional audio production.
 
-After a series of complete architectural rewrites and extreme performance optimizations, we bring you the most advanced **pure, minimalistic, and zero-latency** local AI audio processing experience. The latest version evolves in every aspect, letting every sound you make leave a tangible trace!
+After a series of complete architectural rewrites and extreme performance optimizations, we bring you the most advanced **pure, minimalistic, and zero-latency** local AI audio processing experience. The latest version evolves in every aspect, not only solidifying its desktop performance but also **officially landing on the Android mobile platform**, letting every sound you make leave a tangible trace, anytime, anywhere!
 
 ## 🌟 Core Highlights
 
@@ -17,6 +17,7 @@ We have completely deprecated the heavy and easily reverse-engineered Python Fas
 *   **10MB Extreme Footprint**: Say goodbye to bulky 500MB+ installers. By removing all bundled local Python dependencies, the new installer size has drastically plummeted to **< 10MB**! All AI runtime environments will be dynamically "pulled on demand" from the cloud during the first run.
 *   **Zero-Latency Memory Interaction**: We completely abandoned the overhead of WebSocket network transmission. The acoustic engine now communicates directly with WebAudio via memory-level Rust IPC, reducing pitch tracking and diagnosis latency to microseconds.
 *   **Unbreakable Blackbox Security**: No more worries about malicious listening on local ports! Core authentication and DSP parsers (including the high-precision YIN algorithm) have all been rewritten into Rust native machine code, providing an unstoppable anti-reverse engineering shield.
+*   **Cross-platform Android Support**: In addition to Windows, it is now fully supported on Android mobile devices. With deeply optimized Webview responsive layouts and touch interactions, you can carry professional acoustic training in your pocket.
 
 ### 2. Advanced Target Vocal Training Camp
 Stop singing blindly. Based on your selected standard vocal range (or a highly flexible **Custom Range**), the system will dynamically generate highly targeted **6 progressive acoustic training levels**:
@@ -59,14 +60,20 @@ Powered by the current SOTA level **BS-RoFormer** and **Logic-RoFormer** deep le
 > [!NOTE]
 > If your computer has an NVIDIA graphics card, the program will automatically identify and enable CUDA parallel acceleration after downloading the environment, providing a multifold speedup for complex stem separation and audio inference!
 
-## 📱 Mobile (Android) Porting Feasibility Assessment
+## 📱 Mobile (Android) Officially Supported
 
-Based on VocalMap's current **Tauri v2 + Rust Native DSP + Web Audio Frontend** architecture, we evaluated the technical feasibility of porting the application to the **Android mobile platform**:
-*   **Core Feasibility**: Tauri v2 has robust, built-in support for Android build targets; the frontend's responsive layout and dynamic Canvas redrawing adapt fluidly to mobile screen sizes; the core Rust native DSP engine (YIN algorithm, etc.) cross-compiles to Android native machine code with zero performance compromises.
-*   **Explicit Exclusion**: **AI stem separation features (BS-RoFormer models) rely heavily on the PyTorch framework and massive CPU/GPU resources and will NOT be ported to mobile devices.** This module will be hidden/disabled in the mobile release.
-*   **Desktop Dependencies to Refactor**: Device licensing (`machine-uid` crate is not supported on Android; needs native JNI calls for `ANDROID_ID`), file picker (needs to target Android Scoped Storage), and auto-updater (desktop updater must be disabled in favor of app store distributions).
+After relentless efforts from our engineering team, VocalMap now officially supports the **Android mobile platform**! It perfectly inherits the desktop-class high-texture UI interactions while completely rewriting the underlying security mechanisms and file flows for mobile.
+*   **Native Cross-Platform Architecture**: Retains the core processing pipeline of Tauri v2 + Rust Native DSP Engine. All pitch tracking performance (YIN algorithm, etc.) remains buttery smooth on mobile devices.
+*   **Mobile-Specific Optimizations**: Deeply integrated with Android native APIs. We have refactored the underlying fingerprint authentication module (using `ANDROID_ID`) and fully adapted to the mobile Scoped Storage permission model.
+*   **Streamlined Mobile Features**: **The AI stem separation module (BS-RoFormer model) has been explicitly excluded and disabled on mobile due to heavy hardware resource requirements**, but the corresponding format conversion and core training features are fully retained.
+*   **Mobile-Specific Optimizations**:
+    *   **Adaptive UI Layout (R1)**: Viewport meta tag is upgraded to restrict scale/zoom, and CSS media queries are adjusted for viewports under 900px and touch-only devices with coarse pointers.
+    *   **Smooth High-Frame-Rate Rendering (R2)**: Optimizes canvas rendering by extending the offscreen background canvas cache to all non-training modes, synchronizing frames using `requestAnimationFrame`, and disabling heavy `shadowBlur` properties specifically on Android for buttery-smooth performance.
+    *   **Window Anchoring & Bouncing Prevention (R3)**: Sets `html, body` width/height to `100%` with `position: fixed` and intercepts default `touchmove` events (except in designated scrolling areas) to avoid mobile-specific viewport dragging/bouncing.
+    *   **Dependency Download Bypass (R4)**: Since the offline Python AI engine is removed, both frontend `separation.js` and backend Rust commands automatically bypass local dependency checks.
+    *   **Secure Payment Routing (R5)**: Purchase operations delegate ordering to the secure Tauri Rust command `vmap_request_payment` which interfaces with payment gateways and safely prompts browser redirects.
 
-For a detailed technical analysis and adaptation roadmap, please see: [Android Porting Feasibility Report](ANDROID_FEASIBILITY_EN.md)
+For detailed architecture porting and refactoring documents, see: [Android Porting Refactoring Record](ANDROID_FEASIBILITY_EN.md)
 
 ## 📄 Copyright & Security Compliance
 This project (including but not limited to the Tauri frontend shell, Rust native backend engine, core acoustic analysis algorithms, and independent AI separation modules) holds complete independent intellectual property rights.

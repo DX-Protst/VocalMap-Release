@@ -163,7 +163,7 @@ pub fn vmap_get_license_status(app_handle: AppHandle, machine_id: String) -> ser
     }
 
     // Offline fallback
-    match crate::license_verifier::verify::verify_pro_license(&data_dir, &backend_dir) {
+    match crate::license_verifier::verify::verify_pro_license(&data_dir, &backend_dir, &machine_id) {
         Ok(payload) => {
             serde_json::json!({
                 "valid": true,
@@ -306,7 +306,8 @@ pub async fn vmap_analyze_buffer(
     let backend_dir = get_backend_dir(&app_handle);
 
     // Check license first
-    let _payload = crate::license_verifier::verify::verify_pro_license(&data_dir, &backend_dir)
+    let machine_id = crate::internal_get_machine_id(&app_handle);
+    let _payload = crate::license_verifier::verify::verify_pro_license(&data_dir, &backend_dir, &machine_id)
         .map_err(|e| e)?;
 
     let (loudness_gate, clarity_threshold, noise_silence_threshold, sample_rate) = {
@@ -336,8 +337,8 @@ pub async fn vmap_analyze_buffer(
 }
 
 // ---------- 3. Source Separation Commands ----------
-
 #[tauri::command]
+#[allow(unused_variables, unreachable_code)]
 pub fn vmap_separate_audio(
     app_handle: AppHandle,
     state: State<'_, AppState>,
@@ -345,11 +346,16 @@ pub fn vmap_separate_audio(
     model_key: String,
     force_cpu: bool,
 ) -> Result<serde_json::Value, String> {
+    #[cfg(target_os = "android")]
+    {
+        return Err("移动端不支持AI音轨分离功能".to_string());
+    }
     let data_dir = get_data_dir(&app_handle);
     let backend_dir = get_backend_dir(&app_handle);
 
     // Check license first
-    let _payload = crate::license_verifier::verify::verify_pro_license(&data_dir, &backend_dir)
+    let machine_id = crate::internal_get_machine_id(&app_handle);
+    let _payload = crate::license_verifier::verify::verify_pro_license(&data_dir, &backend_dir, &machine_id)
         .map_err(|e| e)?;
 
     let model_info = get_model_registry_info(&model_key)
@@ -1052,4 +1058,55 @@ pub fn vmap_process_audio_chunk(
 #[tauri::command]
 pub fn vmap_log(message: String) {
     eprintln!("[FRONTEND EXCEPTION] {}", message);
+}
+
+#[tauri::command]
+pub fn vmap_request_payment<R: tauri::Runtime>(
+    _app_handle: tauri::AppHandle<R>,
+    plan_type: String,
+    machine_id: String,
+) -> serde_json::Value {
+    let cloud_url = std::env::var("VMAP_CLOUD_URL").unwrap_or_else(|_| "http://66.112.209.251:8000".to_string());
+    let url = format!("{}/api/create_order", cloud_url);
+
+    let body = serde_json::json!({
+        "plan_type": plan_type,
+        "machine_id": machine_id
+    });
+
+    let client = reqwest::blocking::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .build();
+
+    match client {
+        Ok(cl) => {
+            match cl.post(&url)
+                .header("X-VocalMap-Platform", "desktop")
+                .json(&body)
+                .send() {
+                Ok(resp) => {
+                    if let Ok(data) = resp.json::<serde_json::Value>() {
+                        data
+                    } else {
+                        serde_json::json!({
+                            "status": "error",
+                            "message": "支付响应解析失败"
+                        })
+                    }
+                }
+                Err(err) => {
+                    serde_json::json!({
+                        "status": "error",
+                        "message": format!("无法连接支付服务器: {}", err)
+                    })
+                }
+            }
+        }
+        Err(e) => {
+            serde_json::json!({
+                "status": "error",
+                "message": format!("构建 HTTP 客户端失败: {}", e)
+            })
+        }
+    }
 }

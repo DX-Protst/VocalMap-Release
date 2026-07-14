@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VocalMap - 专业级声学多维诊断平台</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -166,20 +166,20 @@
     </div>
 
 
-    <div id="proWorkspace" class="custom-scrollbar" style="display: none; position: relative; width: 100%; flex: 1; min-height: 0; box-sizing: border-box; overflow: hidden;">
+    <div id="proWorkspace" class="custom-scrollbar" style="display: none; flex-direction: column; position: relative; width: 100%; flex: 1; min-height: 0; box-sizing: border-box; overflow: hidden;">
         
-        <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+        <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
             <button id="btnSubTabSing" onclick="switchProTab('sing')" class="btn-ghost active-mini" style="font-size: 14px; padding: 8px 16px;"><i data-lucide="mic" class="lucide-icon"></i> 歌声检测</button>
             <button id="btnSubTabTrain" onclick="switchProTab('train')" class="btn-ghost" style="font-size: 14px; padding: 8px 16px;"><i data-lucide="target" class="lucide-icon"></i> 关卡训练营</button>
             <button id="btnSubTabSep" onclick="switchProTab('sep')" class="btn-ghost" style="font-size: 14px; padding: 8px 16px;"><i data-lucide="split" class="lucide-icon"></i> 音轨分离</button>
         </div>
         
-        <!-- �嗆��1: 蝛粹𤦭�嗆�� -->
+        <!-- 嗆1: 蝛粹𤦭嗆 -->
         <div id="proStateIdle" class="glass-panel" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: calc(100% - 60px); text-align: center;">
             <i data-lucide="mic" style="width: 64px; height: 64px; margin-bottom: 24px; stroke-width: 1.5px; color: var(--primary-purple); filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.45)); display: block;"></i>
             <h2 style="color: var(--text-main); margin-top: 0; font-weight: 800; font-size: 28px;">歌声全息诊断系统</h2>
             <p style="color: var(--text-muted); max-width: 500px; line-height: 1.6; font-size: 15px;">点击下方按钮开始录制人声进行诊断，或直接导入本地音频文件进行毫秒级提取，获取五维声学诊断报告。</p>
-            <div style="display: flex; gap: 16px; margin-top: 32px;">
+            <div style="display: flex; gap: 16px; margin-top: 32px; flex-wrap: wrap; justify-content: center;">
                 <button id="btnStartRecord" class="btn-primary" style="padding: 16px 48px; font-size: 18px; border-radius: 40px; box-shadow: 0 8px 25px rgba(192, 132, 252, 0.4);">
                     <i data-lucide="mic" class="lucide-icon"></i> 麦克风实时检测
                 </button>
@@ -503,7 +503,7 @@
     
     <!-- CDK Activation & Purchase Standalone Workspace -->
 <div id="licenseWorkspace" class="workspace" style="display: none; position: relative; width: 100%; flex: 1; min-height: 0; box-sizing: border-box; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px; overflow: hidden;">
-    <div class="glass-panel custom-scrollbar" style="display: flex; flex-direction: column; align-items: center; padding: 32px 24px; max-width: 700px; width: 100%; flex: 1; min-height: 0; box-sizing: border-box; overflow-y: auto;">
+    <div class="glass-panel custom-scrollbar" style="display: flex; flex-direction: column; align-items: center; padding: 32px 24px; max-width: 700px; width: 100%; flex: 1; flex-shrink: 0; min-height: 0; box-sizing: border-box; overflow-y: auto;">
         <i data-lucide="lock" style="width: 72px; height: 72px; margin-bottom: 24px; stroke-width: 1.5px; color: var(--primary-purple); filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.45)); display: block;"></i>
         <h1 style="color: var(--text-main); margin-bottom: 12px; font-weight: 800; font-size: 32px; letter-spacing: 1px; text-align: center;">VocalMap <span style="background: var(--gradient-accent); -webkit-background-clip: text; color: transparent;">Pro</span> 专业特权激活</h1>
         <p style="color: var(--text-muted); font-size: 16px; margin-bottom: 32px; text-align: center;">激活后即可解锁全息声学诊断、雷达图报告导出及音轨分离等高级功能。</p>
@@ -514,7 +514,7 @@
         </div>
 
         <!-- CDK 激活码 -->
-        <div id="cdkInputContainer" class="glass-panel" style="padding: 16px 24px; margin-bottom: 24px; display: flex; gap: 12px; align-items: center; justify-content: center; width: 100%; box-sizing: border-box;">
+        <div id="cdkInputContainer" class="glass-panel" style="padding: 16px 24px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; width: 100%; box-sizing: border-box;">
             <span style="color: var(--text-main); font-size: 14px; font-weight: 600; white-space: nowrap;">CDK 激活码:</span>
             <input id="cdkInput" type="text" placeholder="VMAP-XXXX-XXXX-XXXX"
                 class="cdk-input-field"
@@ -522,7 +522,7 @@
             <button id="btnActivateCDK" class="btn-cyan" style="white-space: nowrap;"><i data-lucide="key" class="lucide-icon"></i> 一键激活 Pro 特权</button>
         </div>
 
-        <div id="purchaseContainer" style="display: flex; gap: 24px; margin-bottom: 24px; width: 100%; box-sizing: border-box;">
+        <div id="purchaseContainer" style="display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 24px; width: 100%; box-sizing: border-box;">
             <button id="btnBuyMonthly" class="btn-cyan" style="flex: 1; padding: 16px 24px; font-size: 16px; border-width: 2px; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i data-lucide="calendar" class="lucide-icon"></i> 购买月度通行证 <span style="font-size: 20px; font-weight: 800;">￥ 19.9</span>
             </button>

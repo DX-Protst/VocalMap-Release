@@ -30,7 +30,7 @@ window.switchTab = function(tabName) {
         if (freeWs) freeWs.style.display = 'none'; 
         const cache = typeof getLicenseCache === 'function' ? getLicenseCache() : null;
         if (cache) {
-            if (proWs) proWs.style.display = 'block';
+            if (proWs) proWs.style.display = 'flex';
             if (licenseWs) licenseWs.style.display = 'none';
             if (proWs) triggerAnimation(proWs, 'animate-slide-right');
         } else {

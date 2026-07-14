@@ -179,6 +179,17 @@
     background: rgba(0, 0, 0, 0.08) !important;
 }
 
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+    overscroll-behavior: none;
+    touch-action: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
 body {
     margin: 0; padding: 20px; 
     background: radial-gradient(circle at 50% 50%, #151025, #0a0715);
@@ -344,6 +355,8 @@ body[data-bg-type="green_light"] {
 
 .menu-modal-content {
     display: contents;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 .menu-modal-header {
@@ -1354,9 +1367,11 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 /* 1. 平板与小屏幕笔记本窗口适配 (Width <= 900px) */
 @media (max-width: 900px) {
     body {
-        height: 100vh !important;
+        width: 117.647vw !important;
+        height: 117.647vh !important;
         overflow: hidden !important;
-        padding: 12px !important;
+        padding: 14px !important;
+        zoom: 0.85;
     }
 
     /* 顶部导航栏折叠菜单重构（手机控制中心悬浮样式） */
@@ -1907,4 +1922,38 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
         grid-column: span 1 !important;
     }
 }
+
+/* ==========================================================================
+   Android-specific Performance & Crash Prevention Styles
+   ========================================================================== */
+:root[data-android="true"] .glass-panel,
+:root[data-android="true"] .modal-content,
+:root[data-android="true"] .help-card,
+:root[data-android="true"] .modal-overlay,
+:root[data-android="true"] .vocalmap-toast,
+:root[data-android="true"] .btn-primary,
+:root[data-android="true"] .btn-cyan,
+:root[data-android="true"] .btn-ghost,
+:root[data-android="true"] .btn-danger,
+:root[data-android="true"] .btn-tab,
+:root[data-android="true"] .sep-upload-zone {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+:root[data-android="true"] .glass-panel,
+:root[data-android="true"] .help-card {
+    background: rgba(21, 16, 37, 0.94) !important;
+}
+:root[data-android="true"] .modal-content {
+    background: rgba(15, 10, 25, 0.98) !important;
+}
+:root[data-android="true"][data-theme="light"] .glass-panel,
+:root[data-android="true"][data-theme="light"] .help-card {
+    background: rgba(241, 245, 249, 0.96) !important;
+}
+:root[data-android="true"][data-theme="light"] .modal-content {
+    background: rgba(255, 255, 255, 0.98) !important;
+}
+
 
